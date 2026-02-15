@@ -1,0 +1,547 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  RefreshControl,
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { colors } from '../theme/colors';
+import GlassCard from '../components/GlassCard';
+import GradientButton from '../components/GradientButton';
+import { planService, Plan } from '../services/planService';
+
+const { width } = Dimensions.get('window');
+
+const SubscriptionPlansScreen: React.FC = () => {
+  const navigation = useNavigation();
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const fetchPlans = async () => {
+    try {
+      const fetchedPlans = await planService.getPlans();
+      setPlans(fetchedPlans);
+      if (fetchedPlans.length > 0 && !selectedPlan) {
+        // Select the middle plan (usually the "popular" one)
+        const middleIndex = Math.floor(fetchedPlans.length / 2);
+        setSelectedPlan(fetchedPlans[middleIndex] || fetchedPlans[0]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch plans:', error);
+      Alert.alert('Error', 'Failed to load subscription plans');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchPlans();
+    setRefreshing(false);
+  }, []);
+
+  const handlePurchase = async () => {
+    if (!selectedPlan) return;
+
+    setIsPurchasing(true);
+    try {
+      // In a real app, integrate with Google Pay / Apple Pay here
+      Alert.alert(
+        'Purchase',
+        `Subscribe to ${selectedPlan.name} for $${selectedPlan.amount}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Confirm',
+            onPress: async () => {
+              // Simulate purchase - in production, use actual payment SDK
+              Alert.alert('Success', 'Subscription activated! You now have access to premium features.');
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to process purchase. Please try again.');
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  const formatCredits = (credits: number): string => {
+    if (credits >= 1000000) {
+      return `${(credits / 1000000).toFixed(1)}M`;
+    } else if (credits >= 1000) {
+      return `${(credits / 1000).toFixed(0)}K`;
+    }
+    return credits.toString();
+  };
+
+  const getPlanFeatures = (plan: Plan): string[] => {
+    const baseFeatures = ['All AI chat models', 'Priority support'];
+    const credits = plan.words_or_credits;
+    
+    if (credits >= 500000) {
+      return [...baseFeatures, 'Unlimited image generation', 'Video generation', 'API access', 'Custom models'];
+    } else if (credits >= 100000) {
+      return [...baseFeatures, 'Advanced image generation', 'Video generation (limited)', 'Priority queue'];
+    } else {
+      return [...baseFeatures, 'Basic image generation', 'Standard queue'];
+    }
+  };
+
+  const isPopular = (plan: Plan, index: number, total: number): boolean => {
+    // Mark middle plan as popular
+    return index === Math.floor(total / 2);
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Loading plans...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+          />
+        }
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color={colors.foreground} />
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>Choose Your Plan</Text>
+            <Text style={styles.headerSubtitle}>
+              Unlock the full power of AI
+            </Text>
+          </View>
+        </View>
+
+        {/* Plans List */}
+        <View style={styles.plansContainer}>
+          {plans.map((plan, index) => {
+            const popular = isPopular(plan, index, plans.length);
+            const isSelected = selectedPlan?.id === plan.id;
+            const features = getPlanFeatures(plan);
+
+            return (
+              <TouchableOpacity
+                key={plan.id}
+                activeOpacity={0.8}
+                onPress={() => setSelectedPlan(plan)}
+              >
+                <GlassCard
+                  style={[
+                    styles.planCard,
+                    isSelected && styles.planCardSelected,
+                    popular && styles.planCardPopular,
+                  ]}
+                >
+                  {popular && (
+                    <LinearGradient
+                      colors={[colors.primary, colors.secondary]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={styles.popularBadge}
+                    >
+                      <Ionicons name="star" size={12} color="#fff" />
+                      <Text style={styles.popularText}>MOST POPULAR</Text>
+                    </LinearGradient>
+                  )}
+
+                  <View style={styles.planHeader}>
+                    <View>
+                      <Text style={styles.planName}>{plan.name}</Text>
+                      <Text style={styles.planCredits}>
+                        {formatCredits(plan.words_or_credits)} credits
+                      </Text>
+                    </View>
+                    <View style={styles.priceContainer}>
+                      <Text style={styles.currency}>$</Text>
+                      <Text style={styles.price}>{plan.amount}</Text>
+                      <Text style={styles.period}>/mo</Text>
+                    </View>
+                  </View>
+
+                  {plan.discription && (
+                    <Text style={styles.planDescription}>{plan.discription}</Text>
+                  )}
+
+                  <View style={styles.divider} />
+
+                  <View style={styles.featuresContainer}>
+                    {features.map((feature, idx) => (
+                      <View key={idx} style={styles.featureRow}>
+                        <LinearGradient
+                          colors={[colors.primary, colors.secondary]}
+                          style={styles.checkIcon}
+                        >
+                          <Ionicons name="checkmark" size={12} color="#fff" />
+                        </LinearGradient>
+                        <Text style={styles.featureText}>{feature}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  {isSelected && (
+                    <View style={styles.selectedIndicator}>
+                      <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+                    </View>
+                  )}
+                </GlassCard>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Empty State */}
+        {plans.length === 0 && (
+          <View style={styles.emptyState}>
+            <Ionicons name="card-outline" size={64} color={colors.textMuted} />
+            <Text style={styles.emptyTitle}>No Plans Available</Text>
+            <Text style={styles.emptySubtitle}>
+              Please check back later for subscription options
+            </Text>
+          </View>
+        )}
+
+        {/* Bottom CTA */}
+        {selectedPlan && (
+          <View style={styles.ctaContainer}>
+            <View style={styles.ctaSummary}>
+              <Text style={styles.ctaLabel}>Selected Plan</Text>
+              <Text style={styles.ctaValue}>
+                {selectedPlan.name} - ${selectedPlan.amount}/month
+              </Text>
+            </View>
+
+            <GradientButton
+              title={isPurchasing ? 'Processing...' : 'Subscribe Now'}
+              onPress={handlePurchase}
+              disabled={isPurchasing}
+              style={styles.ctaButton}
+            />
+
+            <Text style={styles.ctaDisclaimer}>
+              Cancel anytime. Subscription renews automatically.
+            </Text>
+          </View>
+        )}
+
+        {/* Benefits Section */}
+        <View style={styles.benefitsSection}>
+          <Text style={styles.benefitsTitle}>Why Subscribe?</Text>
+          <View style={styles.benefitsGrid}>
+            <View style={styles.benefitItem}>
+              <View style={styles.benefitIcon}>
+                <Ionicons name="flash" size={24} color={colors.primary} />
+              </View>
+              <Text style={styles.benefitLabel}>Faster Response</Text>
+            </View>
+            <View style={styles.benefitItem}>
+              <View style={styles.benefitIcon}>
+                <Ionicons name="infinite" size={24} color={colors.secondary} />
+              </View>
+              <Text style={styles.benefitLabel}>More Credits</Text>
+            </View>
+            <View style={styles.benefitItem}>
+              <View style={styles.benefitIcon}>
+                <Ionicons name="star" size={24} color={colors.warning} />
+              </View>
+              <Text style={styles.benefitLabel}>Premium Models</Text>
+            </View>
+            <View style={styles.benefitItem}>
+              <View style={styles.benefitIcon}>
+                <Ionicons name="headset" size={24} color={colors.success} />
+              </View>
+              <Text style={styles.benefitLabel}>Priority Support</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: colors.textMuted,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 24,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTextContainer: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.foreground,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+  plansContainer: {
+    paddingHorizontal: 20,
+    gap: 16,
+  },
+  planCard: {
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    position: 'relative',
+    overflow: 'visible',
+  },
+  planCardSelected: {
+    borderColor: colors.primary,
+  },
+  planCardPopular: {
+    borderColor: colors.secondary,
+  },
+  popularBadge: {
+    position: 'absolute',
+    top: -12,
+    left: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 4,
+  },
+  popularText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  planHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  planName: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.foreground,
+  },
+  planCredits: {
+    fontSize: 14,
+    color: colors.primary,
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  currency: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.foreground,
+    marginBottom: 4,
+  },
+  price: {
+    fontSize: 36,
+    fontWeight: '800',
+    color: colors.foreground,
+  },
+  period: {
+    fontSize: 14,
+    color: colors.textMuted,
+    marginBottom: 6,
+    marginLeft: 2,
+  },
+  planDescription: {
+    fontSize: 14,
+    color: colors.textMuted,
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: 16,
+  },
+  featuresContainer: {
+    gap: 12,
+  },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  checkIcon: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  featureText: {
+    fontSize: 14,
+    color: colors.foreground,
+    flex: 1,
+  },
+  selectedIndicator: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 40,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.foreground,
+    marginTop: 16,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  ctaContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+  },
+  ctaSummary: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  ctaLabel: {
+    fontSize: 12,
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  ctaValue: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.foreground,
+    marginTop: 4,
+  },
+  ctaButton: {
+    marginBottom: 12,
+  },
+  ctaDisclaimer: {
+    fontSize: 12,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  benefitsSection: {
+    paddingHorizontal: 20,
+    paddingTop: 32,
+  },
+  benefitsTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.foreground,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  benefitsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  benefitItem: {
+    width: (width - 52) / 2,
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    gap: 8,
+  },
+  benefitIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  benefitLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.foreground,
+    textAlign: 'center',
+  },
+});
+
+export default SubscriptionPlansScreen;

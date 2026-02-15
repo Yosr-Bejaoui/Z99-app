@@ -1,0 +1,178 @@
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+import re
+
+User = get_user_model()
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    """Serializer for user registration with password validation."""
+    password = serializers.CharField(write_only=True, min_length=8)
+    confirm_password = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password', 'first_name', 'last_name', 'is_staff', 'confirm_password']
+
+    def validate_password(self, value):
+        """Validate password strength."""
+        if len(value) < 8:
+            raise serializers.ValidationError("Password must be at least 8 characters long.")
+        if not re.search(r'[A-Z]', value):
+            raise serializers.ValidationError("Password must contain at least one uppercase letter.")
+        if not re.search(r'[a-z]', value):
+            raise serializers.ValidationError("Password must contain at least one lowercase letter.")
+        if not re.search(r'\d', value):
+            raise serializers.ValidationError("Password must contain at least one digit.")
+        return value
+    
+    def validate_email(self, value):
+        """Validate email uniqueness."""
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Email is already in use.")
+        return value
+    
+    def validate_username(self, value):
+        """Validate username uniqueness and format."""
+        if not value:
+            raise serializers.ValidationError("Username is required.")
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username is already in use.")
+        if len(value) < 3:
+            raise serializers.ValidationError("Username must be at least 3 characters long.")
+        return value
+
+    def validate(self, attrs):
+        """Validate password confirmation."""
+        password = attrs.get('password')
+        confirm_password = attrs.get('confirm_password')
+        
+        if password != confirm_password:
+            raise serializers.ValidationError({"confirm_password": "Password and Confirm Password do not match."})
+        
+        return attrs
+    
+    def create(self, validated_data):
+        """Create user with hashed password."""
+        validated_data.pop('confirm_password')
+        user = User.objects.create_user(**validated_data)
+        return user 
+
+
+
+#active the user account 
+
+class UserAccountActivationSerializer(serializers.Serializer):
+    email= serializers.EmailField()
+    code= serializers.CharField(max_length=6)
+    def validate(self, attrs):
+        email= attrs.get('email')
+        code= attrs.get('code')
+        try:
+            user= User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User with this email does not exist")
+        
+        from .models import OTP
+        if not OTP.objects.filter(user=user, code=code, type='registration').exists():
+            raise serializers.ValidationError("Invalid verification code")
+        else:
+            otp= OTP.objects.get(user=user, code=code, type='registration')
+            if otp.is_expired():
+                raise serializers.ValidationError("Verification code has expired")
+        
+        attrs['user']= user
+        return attrs
+
+
+class LoginSerializer(serializers.Serializer):
+    email= serializers.EmailField()
+    password= serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        email= attrs.get('email')
+        password= attrs.get('password')
+        try:
+            user= User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Invalid email or password")
+        
+        if not user.check_password(password):
+            raise serializers.ValidationError("Invalid email or password")
+        
+        if not user.is_active:
+            raise serializers.ValidationError("Account is not activated")
+        
+        attrs['user']= user
+        return attrs
+    
+
+
+# this site for Credit Account Serializer
+from .models import CreditTransaction
+class CreditTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CreditTransaction
+        fields = ['id', 'amount', 'transaction_type', 'message', 'created_at']
+
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        if not email:
+            raise serializers.ValidationError({"email": "Email is required."})
+        return attrs
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email=serializers.EmailField()
+    code=serializers.CharField()
+    password=serializers.CharField()
+
+    def validate(self, attrs):
+        email=attrs.get('email')
+        code=attrs.get('code')
+        password=attrs.get('password')
+
+        if any(x is None for x in [email,code,password]):
+            raise serializers.ValidationError("Email, code, and password are required.")
+        return attrs
+
+
+
+
+
+from .models import UserProfile
+class UserProfileSerializer(serializers.ModelSerializer):
+    user_details=serializers.SerializerMethodField(read_only=True)
+    user=serializers.PrimaryKeyRelatedField(read_only=True)
+    class Meta:
+        model=UserProfile
+        fields=['id','user','user_details','first_name','last_name','created_at','updated_at','avatar']
+    
+    def get_user_details(self,obj):
+        user=obj.user
+        credit = getattr(user.creditaccount, 'credits', 0)
+        return {
+            'id':user.id,
+            "username":user.username,
+            "email":user.email,
+            "total_token_used":user.total_token_used,
+            "words":credit
+            
+        }
+    
+    # def update(self, instance, validated_data):
+
+        
+
+
+
+from .models import CreditAccount
+
+class CreditAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CreditAccount
+        fields=['id','user','credits']

@@ -1,0 +1,102 @@
+from django.contrib.auth.models import AbstractUser,BaseUserManager
+from django.db import models
+from django.utils import timezone
+
+
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
+    
+class CustomUser(AbstractUser):
+    username = models.CharField(max_length=150,unique=True,null=True,blank=True)
+    email = models.EmailField(unique=True)
+    # total_token_used=models.IntegerField(default=0,null=True,blank=True)
+    total_token_used=models.DecimalField(default=0,null=True,blank=True,decimal_places=2,max_digits=1000000000)
+    subscribed=models.BooleanField(default=False,null=True,blank=True)
+    api_limit=models.IntegerField(default=5)
+    word_limit=models.IntegerField(default=400)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+    
+
+    objects = CustomUserManager()
+
+    def __str__(self):
+        return self.email
+
+from django.contrib.auth import get_user_model
+User= get_user_model()
+
+class OTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    type=models.CharField(max_length=20,choices=[('registration','registration'),('password_reset','password_reset')],default='registration')
+    
+    def is_expired(self):
+        from django.utils import timezone
+        expiration_time = self.created_at + timezone.timedelta(minutes=10)
+        return timezone.now() > expiration_time
+
+    def __str__(self):
+        return f"OTP for {self.user.email} - {self.code}"
+
+
+#this site for Credit Account model
+class CreditAccount(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='creditaccount')
+    credits = models.DecimalField(default=0,decimal_places=2,max_digits=100)
+
+    def __str__(self):
+        return f"{self.user.email} - Credits: {self.credits}"
+    
+
+class CreditTransaction(models.Model):
+    credit_account = models.ForeignKey(CreditAccount, on_delete=models.CASCADE,related_name='transactions')
+    amount = models.IntegerField()
+    transaction_type = models.CharField(max_length=10, choices=[('add', 'Add'), ('deduct', 'Deduct'),('refund', 'Refund'),('bonus', 'Bonus')])
+    message = models.TextField(blank=True, null=True)
+    # used_credits = models.IntegerField(default=0)
+  
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.transaction_type} {self.amount} credits for {self.credit_account.user.email} on {self.created_at}"
+    
+
+#profile model
+
+
+class UserProfile(models.Model):
+    user=models.OneToOneField(CustomUser,on_delete=models.CASCADE,related_name='profile')
+    first_name=models.CharField(max_length=50)
+    last_name=models.CharField(max_length=50)
+    avatar=models.ImageField(upload_to='profile',null=True,blank=True)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)
+
+
+# #usage log model
+
+# class UsageLog(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     request_id = models.CharField(max_length=255, unique=True)
+#     cost = models.IntegerField()
