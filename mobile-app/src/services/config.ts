@@ -2,7 +2,7 @@
 // Update this URL based on your environment
 
 // For development on same network as backend server
-export const API_BASE_URL = 'http://192.168.1.19:8082/api/v1';
+export const API_BASE_URL = 'http://172.18.133.153:8082/api/v1';
 
 // For local development (if backend runs locally)
 // export const API_BASE_URL = 'http://localhost:8082/api/v1';
@@ -11,7 +11,7 @@ export const API_BASE_URL = 'http://192.168.1.19:8082/api/v1';
 // export const API_BASE_URL = 'https://your-production-domain.com/api/v1';
 
 // WebSocket URL for real-time chat
-export const WS_BASE_URL = 'ws://192.168.1.19:8082/ws';
+export const WS_BASE_URL = 'ws://172.18.133.153:8082/ws';
 
 // API Endpoints
 export const ENDPOINTS = {

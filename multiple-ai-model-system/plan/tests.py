@@ -22,7 +22,7 @@ class PlanModelTests(TestCase):
         plan = PlanModel.objects.create(
             name='Basic Plan',
             plan_code='BASIC_001',
-            discription='Basic subscription plan',
+            description='Basic subscription plan',
             words_or_credits=1000,
             amount=9.99
         )

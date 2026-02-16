@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
-import { chatService } from '../services';
+import { chatService, mediaService } from '../services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS, WS_BASE_URL } from '../services/config';
 
@@ -145,7 +145,8 @@ const ImageToVideoScreen: React.FC = () => {
         ]);
         setIsGenerating(false);
       } else if (data.error) {
-        Alert.alert('Error', data.error);
+        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+        Alert.alert('Error', errorMsg);
         setGeneratedVideos(prev => prev.filter(v => v.status !== 'generating'));
         setIsGenerating(false);
       }
@@ -194,6 +195,40 @@ const ImageToVideoScreen: React.FC = () => {
       setIsGenerating(false);
       setGeneratedVideos(prev => prev.filter(v => v.status !== 'generating'));
     }
+  };
+
+  const handleDownload = async (video: GeneratedVideo) => {
+    try {
+      await mediaService.saveVideoToGallery(video.url);
+      Alert.alert('Success', 'Video saved to your gallery');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to download video');
+    }
+  };
+
+  const handleShare = async (video: GeneratedVideo) => {
+    try {
+      await mediaService.shareFile(video.url, `video_${video.id}.mp4`);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to share video');
+    }
+  };
+
+  const handleDelete = (videoId: string) => {
+    Alert.alert(
+      'Delete Video',
+      'Are you sure you want to remove this video?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            setGeneratedVideos(prev => prev.filter(v => v.id !== videoId));
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -349,6 +384,29 @@ const ImageToVideoScreen: React.FC = () => {
                         {video.prompt}
                       </Text>
                     )}
+                    <View style={styles.videoActions}>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleShare(video)}
+                      >
+                        <Ionicons name="share-outline" size={22} color={colors.primary} />
+                        <Text style={styles.actionButtonText}>Share</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDownload(video)}
+                      >
+                        <Ionicons name="download-outline" size={22} color={colors.primary} />
+                        <Text style={styles.actionButtonText}>Save</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDelete(video.id)}
+                      >
+                        <Ionicons name="trash-outline" size={22} color={colors.error} />
+                        <Text style={[styles.actionButtonText, { color: colors.error }]}>Delete</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 )}
               </GlassCard>
@@ -544,6 +602,26 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 13,
     marginTop: 12,
+  },
+  videoActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 16,
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  actionButtonText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 

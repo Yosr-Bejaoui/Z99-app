@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Search,
   Plus,
@@ -11,107 +11,130 @@ import {
   DollarSign,
   Users,
   TrendingUp,
+  RefreshCw,
+  Loader2,
   Calendar,
+  Clock,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-interface Plan {
-  id: number;
-  name: string;
-  price: number;
-  duration: string;
-  wordLimit: number;
-  imageLimit: number;
-  features: string[];
-  subscriberCount: number;
-  isActive: boolean;
-}
-
-interface Subscription {
-  id: number;
-  user: string;
-  email: string;
-  plan: string;
-  status: 'active' | 'cancelled' | 'expired';
-  startDate: string;
-  endDate: string;
-  amount: number;
-}
-
-// Mock data
-const mockPlans: Plan[] = [
-  {
-    id: 1,
-    name: 'Free',
-    price: 0,
-    duration: 'Forever',
-    wordLimit: 5000,
-    imageLimit: 10,
-    features: ['Basic chat models', '5,000 words/month', '10 images/month'],
-    subscriberCount: 8542,
-    isActive: true,
-  },
-  {
-    id: 2,
-    name: 'Pro',
-    price: 19.99,
-    duration: 'Monthly',
-    wordLimit: 100000,
-    imageLimit: 500,
-    features: ['All chat models', '100K words/month', '500 images/month', 'Priority support'],
-    subscriberCount: 2845,
-    isActive: true,
-  },
-  {
-    id: 3,
-    name: 'Enterprise',
-    price: 99.99,
-    duration: 'Monthly',
-    wordLimit: -1,
-    imageLimit: -1,
-    features: ['Unlimited words', 'Unlimited images', 'API access', 'Dedicated support', 'Custom models'],
-    subscriberCount: 342,
-    isActive: true,
-  },
-];
-
-const mockSubscriptions: Subscription[] = [
-  { id: 1, user: 'John Doe', email: 'john@example.com', plan: 'Pro', status: 'active', startDate: '2024-01-15', endDate: '2024-02-15', amount: 19.99 },
-  { id: 2, user: 'Sarah Smith', email: 'sarah@example.com', plan: 'Enterprise', status: 'active', startDate: '2024-01-20', endDate: '2024-02-20', amount: 99.99 },
-  { id: 3, user: 'Mike Johnson', email: 'mike@example.com', plan: 'Pro', status: 'cancelled', startDate: '2024-01-10', endDate: '2024-02-10', amount: 19.99 },
-  { id: 4, user: 'Emma Wilson', email: 'emma@example.com', plan: 'Pro', status: 'active', startDate: '2024-01-28', endDate: '2024-02-28', amount: 19.99 },
-  { id: 5, user: 'Alex Brown', email: 'alex@example.com', plan: 'Pro', status: 'expired', startDate: '2023-12-05', endDate: '2024-01-05', amount: 19.99 },
-];
+import { subscriptionsService, Plan, Subscription } from '../services/subscriptionsService';
 
 export default function SubscriptionsPage() {
-  const [plans, setPlans] = useState<Plan[]>(mockPlans);
-  const [subscriptions] = useState<Subscription[]>(mockSubscriptions);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'plans' | 'subscriptions'>('plans');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    activeSubscriptions: 0,
+    churnRate: '0',
+    totalSubscribers: 0,
+  });
 
-  // Calculate stats
-  const stats = {
-    totalRevenue: subscriptions.filter((s) => s.status === 'active').reduce((sum, s) => sum + s.amount, 0),
-    activeSubscriptions: subscriptions.filter((s) => s.status === 'active').length,
-    churnRate: ((subscriptions.filter((s) => s.status === 'cancelled').length / subscriptions.length) * 100).toFixed(1),
-    totalSubscribers: plans.reduce((sum, p) => sum + p.subscriberCount, 0),
+  const fetchData = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      // Fetch plans
+      const plansData = await subscriptionsService.getPlans();
+      setPlans(plansData.map(p => ({ ...p, is_active: p.is_active ?? true })));
+
+      // Fetch subscriptions
+      const subscriptionsData = await subscriptionsService.getSubscriptions();
+      setSubscriptions(subscriptionsData.results || []);
+
+      // Fetch stats
+      const statsData = await subscriptionsService.getSubscriptionStats();
+      setStats({
+        totalRevenue: statsData.revenue_this_month || 0,
+        activeSubscriptions: statsData.active_subscriptions || 0,
+        churnRate: statsData.cancelled_subscriptions > 0 
+          ? ((statsData.cancelled_subscriptions / (statsData.total_subscriptions || 1)) * 100).toFixed(1)
+          : '0',
+        totalSubscribers: statsData.total_subscriptions || 0,
+      });
+
+    } catch (error) {
+      console.error('Error fetching subscriptions data:', error);
+      toast.error('Failed to load subscription data');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Filter subscriptions
   const filteredSubscriptions = subscriptions.filter((sub) => {
+    const userEmail = sub.user?.email || '';
+    const userName = sub.user?.name || '';
     const matchesSearch =
-      sub.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sub.email.toLowerCase().includes(searchQuery.toLowerCase());
+      userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      userEmail.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || sub.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const togglePlanStatus = (planId: number) => {
-    setPlans(plans.map((p) => (p.id === planId ? { ...p, isActive: !p.isActive } : p)));
-    toast.success('Plan status updated');
+  // Handle cancel subscription
+  const handleCancelSubscription = async (subId: number) => {
+    if (confirm('Are you sure you want to cancel this subscription?')) {
+      try {
+        await subscriptionsService.cancelSubscription(subId);
+        setSubscriptions(subscriptions.map(s => 
+          s.id === subId ? { ...s, status: 'cancelled' } : s
+        ));
+        toast.success('Subscription cancelled');
+      } catch (error) {
+        toast.error('Failed to cancel subscription');
+      }
+    }
+  };
+
+  // Handle extend subscription
+  const handleExtendSubscription = async (subId: number, days: number = 30) => {
+    try {
+      const updated = await subscriptionsService.extendSubscription(subId, days);
+      setSubscriptions(subscriptions.map(s => 
+        s.id === subId ? updated : s
+      ));
+      toast.success(`Subscription extended by ${days} days`);
+    } catch (error) {
+      toast.error('Failed to extend subscription');
+    }
+  };
+
+  const togglePlanStatus = async (planId: number) => {
+    try {
+      setPlans(plans.map((p) => (p.id === planId ? { ...p, is_active: !p.is_active } : p)));
+      toast.success('Plan status updated');
+    } catch (error) {
+      toast.error('Failed to update plan status');
+    }
+    setActiveDropdown(null);
+  };
+
+  const handleDeletePlan = async (planId: number) => {
+    if (confirm('Delete this plan?')) {
+      try {
+        await subscriptionsService.deletePlan(planId);
+        setPlans(plans.filter((p) => p.id !== planId));
+        toast.success('Plan deleted');
+      } catch (error) {
+        toast.error('Failed to delete plan');
+      }
+    }
     setActiveDropdown(null);
   };
 
@@ -124,6 +147,14 @@ export default function SubscriptionsPage() {
     return styles[status as keyof typeof styles] || styles.expired;
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -132,13 +163,23 @@ export default function SubscriptionsPage() {
           <h1 className="text-2xl font-bold text-white">Subscriptions</h1>
           <p className="text-foreground-muted mt-1">Manage plans and subscriptions</p>
         </div>
-        <button
-          onClick={() => setShowPlanModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors w-fit"
-        >
-          <Plus className="w-4 h-4" />
-          Create Plan
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => fetchData(true)}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-white rounded-xl hover:bg-surface transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+          <button
+            onClick={() => setShowPlanModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create Plan
+          </button>
+        </div>
       </div>
 
       {/* Stats cards */}
@@ -222,7 +263,7 @@ export default function SubscriptionsPage() {
             <div
               key={plan.id}
               className={`bg-surface border rounded-2xl p-6 transition-all relative ${
-                plan.isActive ? 'border-border hover:border-primary/50' : 'border-border opacity-60'
+                plan.is_active ? 'border-border hover:border-primary/50' : 'border-border opacity-60'
               }`}
             >
               {/* Menu button */}
@@ -254,21 +295,15 @@ export default function SubscriptionsPage() {
                       <button
                         onClick={() => togglePlanStatus(plan.id)}
                         className={`flex items-center gap-2 w-full px-4 py-2 text-sm transition-colors ${
-                          plan.isActive ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
+                          plan.is_active ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
                         }`}
                       >
-                        {plan.isActive ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
-                        {plan.isActive ? 'Disable' : 'Enable'}
+                        {plan.is_active ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+                        {plan.is_active ? 'Disable' : 'Enable'}
                       </button>
-                      {plan.name !== 'Free' && (
+                      {plan.amount > 0 && (
                         <button
-                          onClick={() => {
-                            if (confirm('Delete this plan?')) {
-                              setPlans(plans.filter((p) => p.id !== plan.id));
-                              toast.success('Plan deleted');
-                            }
-                            setActiveDropdown(null);
-                          }}
+                          onClick={() => handleDeletePlan(plan.id)}
                           className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-error/10 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -281,30 +316,36 @@ export default function SubscriptionsPage() {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-xl font-bold text-white">{plan.name}</h3>
+                <h3 className="text-xl font-bold text-white">{plan.name || plan.plan_code}</h3>
+                <p className="text-foreground-muted text-xs mt-1">{plan.plan_code}</p>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-3xl font-bold text-white">${plan.price}</span>
-                  <span className="text-foreground-muted">/{plan.duration.toLowerCase()}</span>
+                  <span className="text-3xl font-bold text-white">${plan.amount}</span>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6">
-                {plan.features.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-foreground-muted text-sm">{feature}</span>
-                  </div>
-                ))}
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="text-foreground-muted text-sm">{plan.words_or_credits.toLocaleString()} credits/words</span>
+                </div>
+                {plan.description && (
+                  <p className="text-foreground-muted text-sm">{plan.description}</p>
+                )}
               </div>
 
               <div className="pt-4 border-t border-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-foreground-muted text-sm">Subscribers</span>
-                  <span className="text-white font-semibold">{plan.subscriberCount.toLocaleString()}</span>
+                  <span className="text-foreground-muted text-sm">Created</span>
+                  <span className="text-white font-semibold text-sm">{new Date(plan.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
           ))}
+          {plans.length === 0 && (
+            <div className="col-span-3 text-center py-12 text-foreground-muted">
+              No plans found. Create your first plan to get started.
+            </div>
+          )}
         </div>
       )}
 
@@ -348,6 +389,7 @@ export default function SubscriptionsPage() {
                     <th className="p-4 text-left text-sm font-medium text-foreground-muted">Status</th>
                     <th className="p-4 text-left text-sm font-medium text-foreground-muted">Period</th>
                     <th className="p-4 text-left text-sm font-medium text-foreground-muted">Amount</th>
+                    <th className="p-4 text-left text-sm font-medium text-foreground-muted">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -355,33 +397,70 @@ export default function SubscriptionsPage() {
                     <tr key={sub.id} className="border-b border-border hover:bg-card/50 transition-colors">
                       <td className="p-4">
                         <div>
-                          <p className="text-white font-medium">{sub.user}</p>
-                          <p className="text-sm text-foreground-muted">{sub.email}</p>
+                          <p className="text-white font-medium">{sub.user?.name || sub.user?.email?.split('@')[0] || 'Unknown'}</p>
+                          <p className="text-sm text-foreground-muted">{sub.user?.email || 'N/A'}</p>
                         </div>
                       </td>
                       <td className="p-4">
                         <span className="px-3 py-1 rounded-lg text-sm font-medium bg-primary/10 text-primary">
-                          {sub.plan}
+                          {sub.plan?.name || 'Unknown Plan'}
                         </span>
                       </td>
                       <td className="p-4">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(sub.status)}`}>
                           {sub.status === 'active' && <Check className="w-3 h-3" />}
                           {sub.status === 'cancelled' && <X className="w-3 h-3" />}
+                          {sub.status === 'expired' && <Clock className="w-3 h-3" />}
                           {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
                         </span>
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-2 text-foreground-muted text-sm">
                           <Calendar className="w-4 h-4" />
-                          {new Date(sub.startDate).toLocaleDateString()} - {new Date(sub.endDate).toLocaleDateString()}
+                          {new Date(sub.start_date).toLocaleDateString()} - {new Date(sub.end_date).toLocaleDateString()}
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="text-white font-medium">${sub.amount}</span>
+                        <span className="text-white font-medium">${sub.price || 0}</span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          {sub.status === 'active' && (
+                            <>
+                              <button
+                                onClick={() => handleExtendSubscription(sub.id, 30)}
+                                className="px-2 py-1 text-xs bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors"
+                                title="Extend 30 days"
+                              >
+                                +30d
+                              </button>
+                              <button
+                                onClick={() => handleCancelSubscription(sub.id)}
+                                className="px-2 py-1 text-xs bg-error/10 text-error rounded hover:bg-error/20 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          )}
+                          {sub.status === 'expired' && (
+                            <button
+                              onClick={() => handleExtendSubscription(sub.id, 30)}
+                              className="px-2 py-1 text-xs bg-success/10 text-success rounded hover:bg-success/20 transition-colors"
+                            >
+                              Reactivate
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
+                  {filteredSubscriptions.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-foreground-muted">
+                        No subscriptions found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

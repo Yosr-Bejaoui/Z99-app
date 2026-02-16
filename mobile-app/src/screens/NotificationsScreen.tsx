@@ -9,24 +9,17 @@ import {
   RefreshControl,
   Switch,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme/colors';
 import GlassCard from '../components/GlassCard';
+import { notificationService, getErrorMessage } from '../services';
+import type { AppNotification, NotificationSettings } from '../services/types';
 
-interface Notification {
-  id: string;
-  type: 'info' | 'success' | 'warning' | 'promo';
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
-}
-
-interface NotificationSettings {
+interface NotificationSettingsState {
   pushEnabled: boolean;
   emailEnabled: boolean;
   promoEnabled: boolean;
@@ -35,51 +28,14 @@ interface NotificationSettings {
   newFeatures: boolean;
 }
 
-const NOTIFICATION_STORAGE_KEY = '@notifications';
-const SETTINGS_STORAGE_KEY = '@notification_settings';
-
-// Default notifications for demo
-const defaultNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'success',
-    title: 'Welcome to MultiAI!',
-    message: 'Your account has been created successfully. Start chatting with AI models now!',
-    timestamp: new Date().toISOString(),
-    read: false,
-  },
-  {
-    id: '2',
-    type: 'promo',
-    title: '50% Off Premium Plans',
-    message: 'Upgrade to Pro and get 50% off your first month. Limited time offer!',
-    timestamp: new Date(Date.now() - 86400000).toISOString(),
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'info',
-    title: 'New Feature Available',
-    message: 'Try our new video generation feature powered by advanced AI models.',
-    timestamp: new Date(Date.now() - 172800000).toISOString(),
-    read: true,
-  },
-  {
-    id: '4',
-    type: 'warning',
-    title: 'Credits Running Low',
-    message: 'You have 500 credits remaining. Consider upgrading your plan for more.',
-    timestamp: new Date(Date.now() - 259200000).toISOString(),
-    read: true,
-  },
-];
-
 const NotificationsScreen: React.FC = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<'notifications' | 'settings'>('notifications');
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [settings, setSettings] = useState<NotificationSettings>({
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [settings, setSettings] = useState<NotificationSettingsState>({
     pushEnabled: true,
     emailEnabled: true,
     promoEnabled: false,
@@ -91,37 +47,50 @@ const NotificationsScreen: React.FC = () => {
   useEffect(() => {
     loadNotifications();
     loadSettings();
+    // Register for push notifications
+    notificationService.registerForPushNotifications();
   }, []);
 
   const loadNotifications = async () => {
     try {
-      const stored = await AsyncStorage.getItem(NOTIFICATION_STORAGE_KEY);
-      if (stored) {
-        setNotifications(JSON.parse(stored));
-      } else {
-        setNotifications(defaultNotifications);
-        await AsyncStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(defaultNotifications));
-      }
-    } catch (error) {
-      setNotifications(defaultNotifications);
+      setIsLoading(true);
+      setError(null);
+      const response = await notificationService.getNotifications();
+      setNotifications(response.notifications);
+    } catch (err) {
+      setError(getErrorMessage(err));
+      console.error('Failed to load notifications:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const loadSettings = async () => {
     try {
-      const stored = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
-      if (stored) {
-        setSettings(JSON.parse(stored));
-      }
+      const backendSettings = await notificationService.getSettings();
+      setSettings({
+        pushEnabled: backendSettings.push_enabled,
+        emailEnabled: backendSettings.email_enabled,
+        promoEnabled: backendSettings.promotions_enabled,
+        weeklyDigest: true,
+        usageAlerts: backendSettings.reward_alerts,
+        newFeatures: backendSettings.generation_updates,
+      });
     } catch (error) {
-      console.log('Failed to load settings');
+      console.log('Failed to load settings, using defaults');
     }
   };
 
-  const saveSettings = async (newSettings: NotificationSettings) => {
+  const saveSettings = async (newSettings: NotificationSettingsState) => {
     try {
-      await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(newSettings));
       setSettings(newSettings);
+      await notificationService.updateSettings({
+        push_enabled: newSettings.pushEnabled,
+        email_enabled: newSettings.emailEnabled,
+        promotions_enabled: newSettings.promoEnabled,
+        reward_alerts: newSettings.usageAlerts,
+        generation_updates: newSettings.newFeatures,
+      });
     } catch (error) {
       Alert.alert('Error', 'Failed to save settings');
     }
@@ -133,24 +102,24 @@ const NotificationsScreen: React.FC = () => {
     setRefreshing(false);
   }, []);
 
-  const markAsRead = async (id: string) => {
+  const markAsRead = async (id: number | string) => {
     const updated = notifications.map((n) =>
       n.id === id ? { ...n, read: true } : n
     );
     setNotifications(updated);
-    await AsyncStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(updated));
+    await notificationService.markAsRead(String(id));
   };
 
   const markAllAsRead = async () => {
     const updated = notifications.map((n) => ({ ...n, read: true }));
     setNotifications(updated);
-    await AsyncStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(updated));
+    await notificationService.markAllAsRead();
   };
 
-  const deleteNotification = async (id: string) => {
+  const deleteNotification = async (id: number | string) => {
     const updated = notifications.filter((n) => n.id !== id);
     setNotifications(updated);
-    await AsyncStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(updated));
+    await notificationService.deleteNotification(String(id));
   };
 
   const clearAllNotifications = async () => {
@@ -164,7 +133,7 @@ const NotificationsScreen: React.FC = () => {
           style: 'destructive',
           onPress: async () => {
             setNotifications([]);
-            await AsyncStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify([]));
+            await notificationService.clearAll();
           },
         },
       ]
@@ -177,8 +146,13 @@ const NotificationsScreen: React.FC = () => {
         return { name: 'checkmark-circle', color: colors.success };
       case 'warning':
         return { name: 'warning', color: colors.warning };
+      case 'error':
+        return { name: 'close-circle', color: colors.error };
+      case 'promotion':
       case 'promo':
         return { name: 'gift', color: colors.secondary };
+      case 'reward':
+        return { name: 'trophy', color: '#f59e0b' };
       default:
         return { name: 'information-circle', color: colors.primary };
     }
@@ -200,7 +174,30 @@ const NotificationsScreen: React.FC = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const renderNotificationsTab = () => (
+  const renderNotificationsTab = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Loading notifications...</Text>
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={styles.emptyState}>
+          <Ionicons name="warning-outline" size={64} color={colors.error} />
+          <Text style={styles.emptyTitle}>Error Loading Notifications</Text>
+          <Text style={styles.emptySubtitle}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={loadNotifications}>
+            <Text style={styles.retryText}>Tap to retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
     <>
       {/* Actions Bar */}
       {notifications.length > 0 && (
@@ -260,10 +257,10 @@ const NotificationsScreen: React.FC = () => {
                         {!notification.read && <View style={styles.unreadDot} />}
                       </View>
                       <Text style={styles.notificationMessage} numberOfLines={2}>
-                        {notification.message}
+                        {notification.message || notification.body}
                       </Text>
                       <Text style={styles.notificationTime}>
-                        {formatTimestamp(notification.timestamp)}
+                        {formatTimestamp(notification.created_at)}
                       </Text>
                     </View>
                   </View>
@@ -275,6 +272,7 @@ const NotificationsScreen: React.FC = () => {
       )}
     </>
   );
+  };
 
   const renderSettingsTab = () => (
     <View style={styles.settingsContainer}>
@@ -600,6 +598,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textMuted,
     marginTop: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: colors.textMuted,
+  },
+  retryButton: {
+    marginTop: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 8,
+  },
+  retryText: {
+    fontSize: 14,
+    color: colors.primary,
+    fontWeight: '500',
   },
   emptyState: {
     alignItems: 'center',

@@ -197,8 +197,8 @@ const SubscriptionPlansScreen: React.FC = () => {
                     </View>
                   </View>
 
-                  {plan.discription && (
-                    <Text style={styles.planDescription}>{plan.discription}</Text>
+                  {plan.description && (
+                    <Text style={styles.planDescription}>{plan.description}</Text>
                   )}
 
                   <View style={styles.divider} />

@@ -176,3 +176,28 @@ class CreditAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model=CreditAccount
         fields=['id','user','credits']
+
+
+# Admin User Serializer for admin dashboard
+class AdminUserSerializer(serializers.ModelSerializer):
+    credits_balance = serializers.SerializerMethodField()
+    session_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = [
+            'id', 'email', 'username', 'first_name', 'last_name',
+            'is_active', 'is_staff', 'is_superuser', 'subscribed',
+            'total_token_used', 'date_joined', 'last_login',
+            'credits_balance', 'session_count'
+        ]
+        read_only_fields = ['date_joined', 'last_login']
+    
+    def get_credits_balance(self, obj):
+        try:
+            return obj.creditaccount.credits if hasattr(obj, 'creditaccount') else 0
+        except:
+            return 0
+    
+    def get_session_count(self, obj):
+        return obj.chatsession_set.count() if hasattr(obj, 'chatsession_set') else 0

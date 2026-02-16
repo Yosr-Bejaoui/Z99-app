@@ -150,9 +150,70 @@ export interface Plan {
 export interface Transaction {
   id: number;
   amount: number;
-  transaction_type: 'credit' | 'debit';
+  type: 'credit' | 'debit' | 'subscription' | 'refund' | 'reward';
+  transaction_type?: 'credit' | 'debit' | 'subscription' | 'refund' | 'reward';
   description: string;
   created_at: string;
+  status?: 'completed' | 'pending' | 'failed';
+  reference_id?: string;
+}
+
+// History Types
+export interface HistoryItem {
+  id: number;
+  type: 'chat' | 'image' | 'video' | 'audio' | '3d';
+  title: string;
+  preview?: string;
+  preview_url?: string;
+  content_url?: string;
+  date: string;
+  created_at?: string;
+  updated_at?: string;
+  modelName?: string;
+  model?: string;
+  model_id?: number;
+  prompt?: string;
+  words_used?: number;
+}
+
+// Credit Account Types
+export interface CreditAccount {
+  credits: number;
+  total_credits?: number;
+  usedWords: number;
+  isPro: boolean;
+  bonus_credits?: number;
+}
+
+// Credit Package Types
+export interface CreditPackage {
+  id: number;
+  name: string;
+  credits: number;
+  price: number;
+  currency?: string;
+  is_popular?: boolean;
+  best_value?: boolean;
+  bonus_credits?: number;
+}
+
+// Notification Types
+export interface AppNotification {
+  id: number | string;
+  title: string;
+  message: string;
+  body?: string;
+  type: 'info' | 'success' | 'warning' | 'error' | 'promotion' | 'reward';
+  read: boolean;
+  created_at: string;
+}
+
+export interface NotificationSettings {
+  push_enabled: boolean;
+  email_enabled: boolean;
+  marketing_enabled: boolean;
+  new_features: boolean;
+  credits_alerts: boolean;
 }
 
 // API Response Types

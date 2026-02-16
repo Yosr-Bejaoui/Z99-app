@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
-import { chatService } from '../services';
+import { chatService, mediaService } from '../services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS, WS_BASE_URL } from '../services/config';
 
@@ -146,7 +146,8 @@ const ImageEditorScreen: React.FC = () => {
         ]);
         setIsProcessing(false);
       } else if (data.error) {
-        Alert.alert('Error', data.error);
+        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+        Alert.alert('Error', errorMsg);
         setEditedImages(prev => prev.filter(i => i.status !== 'processing'));
         setIsProcessing(false);
       }
@@ -190,6 +191,40 @@ const ImageEditorScreen: React.FC = () => {
       setIsProcessing(false);
       setEditedImages(prev => prev.filter(i => i.status !== 'processing'));
     }
+  };
+
+  const handleDownload = async (image: EditedImage) => {
+    try {
+      await mediaService.saveImageToGallery(image.url);
+      Alert.alert('Success', 'Image saved to your gallery');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to download image');
+    }
+  };
+
+  const handleShare = async (image: EditedImage) => {
+    try {
+      await mediaService.shareFile(image.url, `edited_${image.id}.jpg`);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to share image');
+    }
+  };
+
+  const handleDelete = (imageId: string) => {
+    Alert.alert(
+      'Delete Image',
+      'Are you sure you want to remove this image?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            setEditedImages(prev => prev.filter(i => i.id !== imageId));
+          },
+        },
+      ]
+    );
   };
 
   const needsPrompt = ['inpaint'].includes(selectedTool);
@@ -348,14 +383,29 @@ const ImageEditorScreen: React.FC = () => {
                       <Text style={styles.resultTool}>
                         {editTools.find(t => t.id === image.tool)?.label || image.tool}
                       </Text>
-                      <View style={styles.resultActions}>
-                        <TouchableOpacity style={styles.actionBtn}>
-                          <Ionicons name="download-outline" size={20} color={colors.primary} />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.actionBtn}>
-                          <Ionicons name="share-outline" size={20} color={colors.primary} />
-                        </TouchableOpacity>
-                      </View>
+                    </View>
+                    <View style={styles.imageActions}>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleShare(image)}
+                      >
+                        <Ionicons name="share-outline" size={20} color={colors.primary} />
+                        <Text style={styles.actionButtonText}>Share</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDownload(image)}
+                      >
+                        <Ionicons name="download-outline" size={20} color={colors.primary} />
+                        <Text style={styles.actionButtonText}>Save</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDelete(image.id)}
+                      >
+                        <Ionicons name="trash-outline" size={20} color={colors.error} />
+                        <Text style={[styles.actionButtonText, { color: colors.error }]}>Delete</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 )}
@@ -552,12 +602,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  resultActions: {
+  imageActions: {
     flexDirection: 'row',
-    gap: 8,
+    justifyContent: 'space-around',
+    paddingTop: 16,
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
-  actionBtn: {
-    padding: 8,
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  actionButtonText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 

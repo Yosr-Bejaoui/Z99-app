@@ -38,7 +38,9 @@ const ChatScreen: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const pendingMessageRef = useRef<string | null>(null);
+  const pendingMessageRef = useRef<string | null>(null); // Single pending message
+  const isConnectingRef = useRef(false); // Ref to avoid stale closure
+  const sentMessagesRef = useRef<Set<string>>(new Set()); // Track sent messages to prevent duplicates
   const typingAnim = useRef(new Animated.Value(0)).current;
 
   // Fetch available chat models
@@ -55,16 +57,12 @@ const ChatScreen: React.FC = () => {
   const fetchModels = async () => {
     try {
       const response = await chatService.getModels('chat');
-      console.log('Models response:', JSON.stringify(response));
       const chatModels = response.results || [];
-      console.log('Chat models:', chatModels.map(m => ({ id: m.id, name: m.name })));
       setModels(chatModels);
       if (chatModels.length > 0) {
-        console.log('Setting selectedModel to:', chatModels[0].id);
         setSelectedModel(chatModels[0].id);
       }
     } catch (error) {
-      console.error('Failed to fetch models:', error);
       Alert.alert('Error', 'Failed to load AI models');
     } finally {
       setIsLoading(false);
@@ -95,34 +93,34 @@ const ChatScreen: React.FC = () => {
 
   // Create or join a chat session
   const startSession = useCallback(async () => {
-    console.log('startSession called with selectedModel:', selectedModel);
-    if (!selectedModel || isConnecting) return;
+    if (!selectedModel || isConnectingRef.current) return;
     
+    isConnectingRef.current = true;
     setIsConnecting(true);
     
     try {
       // Close existing WebSocket if any
       if (wsRef.current) {
         wsRef.current.close();
+        wsRef.current = null;
       }
       
       // Create new session
-      console.log('Creating session with model ID:', selectedModel);
       const newSession = await chatService.createSession(selectedModel);
-      console.log('Session created:', newSession.id);
       setSession(newSession);
-      setMessages([]);
       
       // Connect to WebSocket
       const ws = await chatService.createWebSocket(newSession.id);
       
       ws.onopen = () => {
-        console.log('WebSocket connected');
+        isConnectingRef.current = false;
         setIsConnecting(false);
         
-        // Send pending message if any
-        if (pendingMessageRef.current) {
-          const payload = chatService.formatSendMessage(pendingMessageRef.current);
+        // Send pending message if exists
+        const pendingMsg = pendingMessageRef.current;
+        if (pendingMsg && !sentMessagesRef.current.has(pendingMsg)) {
+          sentMessagesRef.current.add(pendingMsg);
+          const payload = chatService.formatSendMessage(pendingMsg);
           ws.send(payload);
           pendingMessageRef.current = null;
         }
@@ -131,12 +129,17 @@ const ChatScreen: React.FC = () => {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('WebSocket message received:', JSON.stringify(data));
           
           // Handle error messages
           if (data.type === 'error' || data.error) {
-            const errorMsg = data.message || data.error || 'Unknown error';
-            console.error('WebSocket error:', errorMsg);
+            let errorMsg = 'Unknown error';
+            if (typeof data.error === 'string') {
+              errorMsg = data.error;
+            } else if (data.error?.message) {
+              errorMsg = data.error.message;
+            } else if (typeof data.message === 'string') {
+              errorMsg = data.message;
+            }
             Alert.alert('Error', errorMsg);
             setIsTyping(false);
             return;
@@ -175,78 +178,103 @@ const ChatScreen: React.FC = () => {
         }
       };
       
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+      ws.onerror = () => {
+        isConnectingRef.current = false;
         setIsConnecting(false);
         setIsTyping(false);
       };
       
       ws.onclose = () => {
-        console.log('WebSocket closed');
+        isConnectingRef.current = false;
         setIsConnecting(false);
       };
       
       wsRef.current = ws;
     } catch (error) {
-      console.error('Failed to start session:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to start session';
       Alert.alert('Connection Error', errorMessage);
+      isConnectingRef.current = false;
       setIsConnecting(false);
       setIsTyping(false);
     }
-  }, [selectedModel, isConnecting]);
+  }, [selectedModel]);
 
   const handleSend = () => {
     if (!inputText.trim()) return;
 
     const messageText = inputText.trim();
+    const messageId = `${Date.now()}-${messageText.substring(0, 20)}`;
     
-    // If no session, start one first
-    if (!session || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        content: messageText,
-        isUser: true,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages((prev) => [...prev, userMessage]);
-      setInputText('');
-      
-      // Store pending message and start session
-      if (!session) {
-        pendingMessageRef.current = messageText;
-        startSession();
-        setIsTyping(true);
-      }
+    // Prevent sending if already sent
+    if (sentMessagesRef.current.has(messageText)) {
       return;
     }
-
+    
+    // Add user message to UI immediately
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: messageId,
       content: messageText,
       isUser: true,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
-
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsTyping(true);
-
-    // Send message via WebSocket
-    const payload = chatService.formatSendMessage(messageText);
-    wsRef.current.send(payload);
-
+    
     // Scroll to bottom
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 100);
+    
+    // If WebSocket is ready, send immediately
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      sentMessagesRef.current.add(messageText);
+      const payload = chatService.formatSendMessage(messageText);
+      wsRef.current.send(payload);
+      return;
+    }
+    
+    // Store as pending message for when connection is ready
+    pendingMessageRef.current = messageText;
+    
+    // Start session if needed
+    if (!session && !isConnectingRef.current) {
+      startSession();
+    }
   };
 
   const handleModelChange = (modelId: number) => {
+    if (modelId === selectedModel) return;
+    
+    // If there are messages, confirm before switching
+    if (messages.length > 0) {
+      Alert.alert(
+        'Switch Model',
+        'Switching models will start a new conversation. Continue?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Switch',
+            onPress: () => {
+              doModelSwitch(modelId);
+            },
+          },
+        ]
+      );
+    } else {
+      doModelSwitch(modelId);
+    }
+  };
+  
+  const doModelSwitch = (modelId: number) => {
     setSelectedModel(modelId);
-    // Reset session when model changes
     setSession(null);
     setMessages([]);
+    setIsTyping(false);
+    pendingMessageRef.current = null;
+    sentMessagesRef.current.clear();
+    isConnectingRef.current = false;
+    setIsConnecting(false);
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
@@ -270,12 +298,27 @@ const ChatScreen: React.FC = () => {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.headerTitle}>Chat</Text>
-          {isConnecting && (
-            <View style={styles.connectingBadge}>
-              <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.connectingText}>Connecting...</Text>
-            </View>
-          )}
+          <View style={styles.headerActions}>
+            {isConnecting && (
+              <View style={styles.connectingBadge}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.connectingText}>Connecting...</Text>
+              </View>
+            )}
+            {messages.length > 0 && (
+              <TouchableOpacity 
+                style={styles.newChatButton}
+                onPress={() => {
+                  Alert.alert('New Chat', 'Start a new conversation?', [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'New Chat', onPress: () => doModelSwitch(selectedModel!) },
+                  ]);
+                }}
+              >
+                <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
         <ModelSelector 
           selected={selectedModel} 
@@ -440,6 +483,14 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 12,
     fontWeight: '500',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  newChatButton: {
+    padding: 4,
   },
   emptyState: {
     flex: 1,

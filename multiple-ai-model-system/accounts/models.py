@@ -28,11 +28,12 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=150,unique=True,null=True,blank=True)
     email = models.EmailField(unique=True)
-    # total_token_used=models.IntegerField(default=0,null=True,blank=True)
-    total_token_used=models.DecimalField(default=0,null=True,blank=True,decimal_places=2,max_digits=1000000000)
+    total_token_used=models.DecimalField(default=0,null=True,blank=True,decimal_places=2,max_digits=20)
     subscribed=models.BooleanField(default=False,null=True,blank=True)
     api_limit=models.IntegerField(default=5)
     word_limit=models.IntegerField(default=400)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     
@@ -74,9 +75,12 @@ class CreditTransaction(models.Model):
     amount = models.IntegerField()
     transaction_type = models.CharField(max_length=10, choices=[('add', 'Add'), ('deduct', 'Deduct'),('refund', 'Refund'),('bonus', 'Bonus')])
     message = models.TextField(blank=True, null=True)
-    # used_credits = models.IntegerField(default=0)
-  
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['credit_account', '-created_at']),
+        ]
 
     def __str__(self):
         return f"{self.transaction_type} {self.amount} credits for {self.credit_account.user.email} on {self.created_at}"
@@ -92,6 +96,10 @@ class UserProfile(models.Model):
     avatar=models.ImageField(upload_to='profile',null=True,blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
+
+
+# Import system models for Django to discover them
+from .system_models import SystemConfig, APIProviderConfig, WebhookConfig, SystemLog
 
 
 # #usage log model

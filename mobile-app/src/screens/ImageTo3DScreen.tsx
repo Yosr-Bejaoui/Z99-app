@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
-import { chatService } from '../services';
+import { chatService, mediaService } from '../services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS, WS_BASE_URL } from '../services/config';
 
@@ -149,7 +149,8 @@ const ImageTo3DScreen: React.FC = () => {
         ]);
         setIsGenerating(false);
       } else if (data.error) {
-        Alert.alert('Error', data.error);
+        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+        Alert.alert('Error', errorMsg);
         setGeneratedModels(prev => prev.filter(m => m.status !== 'generating'));
         setIsGenerating(false);
       }
@@ -193,6 +194,40 @@ const ImageTo3DScreen: React.FC = () => {
       setIsGenerating(false);
       setGeneratedModels(prev => prev.filter(m => m.status !== 'generating'));
     }
+  };
+
+  const handleDownload = async (model: Generated3DModel) => {
+    try {
+      // 3D models need to be opened in browser for download
+      await Linking.openURL(model.modelUrl);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to download model');
+    }
+  };
+
+  const handleShare = async (model: Generated3DModel) => {
+    try {
+      await mediaService.shareFile(model.modelUrl, `model_${model.id}.${model.format}`);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to share model');
+    }
+  };
+
+  const handleDelete = (modelId: string) => {
+    Alert.alert(
+      'Delete Model',
+      'Are you sure you want to remove this 3D model?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            setGeneratedModels(prev => prev.filter(m => m.id !== modelId));
+          },
+        },
+      ]
+    );
   };
 
   const downloadModel = async (url: string) => {
@@ -378,12 +413,28 @@ const ImageTo3DScreen: React.FC = () => {
                         <Text style={styles.resultFormat}>{model.format.toUpperCase()}</Text>
                         <Text style={styles.resultSize}>Ready to download</Text>
                       </View>
+                    </View>
+                    <View style={styles.modelActions}>
                       <TouchableOpacity
-                        style={styles.downloadButton}
-                        onPress={() => downloadModel(model.modelUrl)}
+                        style={styles.actionButton}
+                        onPress={() => handleShare(model)}
                       >
-                        <Ionicons name="download" size={20} color={colors.foreground} />
-                        <Text style={styles.downloadText}>Download</Text>
+                        <Ionicons name="share-outline" size={20} color={colors.primary} />
+                        <Text style={styles.actionButtonText}>Share</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDownload(model)}
+                      >
+                        <Ionicons name="download-outline" size={20} color={colors.primary} />
+                        <Text style={styles.actionButtonText}>Download</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDelete(model.id)}
+                      >
+                        <Ionicons name="trash-outline" size={20} color={colors.error} />
+                        <Text style={[styles.actionButtonText, { color: colors.error }]}>Delete</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -639,19 +690,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
-  downloadButton: {
+  modelActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 16,
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
-  downloadText: {
-    color: colors.foreground,
+  actionButtonText: {
+    color: colors.primary,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });
 

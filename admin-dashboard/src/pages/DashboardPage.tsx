@@ -7,8 +7,8 @@ import {
   TrendingUp,
   TrendingDown,
   Activity,
-  ArrowUpRight,
   MoreVertical,
+  RefreshCw,
 } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -24,6 +24,8 @@ import {
   Filler,
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
+import { analyticsService, DashboardStats } from '../services/analyticsService';
+import toast from 'react-hot-toast';
 
 // Register Chart.js components
 ChartJS.register(
@@ -73,29 +75,68 @@ function StatCard({ title, value, change, icon: Icon, color }: StatCardProps) {
 }
 
 export default function DashboardPage() {
-  const [_loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [usageData, setUsageData] = useState<{ date: string; sessions: number; messages: number; chats?: number }[]>([]);
+  const [modelUsage, setModelUsage] = useState<{ name: string; usage_count: number; percentage: number }[]>([]);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [statsData, usage, models] = await Promise.all([
+        analyticsService.getDashboardStats(),
+        analyticsService.getUsageAnalytics(30),
+        analyticsService.getModelUsageStats(),
+      ]);
+      setStats(statsData);
+      setUsageData(usage.map(u => ({
+        date: u.date,
+        sessions: u.sessions || u.chats || 0,
+        messages: u.messages || 0,
+        chats: u.chats || u.sessions || 0,
+      })));
+      // Map model usage to consistent format
+      setModelUsage(models.map(m => ({
+        name: m.model_name || 'Unknown',
+        usage_count: m.usage_count || 0,
+        percentage: m.percentage || 0,
+      })));
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+      toast.error('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
+    fetchDashboardData();
   }, []);
 
-  // Mock data for charts
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchDashboardData();
+  };
+
+  // Transform usage data for chart
   const usageChartData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    labels: usageData.slice(-7).map(d => {
+      const date = new Date(d.date);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }),
     datasets: [
       {
-        label: 'Chat Sessions',
-        data: [1200, 1900, 2400, 2100, 2800, 3200, 3800],
+        label: 'Sessions',
+        data: usageData.slice(-7).map(d => d.sessions || 0),
         borderColor: '#2dd4bf',
         backgroundColor: 'rgba(45, 212, 191, 0.1)',
         fill: true,
         tension: 0.4,
       },
       {
-        label: 'Images Generated',
-        data: [800, 1100, 1400, 1200, 1600, 1900, 2200],
+        label: 'Messages',
+        data: usageData.slice(-7).map(d => d.messages || 0),
         borderColor: '#8b5cf6',
         backgroundColor: 'rgba(139, 92, 246, 0.1)',
         fill: true,
@@ -104,11 +145,12 @@ export default function DashboardPage() {
     ],
   };
 
+  // Transform model usage for doughnut chart
   const modelUsageData = {
-    labels: ['ChatGPT', 'Claude', 'Gemini', 'DALL-E', 'Leonardo', 'Others'],
+    labels: modelUsage.slice(0, 6).map(m => m.name),
     datasets: [
       {
-        data: [35, 25, 20, 10, 7, 3],
+        data: modelUsage.slice(0, 6).map(m => m.usage_count),
         backgroundColor: [
           '#2dd4bf',
           '#8b5cf6',
@@ -205,43 +247,52 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <p className="text-foreground-muted mt-1">Welcome back! Here's what's happening.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors">
-          <ArrowUpRight className="w-4 h-4" />
-          View Reports
+        <button 
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Refreshing...' : 'Refresh'}
         </button>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Users"
-          value="12,847"
-          change={12.5}
-          icon={Users}
-          color="bg-primary"
-        />
-        <StatCard
-          title="Active Subscriptions"
-          value="3,284"
-          change={8.2}
-          icon={CreditCard}
-          color="bg-secondary"
-        />
-        <StatCard
-          title="Chat Sessions"
-          value="48,293"
-          change={23.1}
-          icon={MessageSquare}
-          color="bg-accent"
-        />
-        <StatCard
-          title="Images Generated"
-          value="15,847"
-          change={-5.4}
-          icon={Image}
-          color="bg-success"
-        />
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <>
+          {/* Stats grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard
+              title="Total Users"
+              value={stats?.users.total?.toLocaleString() || '0'}
+              change={stats?.users.growth_percentage}
+              icon={Users}
+              color="bg-primary"
+            />
+            <StatCard
+              title="Active Subscriptions"
+              value={stats?.subscriptions.total_active?.toLocaleString() || '0'}
+              change={stats?.subscriptions.revenue_growth}
+              icon={CreditCard}
+              color="bg-secondary"
+            />
+            <StatCard
+              title="Total Sessions"
+              value={stats?.usage.total_chats?.toLocaleString() || '0'}
+              icon={MessageSquare}
+              color="bg-accent"
+            />
+            <StatCard
+              title="Revenue"
+              value={`$${stats?.subscriptions.revenue_this_month?.toLocaleString() || '0'}`}
+              change={stats?.subscriptions.revenue_growth}
+              icon={Image}
+              color="bg-success"
+            />
+          </div>
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -324,36 +375,34 @@ export default function DashboardPage() {
             </button>
           </div>
           <div className="space-y-4">
-            {[
-              { name: 'GPT-4', provider: 'OpenAI', usage: 12450, percentage: 35 },
-              { name: 'Claude 3', provider: 'Anthropic', usage: 8920, percentage: 25 },
-              { name: 'Gemini Pro', provider: 'Google', usage: 7140, percentage: 20 },
-              { name: 'DALL-E 3', provider: 'OpenAI', usage: 3570, percentage: 10 },
-              { name: 'Leonardo', provider: 'Leonardo.ai', usage: 2499, percentage: 7 },
-            ].map((model) => (
+            {modelUsage.slice(0, 5).map((model) => (
               <div key={model.name} className="flex items-center gap-4">
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <div>
                       <span className="text-sm text-white font-medium">{model.name}</span>
-                      <span className="text-xs text-foreground-muted ml-2">{model.provider}</span>
                     </div>
                     <span className="text-sm text-foreground-muted">
-                      {model.usage.toLocaleString()} uses
+                      {model.usage_count?.toLocaleString() || 0} uses
                     </span>
                   </div>
                   <div className="h-2 bg-card rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all"
-                      style={{ width: `${model.percentage}%` }}
+                      style={{ width: `${model.percentage || 0}%` }}
                     />
                   </div>
                 </div>
               </div>
             ))}
+            {modelUsage.length === 0 && (
+              <p className="text-foreground-muted text-sm text-center py-4">No model usage data yet</p>
+            )}
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

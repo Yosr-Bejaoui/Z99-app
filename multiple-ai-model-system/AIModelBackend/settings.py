@@ -56,6 +56,7 @@ if ENVIRONMENT != 'production':
         '4867888fdea6.ngrok-free.app',
         '7817aa52e070.ngrok-free.app',
         '192.168.1.19',
+        '172.18.133.153',
     ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -184,14 +185,19 @@ REST_FRAMEWORK = {
     # Custom exception handler for consistent error responses
     'EXCEPTION_HANDLER': 'AIModelBackend.exceptions.custom_exception_handler',
     
-    # Throttling - Rate limiting
+    # Throttling - Rate limiting using custom classes
     'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
+        'AIModelBackend.throttling.BurstRateThrottle',
+        'AIModelBackend.throttling.SustainedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',      # Anonymous users: 100 requests/hour
         'user': '1000/hour',     # Authenticated users: 1000 requests/hour
+        'burst_anon': '20/min',  # Anonymous burst: 20/minute
+        'burst_user': '60/min',  # Authenticated burst: 60/minute
+        'sustained_anon': '100/hour',  # Anonymous sustained: 100/hour
+        'sustained_user': '1000/hour', # Authenticated sustained: 1000/hour
+        'ai_generation': '30/hour',    # AI generation: 30/hour
     },
     
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -367,6 +373,9 @@ LOGGING = {
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
+        'structured': {
+            '()': 'AIModelBackend.logging_config.StructuredLogFormatter',
+        },
     },
     'filters': {
         'require_debug_false': {
@@ -386,6 +395,18 @@ LOGGING = {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
             'filename': BASE_DIR / 'logs' / 'django.log',
+            'formatter': 'verbose',
+        },
+        'structured_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'structured.log',
+            'formatter': 'structured',
+        },
+        'websocket_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'websocket.log',
             'formatter': 'verbose',
         },
         'mail_admins': {
@@ -410,12 +431,32 @@ LOGGING = {
             'propagate': False,
         },
         'plan': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'file', 'structured_file'],
             'level': 'INFO',
             'propagate': False,
         },
         'ai_model': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'file', 'structured_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'websocket': {
+            'handlers': ['console', 'websocket_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'accounts': {
+            'handlers': ['console', 'file', 'structured_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'invoices': {
+            'handlers': ['console', 'file', 'structured_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'ads_rewards': {
+            'handlers': ['console', 'file', 'structured_file'],
             'level': 'INFO',
             'propagate': False,
         },

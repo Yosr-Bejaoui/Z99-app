@@ -117,7 +117,8 @@ const TextToVideoScreen: React.FC = () => {
         setIsGenerating(false);
         setPrompt('');
       } else if (data.error) {
-        Alert.alert('Error', data.error);
+        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+        Alert.alert('Error', errorMsg);
         setGeneratedVideos(prev => prev.filter(v => v.status !== 'generating'));
         setIsGenerating(false);
       } else if (data.status === 'processing' || data.message) {

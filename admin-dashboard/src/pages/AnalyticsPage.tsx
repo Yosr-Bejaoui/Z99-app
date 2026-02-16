@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,7 +21,11 @@ import {
   TrendingUp,
   Calendar,
   Download,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
+import { analyticsService } from '../services/analyticsService';
+import toast from 'react-hot-toast';
 
 // Register Chart.js components
 ChartJS.register(
@@ -39,24 +43,80 @@ ChartJS.register(
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalSessions: 0,
+    totalImages: 0,
+    totalRevenue: 0,
+    userGrowth: 0,
+    sessionGrowth: 0,
+    imageGrowth: 0,
+    revenueGrowth: 0,
+  });
+  const [usageData, setUsageData] = useState<{ date: string; count: number }[]>([]);
+  const [modelUsage, setModelUsage] = useState<{ model: string; count: number }[]>([]);
 
-  // Mock data
+  const fetchAnalytics = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+
+      const [dashboardStats, usage, models] = await Promise.all([
+        analyticsService.getDashboardStats(),
+        analyticsService.getUsageAnalytics(days),
+        analyticsService.getModelUsageStats(),
+      ]);
+
+      setStats({
+        totalUsers: dashboardStats.users?.total || 0,
+        totalSessions: dashboardStats.usage?.total_chats || 0,
+        totalImages: dashboardStats.usage?.total_images || 0,
+        totalRevenue: dashboardStats.subscriptions?.revenue_this_month || 0,
+        userGrowth: dashboardStats.users?.growth_percentage || 0,
+        sessionGrowth: 0,
+        imageGrowth: 0,
+        revenueGrowth: dashboardStats.subscriptions?.revenue_growth || 0,
+      });
+
+      if (usage && usage.length > 0) {
+        setUsageData(usage.map(u => ({ date: u.date, count: u.sessions || u.chats || 0 })));
+      }
+
+      if (models && models.length > 0) {
+        setModelUsage(models.map(m => ({ model: m.model_name, count: m.usage_count })));
+      }
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      toast.error('Failed to load analytics data');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [timeRange]);
+
+  // Chart colors
+  const chartColors = ['#2dd4bf', '#8b5cf6', '#f97316', '#22c55e', '#f59e0b', '#6b7280', '#ec4899', '#06b6d4'];
+
+  // Dynamic chart data based on API response
   const userGrowthData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    labels: usageData.length > 0 ? usageData.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
     datasets: [
       {
-        label: 'New Users',
-        data: [1200, 1900, 2400, 2100, 2800, 3200, 3800],
+        label: 'Daily Usage',
+        data: usageData.length > 0 ? usageData.map(d => d.count) : [1200, 1900, 2400, 2100, 2800, 3200, 3800],
         borderColor: '#2dd4bf',
         backgroundColor: 'rgba(45, 212, 191, 0.1)',
-        fill: true,
-        tension: 0.4,
-      },
-      {
-        label: 'Total Users',
-        data: [5000, 6900, 9300, 11400, 14200, 17400, 21200],
-        borderColor: '#8b5cf6',
-        backgroundColor: 'rgba(139, 92, 246, 0.1)',
         fill: true,
         tension: 0.4,
       },
@@ -68,7 +128,7 @@ export default function AnalyticsPage() {
     datasets: [
       {
         label: 'Revenue ($)',
-        data: [12500, 18900, 24400, 21100, 28800, 32200, 38800],
+        data: [12500, 18900, 24400, 21100, 28800, 32200, stats.totalRevenue || 38800],
         backgroundColor: '#2dd4bf',
         borderRadius: 8,
       },
@@ -76,36 +136,23 @@ export default function AnalyticsPage() {
   };
 
   const usageByModelData = {
-    labels: ['ChatGPT', 'Claude', 'Gemini', 'DALL-E', 'Leonardo', 'Others'],
+    labels: modelUsage.length > 0 ? modelUsage.map(m => m.model) : ['ChatGPT', 'Claude', 'Gemini', 'DALL-E', 'Leonardo', 'Others'],
     datasets: [
       {
-        data: [35, 25, 20, 10, 7, 3],
-        backgroundColor: [
-          '#2dd4bf',
-          '#8b5cf6',
-          '#f97316',
-          '#22c55e',
-          '#f59e0b',
-          '#6b7280',
-        ],
+        data: modelUsage.length > 0 ? modelUsage.map(m => m.count) : [35, 25, 20, 10, 7, 3],
+        backgroundColor: chartColors.slice(0, modelUsage.length || 6),
         borderWidth: 0,
       },
     ],
   };
 
   const dailyUsageData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    labels: usageData.length > 0 ? usageData.slice(-7).map(d => new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })) : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     datasets: [
       {
-        label: 'Chat Sessions',
-        data: [4200, 5100, 4800, 6200, 5900, 3800, 3200],
+        label: 'Sessions',
+        data: usageData.length > 0 ? usageData.slice(-7).map(d => d.count) : [4200, 5100, 4800, 6200, 5900, 3800, 3200],
         backgroundColor: '#2dd4bf',
-        borderRadius: 8,
-      },
-      {
-        label: 'Image Generations',
-        data: [1800, 2200, 2100, 2800, 2500, 1900, 1600],
-        backgroundColor: '#8b5cf6',
         borderRadius: 8,
       },
     ],
@@ -177,13 +224,21 @@ export default function AnalyticsPage() {
     cutout: '65%',
   };
 
-  // Stats summary
-  const stats = [
-    { label: 'Total Users', value: '21,247', change: '+12.5%', icon: Users, color: 'text-primary' },
-    { label: 'Chat Sessions', value: '148,293', change: '+23.1%', icon: MessageSquare, color: 'text-secondary' },
-    { label: 'Images Generated', value: '45,847', change: '+8.4%', icon: Image, color: 'text-accent' },
-    { label: 'Total Revenue', value: '$176,700', change: '+18.2%', icon: DollarSign, color: 'text-success' },
+  // Stats summary with dynamic data
+  const statCards = [
+    { label: 'Total Users', value: stats.totalUsers.toLocaleString(), change: `+${stats.userGrowth.toFixed(1)}%`, icon: Users, color: 'text-primary' },
+    { label: 'Chat Sessions', value: stats.totalSessions.toLocaleString(), change: `+${stats.sessionGrowth.toFixed(1)}%`, icon: MessageSquare, color: 'text-secondary' },
+    { label: 'Images Generated', value: stats.totalImages.toLocaleString(), change: `+${stats.imageGrowth.toFixed(1)}%`, icon: Image, color: 'text-accent' },
+    { label: 'Total Revenue', value: `$${stats.totalRevenue.toLocaleString()}`, change: `+${stats.revenueGrowth.toFixed(1)}%`, icon: DollarSign, color: 'text-success' },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -210,6 +265,14 @@ export default function AnalyticsPage() {
               </button>
             ))}
           </div>
+          <button
+            onClick={() => fetchAnalytics(true)}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 bg-surface border border-border text-white rounded-xl hover:bg-card transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
           <button className="flex items-center gap-2 px-4 py-2 bg-surface border border-border text-white rounded-xl hover:bg-card transition-colors">
             <Download className="w-4 h-4" />
             Export
@@ -219,7 +282,7 @@ export default function AnalyticsPage() {
 
       {/* Stats summary */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => {
+        {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
             <div key={stat.label} className="bg-surface border border-border rounded-xl p-5">

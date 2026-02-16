@@ -53,8 +53,7 @@ class AIModelInfo(models.Model):
     model_type=models.CharField(choices=MODEL,max_length=50,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # images_generating_models=models.BooleanField(default=False,help_text="Indicates if the model supports image generation")
-    base_cost=models.DecimalField(default=0,help_text="base cost in terms of words or credits for using this model",decimal_places=50,max_digits=100)
+    base_cost=models.DecimalField(default=0,help_text="base cost in terms of words or credits for using this model",decimal_places=8,max_digits=20)
 
 
     def __str__(self):
@@ -87,10 +86,17 @@ class ChatSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, related_name='chat_sessions')
     summary=models.TextField(null=True,blank=True)
     session_type=models.CharField(choices=Session_Type,max_length=50,null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         ordering=['-updated_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['user', 'session_type']),
+        ]
  
 
 class ChatMessage(models.Model):
@@ -99,8 +105,14 @@ class ChatMessage(models.Model):
     images = models.JSONField(default=list, blank=True)
     voice = models.FileField(upload_to='media/voice_chat/', null=True, blank=True)
     content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['session', '-created_at']),
+        ]
+
     def __str__(self):
         return f"Message from {self.sender} at {self.created_at}"
 

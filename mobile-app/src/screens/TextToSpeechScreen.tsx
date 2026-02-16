@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
-import { chatService } from '../services';
+import { chatService, mediaService } from '../services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS, WS_BASE_URL } from '../services/config';
 
@@ -123,7 +123,8 @@ const TextToSpeechScreen: React.FC = () => {
         setIsGenerating(false);
         setText('');
       } else if (data.error) {
-        Alert.alert('Error', data.error);
+        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+        Alert.alert('Error', errorMsg);
         setGeneratedAudios(prev => prev.filter(a => a.status !== 'generating'));
         setIsGenerating(false);
       }
@@ -201,6 +202,40 @@ const TextToSpeechScreen: React.FC = () => {
       console.error('Error playing audio:', error);
       Alert.alert('Error', 'Failed to play audio');
     }
+  };
+
+  const handleDownload = async (audio: GeneratedAudio) => {
+    try {
+      await mediaService.saveAudioFile(audio.url, `tts_${audio.id}.mp3`);
+      Alert.alert('Success', 'Audio saved to your device');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to download audio');
+    }
+  };
+
+  const handleShare = async (audio: GeneratedAudio) => {
+    try {
+      await mediaService.shareFile(audio.url, `tts_${audio.id}.mp3`);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to share audio');
+    }
+  };
+
+  const handleDelete = (audioId: string) => {
+    Alert.alert(
+      'Delete Audio',
+      'Are you sure you want to remove this audio?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            setGeneratedAudios(prev => prev.filter(a => a.id !== audioId));
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -392,9 +427,26 @@ const TextToSpeechScreen: React.FC = () => {
                       </Text>
                       <Text style={styles.audioVoice}>{audio.voice}</Text>
                     </View>
-                    <TouchableOpacity style={styles.downloadButton}>
-                      <Ionicons name="download-outline" size={20} color={colors.primary} />
-                    </TouchableOpacity>
+                    <View style={styles.audioActions}>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleShare(audio)}
+                      >
+                        <Ionicons name="share-outline" size={20} color={colors.primary} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDownload(audio)}
+                      >
+                        <Ionicons name="download-outline" size={20} color={colors.primary} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDelete(audio.id)}
+                      >
+                        <Ionicons name="trash-outline" size={20} color={colors.error} />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 )}
               </GlassCard>
@@ -610,7 +662,12 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 12,
   },
-  downloadButton: {
+  audioActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  actionButton: {
     padding: 8,
   },
 });

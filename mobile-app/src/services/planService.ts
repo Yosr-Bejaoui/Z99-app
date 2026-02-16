@@ -5,7 +5,7 @@ export interface Plan {
   id: number;
   name: string;
   plan_code: string;
-  discription: string;
+  description: string;
   words_or_credits: number;
   amount: number;
   created_at: string;

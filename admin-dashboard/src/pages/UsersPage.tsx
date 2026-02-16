@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Search,
   Filter,
@@ -16,35 +16,29 @@ import {
   ShieldPlus,
   Eye,
   EyeOff,
+  Loader2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 
 interface User {
   id: number;
-  name: string;
+  username: string;
   email: string;
-  status: 'active' | 'inactive' | 'banned';
-  subscription: string;
-  totalUsage: number;
-  joinedDate: string;
-  avatar?: string;
+  first_name: string;
+  last_name: string;
+  is_active: boolean;
+  is_staff: boolean;
+  subscribed: boolean;
+  total_token_used: number;
+  date_joined: string;
+  credits_balance: number;
+  session_count: number;
 }
 
-// Mock data
-const mockUsers: User[] = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', status: 'active', subscription: 'Pro', totalUsage: 15420, joinedDate: '2024-01-15' },
-  { id: 2, name: 'Sarah Smith', email: 'sarah@example.com', status: 'active', subscription: 'Enterprise', totalUsage: 28340, joinedDate: '2024-02-20' },
-  { id: 3, name: 'Mike Johnson', email: 'mike@example.com', status: 'inactive', subscription: 'Free', totalUsage: 1250, joinedDate: '2024-03-10' },
-  { id: 4, name: 'Emma Wilson', email: 'emma@example.com', status: 'active', subscription: 'Pro', totalUsage: 9870, joinedDate: '2024-01-28' },
-  { id: 5, name: 'Alex Brown', email: 'alex@example.com', status: 'banned', subscription: 'Free', totalUsage: 450, joinedDate: '2024-04-05' },
-  { id: 6, name: 'Lisa Davis', email: 'lisa@example.com', status: 'active', subscription: 'Enterprise', totalUsage: 42150, joinedDate: '2023-11-12' },
-  { id: 7, name: 'Chris Lee', email: 'chris@example.com', status: 'active', subscription: 'Pro', totalUsage: 7890, joinedDate: '2024-02-08' },
-  { id: 8, name: 'Amy Taylor', email: 'amy@example.com', status: 'inactive', subscription: 'Free', totalUsage: 320, joinedDate: '2024-04-22' },
-];
-
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [subscriptionFilter, setSubscriptionFilter] = useState<string>('all');
@@ -63,6 +57,25 @@ export default function UsersPage() {
     password: '',
     confirmPassword: '',
   });
+
+  // Fetch users from API
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/accounts/admin/users/');
+      const data = response.data.results || response.data || [];
+      setUsers(data);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+      toast.error('Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   // Handle Add Admin form submission
   const handleAddAdmin = async (e: React.FormEvent) => {
@@ -101,10 +114,14 @@ export default function UsersPage() {
   // Filter users
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.username || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
-    const matchesSubscription = subscriptionFilter === 'all' || user.subscription === subscriptionFilter;
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'active' && user.is_active) ||
+      (statusFilter === 'inactive' && !user.is_active);
+    const matchesSubscription = subscriptionFilter === 'all' || 
+      (subscriptionFilter === 'subscribed' && user.subscribed) ||
+      (subscriptionFilter === 'free' && !user.subscribed);
     return matchesSearch && matchesStatus && matchesSubscription;
   });
 
@@ -131,37 +148,49 @@ export default function UsersPage() {
     }
   };
 
-  const handleStatusChange = (userId: number, newStatus: 'active' | 'inactive' | 'banned') => {
-    setUsers(users.map((u) => (u.id === userId ? { ...u, status: newStatus } : u)));
-    setActiveDropdown(null);
-    toast.success(`User status updated to ${newStatus}`);
+  const handleStatusChange = async (userId: number, newStatus: boolean) => {
+    try {
+      await api.post(`/accounts/admin/users/${userId}/toggle_status/`);
+      setUsers(users.map((u) => (u.id === userId ? { ...u, is_active: newStatus } : u)));
+      setActiveDropdown(null);
+      toast.success(`User ${newStatus ? 'activated' : 'deactivated'} successfully`);
+    } catch (error) {
+      toast.error('Failed to update user status');
+    }
   };
 
-  const handleDeleteUser = (userId: number) => {
+  const handleDeleteUser = async (userId: number) => {
     if (confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter((u) => u.id !== userId));
-      toast.success('User deleted successfully');
+      try {
+        await api.delete(`/accounts/admin/users/${userId}/`);
+        setUsers(users.filter((u) => u.id !== userId));
+        toast.success('User deleted successfully');
+      } catch (error) {
+        toast.error('Failed to delete user');
+      }
     }
     setActiveDropdown(null);
   };
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      active: 'bg-success/10 text-success border-success/20',
-      inactive: 'bg-warning/10 text-warning border-warning/20',
-      banned: 'bg-error/10 text-error border-error/20',
-    };
-    return styles[status as keyof typeof styles] || styles.inactive;
+  const getStatusBadge = (isActive: boolean) => {
+    return isActive 
+      ? 'bg-success/10 text-success border-success/20'
+      : 'bg-warning/10 text-warning border-warning/20';
   };
 
-  const getSubscriptionBadge = (subscription: string) => {
-    const styles = {
-      Free: 'bg-card text-foreground-muted',
-      Pro: 'bg-primary/10 text-primary',
-      Enterprise: 'bg-secondary/10 text-secondary',
-    };
-    return styles[subscription as keyof typeof styles] || styles.Free;
+  const getSubscriptionBadge = (subscribed: boolean) => {
+    return subscribed 
+      ? 'bg-primary/10 text-primary'
+      : 'bg-card text-foreground-muted';
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -357,9 +386,8 @@ export default function UsersPage() {
             className="px-4 py-3 bg-card border border-border rounded-xl text-white focus:border-primary transition-colors cursor-pointer"
           >
             <option value="all">All Plans</option>
-            <option value="Free">Free</option>
-            <option value="Pro">Pro</option>
-            <option value="Enterprise">Enterprise</option>
+            <option value="subscribed">Subscribed</option>
+            <option value="free">Free</option>
           </select>
         </div>
 
@@ -436,10 +464,10 @@ export default function UsersPage() {
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-medium">
-                        {user.name.split(' ').map((n) => n[0]).join('')}
+                        {(user.username || user.email || 'U')[0].toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-white font-medium">{user.name}</p>
+                        <p className="text-white font-medium">{user.username || 'No username'}</p>
                         <p className="text-sm text-foreground-muted">{user.email}</p>
                       </div>
                     </div>
@@ -447,29 +475,28 @@ export default function UsersPage() {
                   <td className="p-4">
                     <span
                       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(
-                        user.status
+                        user.is_active
                       )}`}
                     >
-                      {user.status === 'active' && <Check className="w-3 h-3" />}
-                      {user.status === 'banned' && <X className="w-3 h-3" />}
-                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                      {user.is_active ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      {user.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="p-4">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getSubscriptionBadge(
-                        user.subscription
+                        user.subscribed
                       )}`}
                     >
-                      {user.subscription}
+                      {user.subscribed ? 'Subscribed' : 'Free'}
                     </span>
                   </td>
                   <td className="p-4">
-                    <span className="text-white">{user.totalUsage.toLocaleString()}</span>
-                    <span className="text-foreground-muted text-sm ml-1">words</span>
+                    <span className="text-white">{Number(user.total_token_used || 0).toLocaleString()}</span>
+                    <span className="text-foreground-muted text-sm ml-1">tokens</span>
                   </td>
                   <td className="p-4 text-foreground-muted">
-                    {new Date(user.joinedDate).toLocaleDateString()}
+                    {new Date(user.date_joined).toLocaleDateString()}
                   </td>
                   <td className="p-4">
                     <div className="relative">
@@ -501,9 +528,9 @@ export default function UsersPage() {
                               <Mail className="w-4 h-4" />
                               Send Email
                             </button>
-                            {user.status !== 'active' ? (
+                            {!user.is_active ? (
                               <button
-                                onClick={() => handleStatusChange(user.id, 'active')}
+                                onClick={() => handleStatusChange(user.id, true)}
                                 className="flex items-center gap-2 w-full px-4 py-2 text-sm text-success hover:bg-success/10 transition-colors"
                               >
                                 <Shield className="w-4 h-4" />
@@ -511,11 +538,11 @@ export default function UsersPage() {
                               </button>
                             ) : (
                               <button
-                                onClick={() => handleStatusChange(user.id, 'banned')}
+                                onClick={() => handleStatusChange(user.id, false)}
                                 className="flex items-center gap-2 w-full px-4 py-2 text-sm text-warning hover:bg-warning/10 transition-colors"
                               >
                                 <Ban className="w-4 h-4" />
-                                Ban User
+                                Deactivate
                               </button>
                             )}
                             <button

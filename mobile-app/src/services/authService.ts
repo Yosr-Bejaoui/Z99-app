@@ -181,6 +181,34 @@ export const authService = {
       throw new Error(getErrorMessage(error));
     }
   },
+
+  // Update profile picture
+  async updateProfilePicture(imageUri: string): Promise<User> {
+    try {
+      // Create form data for image upload
+      const formData = new FormData();
+      const filename = imageUri.split('/').pop() || 'profile.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+      formData.append('profile_picture', {
+        uri: imageUri,
+        name: filename,
+        type,
+      } as any);
+
+      const response = await api.patch(ENDPOINTS.PROFILE, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.data));
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
 };
 
 export default authService;

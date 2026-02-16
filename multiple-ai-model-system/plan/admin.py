@@ -10,7 +10,7 @@ class AdminRevenue(ModelAdmin):
 
 @admin.register(PlanModel)
 class AdminPlan(ModelAdmin):
-    list_display=["name","plan_code","discription","words_or_credits","amount","created_at","updated_at"]
+    list_display=["name","plan_code","description","words_or_credits","amount","created_at","updated_at"]
     list_per_page=20
 
 

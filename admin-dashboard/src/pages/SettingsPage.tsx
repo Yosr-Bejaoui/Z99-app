@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   User,
   Mail,
@@ -10,21 +10,31 @@ import {
   Save,
   Eye,
   EyeOff,
+  Loader2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
+import settingsService from '../services/settingsService';
 
 export default function SettingsPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'api'>('profile');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Form states
   const [profile, setProfile] = useState({
     name: user?.name || '',
     email: user?.email || '',
     username: user?.username || '',
+  });
+
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
   });
 
   const [notifications, setNotifications] = useState({
@@ -43,21 +53,109 @@ export default function SettingsPage() {
     stripeWebhook: '',
   });
 
-  const handleSaveProfile = () => {
-    toast.success('Profile updated successfully');
+  // Load notification settings on mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      setLoading(true);
+      try {
+        const notificationSettings = await settingsService.getNotificationSettings();
+        setNotifications(notificationSettings as typeof notifications);
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadSettings();
+  }, []);
+
+  // Update profile state when user changes
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        name: user.name || '',
+        email: user.email || '',
+        username: user.username || '',
+      });
+    }
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    try {
+      await settingsService.updateProfile(profile);
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleChangePassword = (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Password changed successfully');
+    
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error('New passwords do not match');
+      return;
+    }
+    
+    if (passwordForm.newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await settingsService.changePassword({
+        current_password: passwordForm.currentPassword,
+        new_password: passwordForm.newPassword,
+      });
+      toast.success('Password changed successfully');
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: string } } };
+      toast.error(err.response?.data?.error || 'Failed to change password');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleSaveNotifications = () => {
-    toast.success('Notification preferences saved');
+  const handleSaveNotifications = async () => {
+    setSaving(true);
+    try {
+      await settingsService.updateNotificationSettings(notifications);
+      toast.success('Notification preferences saved');
+    } catch (error) {
+      console.error('Failed to save notification settings:', error);
+      toast.error('Failed to save notification preferences');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleSaveApiKeys = () => {
-    toast.success('API keys updated successfully');
+  const handleSaveApiKeys = async () => {
+    setSaving(true);
+    try {
+      // Save API keys as API provider configurations
+      const providers = [
+        { name: 'OpenAI', api_key: apiSettings.openaiKey },
+        { name: 'Anthropic', api_key: apiSettings.anthropicKey },
+        { name: 'Google', api_key: apiSettings.googleKey },
+        { name: 'Stripe', api_key: apiSettings.stripeKey },
+      ].filter(p => p.api_key);
+
+      for (const provider of providers) {
+        await settingsService.createAPIProvider(provider);
+      }
+      toast.success('API keys updated successfully');
+    } catch (error) {
+      console.error('Failed to save API keys:', error);
+      toast.error('Failed to update API keys');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const tabs = [
@@ -66,6 +164,14 @@ export default function SettingsPage() {
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'api', label: 'API Keys', icon: Key },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -163,9 +269,10 @@ export default function SettingsPage() {
 
                 <button
                   onClick={handleSaveProfile}
-                  className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors"
+                  disabled={saving}
+                  className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50"
                 >
-                  <Save className="w-4 h-4" />
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Save Changes
                 </button>
               </div>
@@ -185,6 +292,8 @@ export default function SettingsPage() {
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
                       <input
                         type={showCurrentPassword ? 'text' : 'password'}
+                        value={passwordForm.currentPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                         placeholder="••••••••"
                         className="w-full pl-12 pr-12 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
                       />
@@ -204,6 +313,8 @@ export default function SettingsPage() {
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
                       <input
                         type={showNewPassword ? 'text' : 'password'}
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                         placeholder="••••••••"
                         className="w-full pl-12 pr-12 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
                       />
@@ -223,6 +334,8 @@ export default function SettingsPage() {
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
                       <input
                         type="password"
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                         placeholder="••••••••"
                         className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
                       />
@@ -231,9 +344,10 @@ export default function SettingsPage() {
 
                   <button
                     type="submit"
-                    className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors"
+                    disabled={saving}
+                    className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50"
                   >
-                    <Lock className="w-4 h-4" />
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
                     Update Password
                   </button>
                 </form>
@@ -321,9 +435,10 @@ export default function SettingsPage() {
 
                 <button
                   onClick={handleSaveNotifications}
-                  className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors"
+                  disabled={saving}
+                  className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50"
                 >
-                  <Save className="w-4 h-4" />
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Save Preferences
                 </button>
               </div>
@@ -364,9 +479,10 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-4 pt-4">
                   <button
                     onClick={handleSaveApiKeys}
-                    className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors"
+                    disabled={saving}
+                    className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50"
                   >
-                    <Save className="w-4 h-4" />
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Save API Keys
                   </button>
                   <p className="text-foreground-muted text-sm">

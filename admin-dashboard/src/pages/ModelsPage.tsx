@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Search,
   Plus,
@@ -12,47 +12,47 @@ import {
   Image,
   Video,
   Music,
-  Mic,
   Check,
   X,
   Key,
   Globe,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-interface AIModel {
-  id: number;
-  name: string;
-  provider: string;
-  type: 'chat' | 'image' | 'video' | 'audio' | 'tts' | 'stt';
-  isActive: boolean;
-  isPremium: boolean;
-  hasApiKey: boolean;
-  usageCount: number;
-  description: string;
-}
-
-// Mock data
-const mockModels: AIModel[] = [
-  { id: 1, name: 'GPT-4', provider: 'OpenAI', type: 'chat', isActive: true, isPremium: true, hasApiKey: true, usageCount: 12450, description: 'Most capable GPT-4 model' },
-  { id: 2, name: 'GPT-3.5 Turbo', provider: 'OpenAI', type: 'chat', isActive: true, isPremium: false, hasApiKey: true, usageCount: 8920, description: 'Fast and efficient' },
-  { id: 3, name: 'Claude 3 Opus', provider: 'Anthropic', type: 'chat', isActive: true, isPremium: true, hasApiKey: true, usageCount: 7140, description: 'Best for complex tasks' },
-  { id: 4, name: 'Claude 3 Sonnet', provider: 'Anthropic', type: 'chat', isActive: true, isPremium: false, hasApiKey: true, usageCount: 5230, description: 'Balanced performance' },
-  { id: 5, name: 'Gemini Pro', provider: 'Google', type: 'chat', isActive: true, isPremium: false, hasApiKey: true, usageCount: 4870, description: 'Google\'s flagship model' },
-  { id: 6, name: 'DALL-E 3', provider: 'OpenAI', type: 'image', isActive: true, isPremium: true, hasApiKey: true, usageCount: 3570, description: 'High quality image generation' },
-  { id: 7, name: 'Leonardo', provider: 'Leonardo.ai', type: 'image', isActive: true, isPremium: false, hasApiKey: true, usageCount: 2890, description: 'Creative image generation' },
-  { id: 8, name: 'Stable Diffusion', provider: 'Stability AI', type: 'image', isActive: false, isPremium: false, hasApiKey: false, usageCount: 1240, description: 'Open source image model' },
-  { id: 9, name: 'DeepSeek', provider: 'DeepSeek', type: 'chat', isActive: true, isPremium: false, hasApiKey: true, usageCount: 2150, description: 'Code-focused AI' },
-  { id: 10, name: 'ElevenLabs', provider: 'ElevenLabs', type: 'tts', isActive: true, isPremium: true, hasApiKey: true, usageCount: 1890, description: 'Natural text-to-speech' },
-];
+import { modelsService, AIModel } from '../services/modelsService';
 
 export default function ModelsPage() {
-  const [models, setModels] = useState<AIModel[]>(mockModels);
+  const [models, setModels] = useState<AIModel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [providerFilter, setProviderFilter] = useState<string>('all');
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  const fetchModels = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      const data = await modelsService.getModels();
+      setModels(data);
+    } catch (error) {
+      console.error('Error fetching models:', error);
+      toast.error('Failed to load models');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchModels();
+  }, []);
 
   // Get unique providers
   const providers = ['all', ...new Set(models.map((m) => m.provider))];
@@ -62,22 +62,34 @@ export default function ModelsPage() {
     const matchesSearch =
       model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       model.provider.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = typeFilter === 'all' || model.type === typeFilter;
+    const matchesType = typeFilter === 'all' || model.model_type === typeFilter;
     const matchesProvider = providerFilter === 'all' || model.provider === providerFilter;
     return matchesSearch && matchesType && matchesProvider;
   });
 
-  const toggleModelStatus = (modelId: number) => {
-    setModels(models.map((m) => (m.id === modelId ? { ...m, isActive: !m.isActive } : m)));
+  const toggleModelStatus = async (modelId: number) => {
     const model = models.find((m) => m.id === modelId);
-    toast.success(`${model?.name} ${model?.isActive ? 'disabled' : 'enabled'}`);
+    if (!model) return;
+    
+    try {
+      await modelsService.toggleModelStatus(modelId, !model.is_active);
+      setModels(models.map((m) => (m.id === modelId ? { ...m, is_active: !m.is_active } : m)));
+      toast.success(`${model.name} ${model.is_active ? 'disabled' : 'enabled'}`);
+    } catch (error) {
+      toast.error('Failed to update model status');
+    }
     setActiveDropdown(null);
   };
 
-  const deleteModel = (modelId: number) => {
+  const deleteModel = async (modelId: number) => {
     if (confirm('Are you sure you want to delete this model?')) {
-      setModels(models.filter((m) => m.id !== modelId));
-      toast.success('Model deleted successfully');
+      try {
+        await modelsService.deleteModel(modelId);
+        setModels(models.filter((m) => m.id !== modelId));
+        toast.success('Model deleted successfully');
+      } catch (error) {
+        toast.error('Failed to delete model');
+      }
     }
     setActiveDropdown(null);
   };
@@ -86,16 +98,20 @@ export default function ModelsPage() {
     switch (type) {
       case 'chat':
         return <MessageSquare className="w-4 h-4" />;
-      case 'image':
+      case 'text_to_image':
+      case 'image_editor':
+      case 'image_tool':
         return <Image className="w-4 h-4" />;
-      case 'video':
+      case 'text_to_video':
+      case 'image_to_video':
+      case 'text_or_image_to_video':
+      case 'video_upscaler':
+      case 'video_effect':
         return <Video className="w-4 h-4" />;
-      case 'audio':
+      case 'text_to_speech':
         return <Music className="w-4 h-4" />;
-      case 'tts':
-        return <Music className="w-4 h-4" />;
-      case 'stt':
-        return <Mic className="w-4 h-4" />;
+      case 'image_to_3d':
+        return <Bot className="w-4 h-4" />;
       default:
         return <Bot className="w-4 h-4" />;
     }
@@ -105,14 +121,20 @@ export default function ModelsPage() {
     switch (type) {
       case 'chat':
         return 'bg-primary/10 text-primary';
-      case 'image':
+      case 'text_to_image':
+      case 'image_editor':
+      case 'image_tool':
         return 'bg-secondary/10 text-secondary';
-      case 'video':
+      case 'text_to_video':
+      case 'image_to_video':
+      case 'text_or_image_to_video':
+      case 'video_upscaler':
+      case 'video_effect':
         return 'bg-accent/10 text-accent';
-      case 'audio':
-      case 'tts':
-      case 'stt':
+      case 'text_to_speech':
         return 'bg-success/10 text-success';
+      case 'image_to_3d':
+        return 'bg-warning/10 text-warning';
       default:
         return 'bg-card text-foreground-muted';
     }
@@ -121,10 +143,18 @@ export default function ModelsPage() {
   // Stats
   const stats = {
     total: models.length,
-    active: models.filter((m) => m.isActive).length,
-    inactive: models.filter((m) => !m.isActive).length,
-    premium: models.filter((m) => m.isPremium).length,
+    active: models.filter((m) => m.is_active).length,
+    inactive: models.filter((m) => !m.is_active).length,
+    chat: models.filter((m) => m.model_type === 'chat').length,
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -136,13 +166,23 @@ export default function ModelsPage() {
             Manage and configure AI model integrations
           </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors w-fit"
-        >
-          <Plus className="w-4 h-4" />
-          Add Model
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => fetchModels(true)}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-white rounded-xl hover:bg-surface transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Model
+          </button>
+        </div>
       </div>
 
       {/* Stats cards */}
@@ -160,8 +200,8 @@ export default function ModelsPage() {
           <p className="text-2xl font-bold text-warning mt-1">{stats.inactive}</p>
         </div>
         <div className="bg-surface border border-border rounded-xl p-4">
-          <p className="text-foreground-muted text-sm">Premium</p>
-          <p className="text-2xl font-bold text-secondary mt-1">{stats.premium}</p>
+          <p className="text-foreground-muted text-sm">Chat Models</p>
+          <p className="text-2xl font-bold text-secondary mt-1">{stats.chat}</p>
         </div>
       </div>
 
@@ -188,10 +228,15 @@ export default function ModelsPage() {
           >
             <option value="all">All Types</option>
             <option value="chat">Chat</option>
-            <option value="image">Image</option>
-            <option value="video">Video</option>
-            <option value="tts">Text-to-Speech</option>
-            <option value="stt">Speech-to-Text</option>
+            <option value="text_to_image">Text to Image</option>
+            <option value="image_editor">Image Editor</option>
+            <option value="image_tool">Image Tool</option>
+            <option value="text_to_video">Text to Video</option>
+            <option value="image_to_video">Image to Video</option>
+            <option value="video_upscaler">Video Upscaler</option>
+            <option value="video_effect">Video Effect</option>
+            <option value="image_to_3d">Image to 3D</option>
+            <option value="text_to_speech">Text to Speech</option>
           </select>
 
           {/* Provider filter */}
@@ -215,13 +260,13 @@ export default function ModelsPage() {
           <div
             key={model.id}
             className={`bg-surface border rounded-2xl p-5 transition-all ${
-              model.isActive ? 'border-border hover:border-primary/50' : 'border-border opacity-60'
+              model.is_active ? 'border-border hover:border-primary/50' : 'border-border opacity-60'
             }`}
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className={`p-2.5 rounded-xl ${getTypeColor(model.type)}`}>
-                  {getTypeIcon(model.type)}
+                <div className={`p-2.5 rounded-xl ${getTypeColor(model.model_type)}`}>
+                  {getTypeIcon(model.model_type)}
                 </div>
                 <div>
                   <h3 className="text-white font-semibold">{model.name}</h3>
@@ -266,12 +311,12 @@ export default function ModelsPage() {
                       <button
                         onClick={() => toggleModelStatus(model.id)}
                         className={`flex items-center gap-2 w-full px-4 py-2 text-sm transition-colors ${
-                          model.isActive
+                          model.is_active
                             ? 'text-warning hover:bg-warning/10'
                             : 'text-success hover:bg-success/10'
                         }`}
                       >
-                        {model.isActive ? (
+                        {model.is_active ? (
                           <>
                             <PowerOff className="w-4 h-4" />
                             Disable
@@ -297,38 +342,36 @@ export default function ModelsPage() {
             </div>
 
             <p className="text-foreground-muted text-sm mb-4 line-clamp-2">
-              {model.description}
+              {model.description || 'No description available'}
             </p>
 
             <div className="flex items-center gap-2 mb-4">
               {/* Status badges */}
               <span
                 className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium ${
-                  model.isActive ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
+                  model.is_active ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
                 }`}
               >
-                {model.isActive ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                {model.isActive ? 'Active' : 'Inactive'}
+                {model.is_active ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                {model.is_active ? 'Active' : 'Inactive'}
               </span>
-              {model.isPremium && (
-                <span className="inline-flex px-2 py-1 rounded-lg text-xs font-medium bg-secondary/10 text-secondary">
-                  Premium
-                </span>
-              )}
+              <span className="inline-flex px-2 py-1 rounded-lg text-xs font-medium bg-card text-foreground-muted">
+                v{model.version}
+              </span>
               <span
                 className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium ${
-                  model.hasApiKey ? 'bg-primary/10 text-primary' : 'bg-warning/10 text-warning'
+                  model.api_key ? 'bg-primary/10 text-primary' : 'bg-warning/10 text-warning'
                 }`}
               >
-                {model.hasApiKey ? <Key className="w-3 h-3" /> : <Globe className="w-3 h-3" />}
-                {model.hasApiKey ? 'API Key Set' : 'No API Key'}
+                {model.api_key ? <Key className="w-3 h-3" /> : <Globe className="w-3 h-3" />}
+                {model.api_key ? 'API Key Set' : 'No API Key'}
               </span>
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t border-border">
-              <span className="text-foreground-muted text-sm">Usage</span>
+              <span className="text-foreground-muted text-sm">Base Cost</span>
               <span className="text-white font-medium">
-                {model.usageCount.toLocaleString()} requests
+                {model.base_cost || 0} credits
               </span>
             </div>
           </div>

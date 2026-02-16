@@ -2,12 +2,26 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import ChatSession, ChatMessage
 import json
+import logging
 from django.contrib.auth import get_user_model
 from jwt import decode as jwt_decode
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
 import base64,requests,re
+
+# Import WebSocket utilities for heartbeat and error handling
+from .websocket_utils import (
+    HeartbeatMixin, 
+    RateLimitMixin,
+    WebSocketError, 
+    connection_tracker,
+    format_ws_message,
+    parse_ws_message
+)
+
+logger = logging.getLogger('websocket')
+
 try:
     from langdetect import detect as detect_language
 except ImportError:
@@ -231,7 +245,25 @@ def detect_text_language(text):
         return "en", "English"
 
 
-class ChatConsumer(AsyncWebsocketConsumer):
+class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
+    """
+    WebSocket consumer for real-time chat with AI models.
+    
+    Features:
+    - JWT-based authentication
+    - Heartbeat for connection monitoring
+    - Rate limiting per user
+    - Standardized error responses
+    """
+    
+    # Heartbeat configuration
+    heartbeat_interval = 30  # Send ping every 30 seconds
+    heartbeat_timeout = 90   # Disconnect if no pong in 90 seconds
+    
+    # Rate limiting configuration
+    rate_limit_messages = 60  # Max 60 messages per minute
+    rate_limit_window = 60    # 60 second window
+    
     # max_message_size = 10 * 1024 * 1024 
     @database_sync_to_async
     def get_session_messages(self, session_id, user):
@@ -348,7 +380,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = await self.get_user_from_token()
         if not self.user.is_authenticated:
-            await self.close()
+            logger.warning(f"WebSocket connection rejected - invalid token")
+            await self.close(code=WebSocketError.UNAUTHORIZED)
             return
 
         self.session_id = self.scope['url_route']['kwargs']['session_id']
@@ -356,6 +389,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+        
+        # Start heartbeat monitoring
+        await self.start_heartbeat()
+        
+        # Track connection
+        connection_tracker.add_connection(
+            self.channel_name, 
+            user_id=self.user.id, 
+            session_id=int(self.session_id)
+        )
+        
+        logger.info(f"WebSocket connected: user={self.user.id}, session={self.session_id}")
 
         messages = await self.get_session_messages(self.session_id, self.user)
         await self.send_json_with_credits({"type": "previous_messages", "messages": messages})
@@ -364,6 +409,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = {}
         user_voice = None
         
+        # Update connection activity
+        connection_tracker.update_activity(self.channel_name)
+        
         if bytes_data:
             # Handle direct binary voice data
             user_voice = bytes_data
@@ -371,11 +419,39 @@ class ChatConsumer(AsyncWebsocketConsumer):
         elif text_data:
             try:
                 data = json.loads(text_data)
+                
+                # Handle pong response for heartbeat
+                if data.get("type") == "pong":
+                    await self.handle_pong()
+                    return
+                
+                # Handle ping request from client (optional)
+                if data.get("type") == "ping":
+                    await self.send(text_data=json.dumps({
+                        "type": "pong",
+                        "timestamp": data.get("timestamp")
+                    }))
+                    return
+                
                 user_voice = data.get("voice")
             except json.JSONDecodeError:
-                await self.send_json_with_credits({"type": "error", "message": "Invalid JSON format."})
+                await self.send_error(WebSocketError.INVALID_JSON)
                 return
         else:
+            return
+        
+        # Check rate limit
+        if not self._check_rate_limit():
+            reset_time = self._get_rate_limit_reset()
+            await self.send(text_data=json.dumps({
+                "type": "error",
+                "error": {
+                    "code": "RATE_LIMIT_EXCEEDED",
+                    "message": f"Too many messages. Please wait {reset_time} seconds.",
+                    "retry_after": reset_time
+                }
+            }))
+            logger.warning(f"Rate limit exceeded for user {self.user.id}")
             return
         
         if user_voice and isinstance(user_voice, str) and not user_voice.startswith("http"):
@@ -1157,6 +1233,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send_json_with_credits({"type": "error", "message": f"Unsupported provider: {provider}"})
       
     async def disconnect(self, close_code):
+        # Stop heartbeat
+        await self.stop_heartbeat()
+        
+        # Remove connection from tracking
+        connection_tracker.remove_connection(self.channel_name)
+        
         # Only discard from group if room_group_name was set (connection was authenticated)
         if hasattr(self, 'room_group_name'):
             await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        
+        logger.info(f"WebSocket disconnected: channel={self.channel_name}, code={close_code}")

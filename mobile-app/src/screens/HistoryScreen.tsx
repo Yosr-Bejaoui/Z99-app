@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,53 +7,239 @@ import {
   ScrollView,
   SafeAreaView,
   RefreshControl,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+  Image,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { HistoryEmptyState } from '../components/EmptyState';
+import { historyService, mediaService, getErrorMessage } from '../services';
+import type { HistoryItem } from '../services/types';
+import GlassCard from '../components/GlassCard';
 
-interface HistoryItem {
-  id: string;
-  type: 'chat' | 'image';
-  title: string;
-  model: string;
-  date: string;
-  words: number;
-}
-
-const historyItems: HistoryItem[] = [
-  { id: '1', type: 'chat', title: 'Quantum Computing Explained', model: 'ChatGPT', date: '2 hours ago', words: 247 },
-  { id: '2', type: 'image', title: 'Cyberpunk City at Sunset', model: 'DALL·E', date: '5 hours ago', words: 12 },
-  { id: '3', type: 'chat', title: 'Python Best Practices', model: 'Claude', date: '1 day ago', words: 892 },
-  { id: '4', type: 'chat', title: 'React Architecture Guide', model: 'Gemini', date: '2 days ago', words: 1540 },
-  { id: '5', type: 'image', title: 'Mountain Watercolor Painting', model: 'Stable Diffusion', date: '3 days ago', words: 8 },
-  { id: '6', type: 'chat', title: 'Machine Learning Basics', model: 'DeepSeek', date: '4 days ago', words: 634 },
-  { id: '7', type: 'image', title: 'Futuristic Car Design', model: 'Leonardo', date: '5 days ago', words: 15 },
-  { id: '8', type: 'chat', title: 'API Design Principles', model: 'ChatGPT', date: '1 week ago', words: 1123 },
-];
-
-type FilterType = 'all' | 'chat' | 'image';
+type FilterType = 'all' | 'chat' | 'image' | 'video' | 'audio' | '3d';
 
 const HistoryScreen: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('all');
   const [refreshing, setRefreshing] = useState(false);
+  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    // Simulate API call - replace with actual data fetching
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1500);
+  useEffect(() => {
+    fetchHistory();
   }, []);
+
+  const fetchHistory = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await historyService.getHistory({ page_size: 50 });
+      setHistoryItems(response.results);
+    } catch (err) {
+      setError(getErrorMessage(err));
+      console.error('Failed to fetch history:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchHistory();
+    setRefreshing(false);
+  }, []);
+
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.trim().length === 0) {
+      fetchHistory();
+      return;
+    }
+    
+    if (query.trim().length >= 2) {
+      try {
+        const results = await historyService.searchHistory(query);
+        setHistoryItems(results);
+      } catch (err) {
+        console.error('Search failed:', err);
+      }
+    }
+  };
+
+  const handleDeleteItem = (item: HistoryItem) => {
+    Alert.alert(
+      'Delete Item',
+      `Are you sure you want to delete "${item.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsDeleting(true);
+              await historyService.deleteHistoryItem(item.id);
+              setHistoryItems(prev => prev.filter(i => i.id !== item.id));
+              if (selectedItem?.id === item.id) {
+                setSelectedItem(null);
+              }
+              Alert.alert('Success', 'Item deleted successfully');
+            } catch (err) {
+              Alert.alert('Error', getErrorMessage(err));
+            } finally {
+              setIsDeleting(false);
+            }
+          }
+        },
+      ]
+    );
+  };
+
+  const handleDownload = async (item: HistoryItem) => {
+    if (!item.content_url) {
+      Alert.alert('Error', 'No downloadable content available');
+      return;
+    }
+    
+    try {
+      let result;
+      if (item.type === 'image') {
+        result = await mediaService.saveImageToGallery(item.content_url);
+      } else if (item.type === 'video') {
+        result = await mediaService.saveVideoToGallery(item.content_url);
+      } else if (item.type === 'audio') {
+        result = await mediaService.saveAudioFile(item.content_url);
+      } else {
+        Alert.alert('Info', 'Download not supported for this type');
+        return;
+      }
+      
+      if (result.success) {
+        Alert.alert('Success', 'Saved successfully!');
+      } else {
+        Alert.alert('Error', result.error || 'Failed to save');
+      }
+    } catch (err) {
+      Alert.alert('Error', getErrorMessage(err));
+    }
+  };
 
   const filteredItems = historyItems.filter((item) => {
     if (filter === 'all') return true;
     return item.type === filter;
   });
 
-  const getIcon = (type: 'chat' | 'image') => {
-    return type === 'chat' ? 'chatbubble-outline' : 'image-outline';
+  const getIcon = (type: HistoryItem['type']) => {
+    switch (type) {
+      case 'chat': return 'chatbubble-outline';
+      case 'image': return 'image-outline';
+      case 'video': return 'videocam-outline';
+      case 'audio': return 'musical-notes-outline';
+      case '3d': return 'cube-outline';
+      default: return 'document-outline';
+    }
   };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+    
+    if (hours < 1) return 'Just now';
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+  };
+
+  const renderDetailModal = () => (
+    <Modal
+      visible={selectedItem !== null}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setSelectedItem(null)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle} numberOfLines={2}>{selectedItem?.title}</Text>
+            <TouchableOpacity onPress={() => setSelectedItem(null)}>
+              <Ionicons name="close" size={24} color={colors.textMuted} />
+            </TouchableOpacity>
+          </View>
+          
+          {selectedItem?.preview_url && (
+            <Image
+              source={{ uri: selectedItem.preview_url }}
+              style={styles.previewImage}
+              resizeMode="cover"
+            />
+          )}
+          
+          <View style={styles.modalDetails}>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Model</Text>
+              <Text style={styles.detailValue}>{selectedItem?.model}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Type</Text>
+              <Text style={styles.detailValue}>{selectedItem?.type}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Words Used</Text>
+              <Text style={styles.detailValue}>{selectedItem?.words_used || 0}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Created</Text>
+              <Text style={styles.detailValue}>
+                {selectedItem?.created_at ? formatDate(selectedItem.created_at) : 'Unknown'}
+              </Text>
+            </View>
+            {selectedItem?.prompt && (
+              <View style={styles.promptSection}>
+                <Text style={styles.detailLabel}>Prompt</Text>
+                <Text style={styles.promptText}>{selectedItem.prompt}</Text>
+              </View>
+            )}
+          </View>
+          
+          <View style={styles.modalActions}>
+            {selectedItem?.content_url && (
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={() => selectedItem && handleDownload(selectedItem)}
+              >
+                <Ionicons name="download-outline" size={20} color={colors.primary} />
+                <Text style={styles.actionButtonText}>Download</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.deleteButton]}
+              onPress={() => selectedItem && handleDeleteItem(selectedItem)}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <ActivityIndicator size="small" color={colors.error} />
+              ) : (
+                <>
+                  <Ionicons name="trash-outline" size={20} color={colors.error} />
+                  <Text style={[styles.actionButtonText, styles.deleteButtonText]}>Delete</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -65,87 +251,136 @@ const HistoryScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Filter Tabs */}
-      <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[styles.filterTab, filter === 'all' && styles.filterTabActive]}
-          onPress={() => setFilter('all')}
-        >
-          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>
-            All
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.filterTab, filter === 'chat' && styles.filterTabActive]}
-          onPress={() => setFilter('chat')}
-        >
-          <Ionicons
-            name="chatbubble-outline"
-            size={16}
-            color={filter === 'chat' ? colors.primary : colors.textMuted}
-          />
-          <Text style={[styles.filterText, filter === 'chat' && styles.filterTextActive]}>
-            Chats
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.filterTab, filter === 'image' && styles.filterTabActive]}
-          onPress={() => setFilter('image')}
-        >
-          <Ionicons
-            name="image-outline"
-            size={16}
-            color={filter === 'image' ? colors.primary : colors.textMuted}
-          />
-          <Text style={[styles.filterText, filter === 'image' && styles.filterTextActive]}>
-            Images
-          </Text>
-        </TouchableOpacity>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search-outline" size={20} color={colors.textMuted} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search history..."
+          placeholderTextColor={colors.textMuted}
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => handleSearch('')}>
+            <Ionicons name="close-circle" size={20} color={colors.textMuted} />
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* History List */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.surface}
-          />
-        }
+      {/* Error Banner */}
+      {error && (
+        <GlassCard style={styles.errorCard}>
+          <Ionicons name="warning" size={20} color={colors.error} />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity onPress={() => setError(null)}>
+            <Ionicons name="close" size={20} color={colors.textMuted} />
+          </TouchableOpacity>
+        </GlassCard>
+      )}
+
+      {/* Filter Tabs */}
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterScrollContainer}
+        contentContainerStyle={styles.filterContainer}
       >
-        {filteredItems.map((item) => (
-          <TouchableOpacity key={item.id} style={styles.historyItem}>
-            <View style={styles.iconContainer}>
+        {(['all', 'chat', 'image', 'video', 'audio', '3d'] as FilterType[]).map((f) => (
+          <TouchableOpacity
+            key={f}
+            style={[styles.filterTab, filter === f && styles.filterTabActive]}
+            onPress={() => setFilter(f)}
+          >
+            {f !== 'all' && (
               <Ionicons
-                name={getIcon(item.type)}
-                size={22}
-                color={colors.primary}
+                name={getIcon(f as HistoryItem['type'])}
+                size={16}
+                color={filter === f ? colors.primary : colors.textMuted}
               />
-            </View>
-            <View style={styles.itemContent}>
-              <Text style={styles.itemTitle} numberOfLines={1}>
-                {item.title}
-              </Text>
-              <Text style={styles.itemMeta}>
-                {item.model} · {item.words} words
-              </Text>
-            </View>
-            <View style={styles.itemDate}>
-              <Ionicons name="time-outline" size={12} color={colors.textMuted} />
-              <Text style={styles.dateText}>{item.date}</Text>
-            </View>
+            )}
+            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>
+              {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+            </Text>
           </TouchableOpacity>
         ))}
-
-        {filteredItems.length === 0 && (
-          <HistoryEmptyState />
-        )}
       </ScrollView>
+
+      {/* Loading State */}
+      {isLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Loading history...</Text>
+        </View>
+      )}
+
+      {/* History List */}
+      {!isLoading && (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+              progressBackgroundColor={colors.surface}
+            />
+          }
+        >
+          {filteredItems.map((item) => (
+            <TouchableOpacity 
+              key={item.id} 
+              style={styles.historyItem}
+              onPress={() => setSelectedItem(item)}
+              onLongPress={() => handleDeleteItem(item)}
+            >
+              <View style={styles.iconContainer}>
+                <Ionicons
+                  name={getIcon(item.type)}
+                  size={22}
+                  color={colors.primary}
+                />
+              </View>
+              <View style={styles.itemContent}>
+                <Text style={styles.itemTitle} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                <Text style={styles.itemMeta}>
+                  {item.model} · {item.words_used || 0} words
+                </Text>
+              </View>
+              <View style={styles.itemRight}>
+                <View style={styles.itemDate}>
+                  <Ionicons name="time-outline" size={12} color={colors.textMuted} />
+                  <Text style={styles.dateText}>{formatDate(item.created_at || item.date)}</Text>
+                </View>
+                <TouchableOpacity 
+                  style={styles.deleteIcon}
+                  onPress={() => handleDeleteItem(item)}
+                >
+                  <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          ))}
+
+          {filteredItems.length === 0 && !searchQuery && (
+            <HistoryEmptyState />
+          )}
+
+          {filteredItems.length === 0 && searchQuery && (
+            <View style={styles.noResults}>
+              <Ionicons name="search-outline" size={48} color={colors.textMuted} />
+              <Text style={styles.noResultsText}>No results found for "{searchQuery}"</Text>
+            </View>
+          )}
+        </ScrollView>
+      )}
+
+      {renderDetailModal()}
     </SafeAreaView>
   );
 };
@@ -171,6 +406,42 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 14,
     color: colors.textMuted,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    color: colors.textPrimary,
+    fontSize: 15,
+  },
+  errorCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    marginHorizontal: 16,
+    marginTop: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderColor: colors.error,
+    gap: 8,
+  },
+  errorText: {
+    flex: 1,
+    color: colors.error,
+    fontSize: 14,
+  },
+  filterScrollContainer: {
+    maxHeight: 50,
   },
   filterContainer: {
     flexDirection: 'row',
@@ -198,12 +469,23 @@ const styles = StyleSheet.create({
   filterTextActive: {
     color: colors.primary,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+  },
+  loadingText: {
+    color: colors.textMuted,
+    fontSize: 14,
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 16,
     paddingVertical: 8,
+    paddingBottom: 32,
   },
   historyItem: {
     flexDirection: 'row',
@@ -237,6 +519,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textMuted,
   },
+  itemRight: {
+    alignItems: 'flex-end',
+    gap: 8,
+  },
   itemDate: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -245,6 +531,112 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 11,
     color: colors.textMuted,
+  },
+  deleteIcon: {
+    padding: 4,
+  },
+  noResults: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 48,
+    gap: 12,
+  },
+  noResultsText: {
+    color: colors.textMuted,
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 20,
+    paddingBottom: 32,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    flex: 1,
+    marginRight: 16,
+  },
+  previewImage: {
+    width: '100%',
+    height: 200,
+    marginBottom: 16,
+  },
+  modalDetails: {
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: colors.textMuted,
+  },
+  detailValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  promptSection: {
+    marginTop: 8,
+  },
+  promptText: {
+    fontSize: 13,
+    color: colors.textPrimary,
+    marginTop: 8,
+    backgroundColor: colors.surface,
+    padding: 12,
+    borderRadius: 8,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginTop: 20,
+    gap: 12,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    paddingVertical: 12,
+    borderRadius: 12,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  deleteButton: {
+    borderColor: colors.error,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  deleteButtonText: {
+    color: colors.error,
   },
 });
 

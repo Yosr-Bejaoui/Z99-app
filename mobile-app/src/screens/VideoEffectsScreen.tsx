@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
-import { chatService } from '../services';
+import { chatService, mediaService } from '../services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS, WS_BASE_URL } from '../services/config';
 
@@ -121,7 +121,8 @@ const VideoEffectsScreen: React.FC = () => {
         ]);
         setIsProcessing(false);
       } else if (data.error) {
-        Alert.alert('Error', data.error);
+        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+        Alert.alert('Error', errorMsg);
         setProcessedVideos(prev => prev.filter(v => v.status !== 'processing'));
         setIsProcessing(false);
       }
@@ -164,6 +165,40 @@ const VideoEffectsScreen: React.FC = () => {
       setIsProcessing(false);
       setProcessedVideos(prev => prev.filter(v => v.status !== 'processing'));
     }
+  };
+
+  const handleDownload = async (video: ProcessedVideo) => {
+    try {
+      await mediaService.saveVideoToGallery(video.url);
+      Alert.alert('Success', 'Video saved to your gallery');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to download video');
+    }
+  };
+
+  const handleShare = async (video: ProcessedVideo) => {
+    try {
+      await mediaService.shareFile(video.url, `effect_${video.id}.mp4`);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to share video');
+    }
+  };
+
+  const handleDelete = (videoId: string) => {
+    Alert.alert(
+      'Delete Video',
+      'Are you sure you want to remove this video?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            setProcessedVideos(prev => prev.filter(v => v.id !== videoId));
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -278,8 +313,28 @@ const VideoEffectsScreen: React.FC = () => {
                       <Text style={styles.resultEffect}>
                         {effectOptions.find(e => e.id === video.effect)?.label || video.effect}
                       </Text>
-                      <TouchableOpacity style={styles.downloadBtn}>
+                    </View>
+                    <View style={styles.videoActions}>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleShare(video)}
+                      >
+                        <Ionicons name="share-outline" size={20} color={colors.primary} />
+                        <Text style={styles.actionButtonText}>Share</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDownload(video)}
+                      >
                         <Ionicons name="download-outline" size={20} color={colors.primary} />
+                        <Text style={styles.actionButtonText}>Save</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDelete(video.id)}
+                      >
+                        <Ionicons name="trash-outline" size={20} color={colors.error} />
+                        <Text style={[styles.actionButtonText, { color: colors.error }]}>Delete</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -446,8 +501,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  downloadBtn: {
-    padding: 8,
+  videoActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 16,
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  actionButtonText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 

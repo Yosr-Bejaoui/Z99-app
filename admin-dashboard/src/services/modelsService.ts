@@ -3,18 +3,19 @@ import api from './api';
 export interface AIModel {
   id: number;
   name: string;
+  version: string;
   provider: string;
-  model_type: 'chat' | 'image' | 'video' | 'audio' | 'text_to_speech' | 'speech_to_text';
+  model_id: string;
+  model_type: 'chat' | 'image_editor' | 'text_to_image' | 'image_to_video' | 'text_to_video' | 'text_or_image_to_video' | 'image_tool' | 'video_upscaler' | 'image_to_3d' | 'video_effect' | 'text_to_speech';
   description?: string;
   is_active: boolean;
-  is_premium: boolean;
   api_key?: string;
   base_url?: string;
-  max_tokens?: number;
-  temperature?: number;
+  image?: string;
+  logo?: string;
+  base_cost?: number;
   created_at: string;
   updated_at: string;
-  usage_count?: number;
 }
 
 export interface ModelsResponse {
@@ -31,11 +32,10 @@ export interface ModelFilters {
   model_type?: string;
   provider?: string;
   is_active?: boolean;
-  is_premium?: boolean;
 }
 
 export const modelsService = {
-  async getModels(filters: ModelFilters = {}): Promise<ModelsResponse> {
+  async getModels(filters: ModelFilters = {}): Promise<AIModel[]> {
     const params = new URLSearchParams();
     
     if (filters.page) params.append('page', filters.page.toString());
@@ -44,33 +44,36 @@ export const modelsService = {
     if (filters.model_type) params.append('model_type', filters.model_type);
     if (filters.provider) params.append('provider', filters.provider);
     if (filters.is_active !== undefined) params.append('is_active', filters.is_active.toString());
-    if (filters.is_premium !== undefined) params.append('is_premium', filters.is_premium.toString());
     
-    const response = await api.get<ModelsResponse>(`/ai/admin/models/?${params.toString()}`);
-    return response.data;
+    const response = await api.get<AIModel[] | ModelsResponse>(`/list/?${params.toString()}`);
+    // Handle both array and paginated response
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    return response.data.results || [];
   },
 
   async getModel(id: number): Promise<AIModel> {
-    const response = await api.get<AIModel>(`/ai/admin/models/${id}/`);
+    const response = await api.get<AIModel>(`/list/${id}/`);
     return response.data;
   },
 
   async createModel(data: Partial<AIModel>): Promise<AIModel> {
-    const response = await api.post<AIModel>('/ai/admin/models/', data);
+    const response = await api.post<AIModel>('/list/', data);
     return response.data;
   },
 
   async updateModel(id: number, data: Partial<AIModel>): Promise<AIModel> {
-    const response = await api.patch<AIModel>(`/ai/admin/models/${id}/`, data);
+    const response = await api.patch<AIModel>(`/list/${id}/`, data);
     return response.data;
   },
 
   async deleteModel(id: number): Promise<void> {
-    await api.delete(`/ai/admin/models/${id}/`);
+    await api.delete(`/list/${id}/`);
   },
 
   async toggleModelStatus(id: number, isActive: boolean): Promise<AIModel> {
-    const response = await api.patch<AIModel>(`/ai/admin/models/${id}/`, {
+    const response = await api.patch<AIModel>(`/list/${id}/`, {
       is_active: isActive,
     });
     return response.data;
@@ -82,13 +85,27 @@ export const modelsService = {
     by_type: Record<string, number>;
     by_provider: Record<string, number>;
   }> {
-    const response = await api.get('/ai/admin/models/stats/');
-    return response.data;
+    // Calculate stats from models list
+    const models = await this.getModels();
+    const byType: Record<string, number> = {};
+    const byProvider: Record<string, number> = {};
+    
+    models.forEach(model => {
+      byType[model.model_type] = (byType[model.model_type] || 0) + 1;
+      byProvider[model.provider] = (byProvider[model.provider] || 0) + 1;
+    });
+    
+    return {
+      total_models: models.length,
+      active_models: models.filter(m => m.is_active).length,
+      by_type: byType,
+      by_provider: byProvider,
+    };
   },
 
   async getProviders(): Promise<string[]> {
-    const response = await api.get<string[]>('/ai/admin/providers/');
-    return response.data;
+    const models = await this.getModels();
+    return [...new Set(models.map(m => m.provider))];
   },
 };
 
