@@ -6,20 +6,23 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Image,
   Dimensions,
   ActivityIndicator,
   Alert,
   RefreshControl,
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDrawer } from '../context';
+import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import { chatService, mediaService, getErrorMessage } from '../services';
-import { WS_BASE_URL } from '../services/config';
+import { WS_BASE_URL, STORAGE_KEYS } from '../services/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
@@ -55,6 +58,9 @@ interface GeneratedImage {
 }
 
 const ImageGenScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
+  const { openDrawer } = useDrawer();
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('realistic');
   const [selectedResolution, setSelectedResolution] = useState('1024x1024');
@@ -115,8 +121,13 @@ const ImageGenScreen: React.FC = () => {
   }, []);
 
   const connectWebSocket = async (sessionId: number): Promise<WebSocket> => {
-    const token = await AsyncStorage.getItem('accessToken');
-    const wsUrl = `${WS_BASE_URL}/text-to-image/${sessionId}/?token=${token}`;
+    const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+
+    if (!token) {
+      throw new Error('Not authenticated. Please log in again.');
+    }
+
+    const wsUrl = `${WS_BASE_URL}/chat/${sessionId}/?token=${token}`;
     
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(wsUrl);
@@ -165,7 +176,7 @@ const ImageGenScreen: React.FC = () => {
       // Set up message handler
       ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
+          const data: any = JSON.parse(event.data);
           
           if (data.type === 'progress') {
             setProgress(data.progress || 0);
@@ -177,6 +188,29 @@ const ImageGenScreen: React.FC = () => {
                 url: imageUrl,
                 prompt: prompt,
                 created_at: new Date().toISOString(),
+              };
+              setGeneratedImages((prev) => [newImage, ...prev]);
+            }
+            setIsGenerating(false);
+            setProgress(100);
+            setPrompt('');
+            ws.close();
+          } else if (
+            data.type === 'new_message' &&
+            data.message &&
+            typeof data.message === 'object' &&
+            Array.isArray(data.message.images) &&
+            data.message.images.length > 0 &&
+            data.message.sender === 'ai'
+          ) {
+            // Fallback for backend that returns generated images inside a chat message
+            const imageUrl = data.message.images[0];
+            if (imageUrl) {
+              const newImage: GeneratedImage = {
+                id: String(data.message.id ?? Date.now().toString()),
+                url: imageUrl,
+                prompt: prompt,
+                created_at: data.message.created_at || new Date().toISOString(),
               };
               setGeneratedImages((prev) => [newImage, ...prev]);
             }
@@ -199,11 +233,11 @@ const ImageGenScreen: React.FC = () => {
       const [resWidth, resHeight] = selectedResolution.split('x').map(Number);
       
       ws.send(JSON.stringify({
-        action: 'generate',
-        prompt: fullPrompt,
+        message: fullPrompt,
         width: resWidth,
         height: resHeight,
         style: selectedStyle,
+        num_images: 1,
       }));
 
     } catch (err) {
@@ -295,7 +329,21 @@ const ImageGenScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.headerButton} 
+          onPress={openDrawer}
+        >
+          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Create</Text>
+        <View style={styles.headerButton} />
+      </View>
+      
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -304,11 +352,6 @@ const ImageGenScreen: React.FC = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Image Generation</Text>
-          <Text style={styles.headerSubtitle}>Create stunning images with AI</Text>
-        </View>
 
         {/* Error Banner */}
         {error && (
@@ -483,7 +526,7 @@ const ImageGenScreen: React.FC = () => {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -492,35 +535,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  headerButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  header: {
-    marginBottom: 20,
-    paddingTop: 8,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: colors.textMuted,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   errorCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    marginBottom: 16,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderColor: colors.error,
-    gap: 8,
+    gap: spacing.sm,
   },
   errorText: {
     flex: 1,
@@ -528,43 +577,43 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   promptCard: {
-    padding: 16,
-    marginBottom: 20,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
   },
   promptInput: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: colors.backgroundSecondary,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
     color: colors.textPrimary,
     fontSize: 15,
     minHeight: 100,
     borderWidth: 1,
     borderColor: colors.border,
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    padding: 12,
+    gap: spacing.sm,
+    padding: spacing.md,
   },
   loadingText: {
     color: colors.textMuted,
     fontSize: 14,
   },
   retryButton: {
-    padding: 12,
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    padding: spacing.md,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.sm,
   },
   retryText: {
     color: colors.primary,
@@ -572,22 +621,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modelScroll: {
-    gap: 10,
+    gap: spacing.sm,
   },
   modelButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
-    gap: 8,
+    gap: spacing.sm,
   },
   modelButtonSelected: {
     borderColor: colors.primary,
-    backgroundColor: 'rgba(45, 212, 191, 0.1)',
+    backgroundColor: colors.surfaceHover,
   },
   modelDot: {
     width: 10,
@@ -605,22 +654,22 @@ const styles = StyleSheet.create({
   styleGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: spacing.sm,
   },
   styleButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    gap: 8,
+    gap: spacing.sm,
   },
   styleButtonSelected: {
     borderColor: colors.primary,
-    backgroundColor: 'rgba(45, 212, 191, 0.1)',
+    backgroundColor: colors.surfaceHover,
   },
   styleButtonText: {
     color: colors.textMuted,
@@ -632,20 +681,20 @@ const styles = StyleSheet.create({
   },
   resolutionRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: spacing.sm,
   },
   resolutionButton: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingVertical: 12,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
   },
   resolutionButtonSelected: {
     borderColor: colors.primary,
-    backgroundColor: 'rgba(45, 212, 191, 0.1)',
+    backgroundColor: colors.surfaceHover,
   },
   resolutionText: {
     color: colors.textMuted,
@@ -656,14 +705,14 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   progressContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   progressBarBackground: {
     height: 4,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderRadius: 2,
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   progressBar: {
     height: '100%',
@@ -676,17 +725,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   generateButton: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   imageGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: spacing.md,
   },
   imageContainer: {
     width: imageWidth,
     height: imageWidth,
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
     overflow: 'hidden',
   },
   generatedImage: {
@@ -698,14 +747,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 12,
-    paddingTop: 24,
+    padding: spacing.md,
+    paddingTop: spacing.xl,
   },
   imageActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 8,
-    marginBottom: 8,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   imageActionButton: {
     width: 28,
@@ -723,20 +772,20 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 48,
+    paddingVertical: spacing.xxxl,
   },
   emptyStateText: {
-    color: colors.textMuted,
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   emptyStateSubtext: {
     color: colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
-    marginTop: 8,
-    paddingHorizontal: 32,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.xxl,
   },
 });
 

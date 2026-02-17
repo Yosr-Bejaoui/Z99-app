@@ -8,17 +8,20 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   Animated,
   ActivityIndicator,
   Alert,
+  StatusBar,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, spacing, borderRadius } from '../theme';
 import ModelSelector from '../components/ModelSelector';
 import MessageBubble from '../components/MessageBubble';
 import { chatService, AIModel, ChatSession, ChatMessage } from '../services';
+import { useDrawer } from '../context';
 
 interface Message {
   id: string;
@@ -28,6 +31,9 @@ interface Message {
 }
 
 const ChatScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
+  const { openDrawer } = useDrawer();
   const [models, setModels] = useState<AIModel[]>([]);
   const [selectedModel, setSelectedModel] = useState<number | null>(null);
   const [session, setSession] = useState<ChatSession | null>(null);
@@ -128,8 +134,8 @@ const ChatScreen: React.FC = () => {
       
       ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
-          
+          const data: any = JSON.parse(event.data);
+
           // Handle error messages
           if (data.type === 'error' || data.error) {
             let errorMsg = 'Unknown error';
@@ -144,29 +150,70 @@ const ChatScreen: React.FC = () => {
             setIsTyping(false);
             return;
           }
-          
-          // Handle chat messages - extract content from nested message object if needed
-          if (data.type === 'chat_message' || data.message) {
-            let messageContent = '';
-            
-            // data.message could be a string or an object with content
-            if (typeof data.message === 'string') {
-              messageContent = data.message;
-            } else if (data.message && typeof data.message === 'object') {
-              messageContent = data.message.content || JSON.stringify(data.message);
-            } else if (data.content) {
-              messageContent = typeof data.content === 'string' ? data.content : data.content.content || '';
+
+          // Hydrate previous messages when joining an existing session
+          if (data.type === 'previous_messages' && Array.isArray(data.messages)) {
+            setMessages((prev) => {
+              if (prev.length > 0) {
+                return prev;
+              }
+              const history: Message[] = data.messages
+                .map((msg: any) => {
+                  if (!msg || !msg.content) return null;
+                  return {
+                    id: String(msg.id ?? `${Date.now()}-${Math.random()}`),
+                    content: msg.content,
+                    isUser: msg.sender === 'user',
+                    timestamp: new Date(
+                      msg.created_at || new Date().toISOString()
+                    ).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                  } as Message;
+                })
+                .filter(Boolean) as Message[];
+              return history;
+            });
+
+            setTimeout(() => {
+              scrollViewRef.current?.scrollToEnd({ animated: true });
+            }, 100);
+            return;
+          }
+
+          // Handle incoming chat messages (both user/AI) from WebSocket
+          if (data.type === 'new_message' || data.type === 'chat_message' || data.message) {
+            const rawMessage = data.message;
+
+            // Ignore echo of the user's own message (we already render it locally)
+            if (rawMessage && typeof rawMessage === 'object' && rawMessage.sender === 'user') {
+              setIsTyping(false);
+              return;
             }
-            
+
+            let messageContent = '';
+
+            if (typeof rawMessage === 'string') {
+              messageContent = rawMessage;
+            } else if (rawMessage && typeof rawMessage === 'object') {
+              messageContent = rawMessage.content || '';
+            } else if (data.content) {
+              messageContent =
+                typeof data.content === 'string'
+                  ? data.content
+                  : data.content.content || '';
+            }
+
             if (messageContent) {
               const aiMessage: Message = {
-                id: Date.now().toString(),
+                id: String(rawMessage?.id ?? Date.now().toString()),
                 content: messageContent,
                 isUser: false,
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date(
+                  rawMessage?.created_at || new Date().toISOString()
+                ).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
               };
               setMessages((prev) => [...prev, aiMessage]);
             }
+
             setIsTyping(false);
             setTimeout(() => {
               scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -281,159 +328,184 @@ const ChatScreen: React.FC = () => {
     }
   };
 
+  const handleNewChat = () => {
+    if (messages.length === 0) return;
+    Alert.alert('New Chat', 'Start a new conversation?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'New Chat', onPress: () => doModelSwitch(selectedModel!) },
+    ]);
+  };
+
+  const getSelectedModelName = () => {
+    const model = models.find(m => m.id === selectedModel);
+    return model?.name || 'AI';
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading models...</Text>
+          <Text style={styles.loadingText}>Loading...</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text style={styles.headerTitle}>Chat</Text>
-          <View style={styles.headerActions}>
-            {isConnecting && (
-              <View style={styles.connectingBadge}>
-                <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={styles.connectingText}>Connecting...</Text>
-              </View>
-            )}
-            {messages.length > 0 && (
-              <TouchableOpacity 
-                style={styles.newChatButton}
-                onPress={() => {
-                  Alert.alert('New Chat', 'Start a new conversation?', [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'New Chat', onPress: () => doModelSwitch(selectedModel!) },
-                  ]);
-                }}
-              >
-                <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
+        <TouchableOpacity 
+          style={styles.headerButton} 
+          onPress={openDrawer}
+        >
+          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
+        </TouchableOpacity>
+        
         <ModelSelector 
           selected={selectedModel} 
           onSelect={handleModelChange} 
           models={models.map(m => ({ id: m.id, name: m.name }))}
         />
+        
+        <TouchableOpacity style={styles.headerRight} onPress={handleNewChat}>
+          <Ionicons name="create-outline" size={22} color={colors.textSecondary} />
+        </TouchableOpacity>
       </View>
 
-      {/* Empty State */}
-      {messages.length === 0 && !isTyping && (
-        <View style={styles.emptyState}>
-          <View style={styles.emptyIcon}>
-            <Ionicons name="chatbubbles-outline" size={48} color={colors.primary} />
-          </View>
-          <Text style={styles.emptyTitle}>Start a conversation</Text>
-          <Text style={styles.emptySubtitle}>
-            Send a message to begin chatting with AI
-          </Text>
-        </View>
-      )}
-
-      {/* Messages */}
+      {/* Messages or Empty State */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
         keyboardVerticalOffset={90}
       >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.messagesContainer}
-          contentContainerStyle={styles.messagesContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {messages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              content={message.content}
-              isUser={message.isUser}
-              timestamp={message.timestamp}
-            />
-          ))}
-
-          {/* Typing Indicator */}
-          {isTyping && (
-            <View style={styles.typingContainer}>
-              <View style={styles.typingBubble}>
-                <Animated.View
-                  style={[
-                    styles.typingDot,
-                    { opacity: typingAnim },
-                  ]}
-                />
-                <Animated.View
-                  style={[
-                    styles.typingDot,
-                    {
-                      opacity: typingAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0.5, 1],
-                      }),
-                    },
-                  ]}
-                />
-                <Animated.View
-                  style={[
-                    styles.typingDot,
-                    {
-                      opacity: typingAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [1, 0.5],
-                      }),
-                    },
-                  ]}
-                />
-              </View>
+        {messages.length === 0 && !isTyping ? (
+          <View style={styles.emptyState}>
+            <View style={styles.emptyIcon}>
+              <Ionicons name="sparkles" size={32} color={colors.primary} />
             </View>
-          )}
-        </ScrollView>
+            <Text style={styles.emptyTitle}>How can I help you today?</Text>
+            <Text style={styles.emptySubtitle}>
+              Start a conversation by typing a message below
+            </Text>
+            
+            {/* Quick suggestions */}
+            <View style={styles.suggestions}>
+              {[
+                'Explain quantum computing',
+                'Write a poem about nature',
+                'Help me code a function',
+                'Summarize this article',
+              ].map((suggestion, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.suggestionChip}
+                  onPress={() => setInputText(suggestion)}
+                >
+                  <Text style={styles.suggestionText}>{suggestion}</Text>
+                  <Ionicons name="arrow-up-circle" size={18} color={colors.textMuted} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ) : (
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.messagesContainer}
+            contentContainerStyle={styles.messagesContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {messages.map((message) => (
+              <MessageBubble
+                key={message.id}
+                content={message.content}
+                isUser={message.isUser}
+                timestamp={message.timestamp}
+                modelName={getSelectedModelName()}
+              />
+            ))}
 
-        {/* Input */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
+            {isTyping && (
+              <View style={styles.typingContainer}>
+                <View style={styles.typingAvatar}>
+                  <Ionicons name="sparkles" size={16} color={colors.primary} />
+                </View>
+                <View style={styles.typingContent}>
+                  <Text style={styles.typingLabel}>{getSelectedModelName()}</Text>
+                  <View style={styles.typingDots}>
+                    <Animated.View style={[styles.typingDot, { opacity: typingAnim }]} />
+                    <Animated.View
+                      style={[
+                        styles.typingDot,
+                        {
+                          opacity: typingAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.5, 1],
+                          }),
+                        },
+                      ]}
+                    />
+                    <Animated.View
+                      style={[
+                        styles.typingDot,
+                        {
+                          opacity: typingAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [1, 0.5],
+                          }),
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+              </View>
+            )}
+          </ScrollView>
+        )}
+
+        {/* Input Area */}
+        <View style={styles.inputArea}>
+          <View style={styles.inputContainer}>
+            <TouchableOpacity style={styles.attachButton}>
+              <Ionicons name="add" size={24} color={colors.textMuted} />
+            </TouchableOpacity>
+            
             <TextInput
               style={styles.input}
-              placeholder="Type your message..."
+              placeholder="Message"
               placeholderTextColor={colors.textMuted}
               value={inputText}
               onChangeText={setInputText}
               multiline
-              maxLength={2000}
+              maxLength={4000}
             />
+            
             <TouchableOpacity
-              style={styles.attachButton}
-              onPress={() => {}}
-            >
-              <Ionicons name="attach" size={22} color={colors.textMuted} />
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity onPress={handleSend} disabled={!inputText.trim()}>
-            <LinearGradient
-              colors={inputText.trim() ? [colors.primary, colors.secondary] : [colors.surface, colors.surface]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.sendButton}
+              style={[
+                styles.sendButton,
+                inputText.trim() && styles.sendButtonActive,
+              ]}
+              onPress={handleSend}
+              disabled={!inputText.trim()}
             >
               <Ionicons
-                name="send"
+                name="arrow-up"
                 size={20}
-                color={inputText.trim() ? '#fff' : colors.textMuted}
+                color={inputText.trim() ? colors.white : colors.textMuted}
               />
-            </LinearGradient>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
+          
+          <Text style={styles.disclaimer}>
+            AI can make mistakes. Consider checking important information.
+          </Text>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -449,144 +521,174 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: colors.textMuted,
-    marginTop: 12,
-    fontSize: 16,
+    marginTop: spacing.md,
+    fontSize: 15,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  headerButton: {
+    width: 40,
+    height: 40,
     alignItems: 'center',
-    marginBottom: 12,
+    justifyContent: 'center',
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  connectingBadge: {
-    flexDirection: 'row',
+  headerRight: {
+    width: 40,
+    height: 40,
     alignItems: 'center',
-    backgroundColor: 'rgba(45, 212, 191, 0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 6,
+    justifyContent: 'center',
   },
-  connectingText: {
-    color: colors.primary,
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  newChatButton: {
-    padding: 4,
+  keyboardView: {
+    flex: 1,
   },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,
+    padding: spacing.xl,
+    paddingBottom: 100,
   },
   emptyIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(45, 212, 191, 0.1)',
+    width: 60,
+    height: 60,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.card,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: colors.textMuted,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
-  keyboardView: {
+  emptySubtitle: {
+    fontSize: 15,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginBottom: spacing.xl,
+  },
+  suggestions: {
+    width: '100%',
+    gap: spacing.sm,
+  },
+  suggestionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.card,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  suggestionText: {
+    fontSize: 14,
+    color: colors.textPrimary,
     flex: 1,
+    marginRight: spacing.sm,
   },
   messagesContainer: {
     flex: 1,
   },
   messagesContent: {
-    padding: 16,
+    paddingVertical: spacing.lg,
   },
   typingContainer: {
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  typingBubble: {
     flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 6,
-    borderWidth: 1,
-    borderColor: colors.border,
+    alignItems: 'flex-start',
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
+  },
+  typingAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  typingContent: {
+    flex: 1,
+  },
+  typingLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
+  },
+  typingDots: {
+    flexDirection: 'row',
+    gap: 4,
   },
   typingDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.textMuted,
+  },
+  inputArea: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    padding: 16,
-    paddingBottom: Platform.OS === 'ios' ? 16 : 16,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    backgroundColor: colors.background,
-    gap: 12,
-  },
-  inputWrapper: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    backgroundColor: colors.surface,
-    borderRadius: 24,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.xl,
     borderWidth: 1,
     borderColor: colors.border,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xs,
     minHeight: 48,
-    maxHeight: 120,
+  },
+  attachButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: borderRadius.full,
   },
   input: {
     flex: 1,
     color: colors.textPrimary,
     fontSize: 16,
-    paddingVertical: 8,
-    maxHeight: 100,
-  },
-  attachButton: {
-    padding: 6,
-    marginLeft: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    maxHeight: 120,
+    minHeight: 36,
   },
   sendButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 32,
+    height: 32,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  sendButtonActive: {
+    backgroundColor: colors.primary,
+  },
+  disclaimer: {
+    fontSize: 11,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: spacing.sm,
+    paddingBottom: Platform.OS === 'ios' ? 0 : spacing.sm,
   },
 });
 

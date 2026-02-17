@@ -5,17 +5,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   RefreshControl,
   ActivityIndicator,
   Alert,
   TextInput,
   Modal,
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '../theme/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDrawer } from '../context';
+import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import { creditsService, planService, getErrorMessage } from '../services';
@@ -30,6 +32,8 @@ interface UsageStat {
 
 const CreditsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
+  const { openDrawer } = useDrawer();
   const [creditAccount, setCreditAccount] = useState<CreditAccount | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [packages, setPackages] = useState<CreditPackage[]>([]);
@@ -147,12 +151,12 @@ const CreditsScreen: React.FC = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Loading your credits...</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -205,7 +209,21 @@ const CreditsScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      
+      {/* Header */}
+      <View style={styles.topHeader}>
+        <TouchableOpacity 
+          style={styles.headerMenuButton} 
+          onPress={openDrawer}
+        >
+          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
+        </TouchableOpacity>
+        <Text style={styles.topHeaderTitle}>Credits</Text>
+        <View style={styles.headerMenuButton} />
+      </View>
+      
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -214,21 +232,6 @@ const CreditsScreen: React.FC = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>Credits</Text>
-            <Text style={styles.headerSubtitle}>Manage your credits and subscription</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.notificationButton}
-            onPress={() => navigation.navigate('Notifications')}
-          >
-            <Ionicons name="notifications-outline" size={24} color={colors.foreground} />
-            <View style={styles.notificationDot} />
-          </TouchableOpacity>
-        </View>
-
         {/* Error Banner */}
         {error && (
           <GlassCard style={styles.errorCard}>
@@ -360,7 +363,7 @@ const CreditsScreen: React.FC = () => {
       </ScrollView>
       
       {renderTransactionsModal()}
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -368,6 +371,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  topHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  topHeaderTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  headerMenuButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loadingContainer: {
     flex: 1,

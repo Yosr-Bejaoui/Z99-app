@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import api from '../services/api';
 

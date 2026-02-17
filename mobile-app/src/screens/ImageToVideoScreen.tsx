@@ -6,16 +6,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Image,
   Dimensions,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Video, ResizeMode } from 'expo-av';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import { chatService, mediaService } from '../services';

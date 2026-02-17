@@ -10,10 +10,10 @@ import {
   Platform,
   Animated,
   Alert,
+  StatusBar,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { colors, spacing, borderRadius } from '../theme';
 import GradientButton from '../components/GradientButton';
 import GlassCard from '../components/GlassCard';
 import { useAuth } from '../context';
@@ -89,8 +89,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
         password2: confirmPassword,
         name: fullName.trim(),
       });
-      // Navigation will happen automatically via AuthContext
-      navigation.replace('Main');
+      // Navigate to OTP verification screen
+      navigation.navigate('OTPVerification', { email: email.trim() });
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -108,10 +108,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={[colors.background, '#1a1d24', colors.background]}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -140,14 +138,9 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.logoContainer}>
-                <LinearGradient
-                  colors={[colors.primary, colors.secondary]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.logoGradient}
-                >
-                  <Ionicons name="sparkles" size={32} color="#fff" />
-                </LinearGradient>
+                <View style={styles.logoGradient}>
+                  <Ionicons name="sparkles" size={32} color={colors.primary} />
+                </View>
               </View>
               <Text style={styles.title}>Create Account</Text>
               <Text style={styles.subtitle}>Start your AI journey today</Text>
@@ -296,13 +289,14 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -336,6 +330,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.surface,
   },
   title: {
     fontSize: 28,

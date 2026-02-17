@@ -7,7 +7,8 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  register: (data: RegisterData) => Promise<{ message: string }>;
+  activateAccount: (email: string, code: string) => Promise<{ message: string }>;
   googleLogin: (accessToken: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -48,9 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(response.user);
   };
 
-  const register = async (data: RegisterData) => {
+  const register = async (data: RegisterData): Promise<{ message: string }> => {
+    // Registration now returns a message (requires OTP verification)
     const response = await authService.register(data);
-    setUser(response.user);
+    return response;
+  };
+
+  const activateAccount = async (email: string, code: string): Promise<{ message: string }> => {
+    const response = await authService.activateAccount(email, code);
+    return response;
   };
 
   const googleLogin = async (accessToken: string) => {
@@ -81,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         register,
+        activateAccount,
         googleLogin,
         logout,
         refreshUser,

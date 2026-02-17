@@ -6,7 +6,7 @@
 // For development - use your computer's IP address when testing on phone
 // Example: 'http://192.168.1.100:8000'
 // For production: 'https://your-api-domain.com'
-export const BASE_URL = 'http://192.168.1.100:8000';
+export const BASE_URL = 'http://10.133.245.121:8082';
 
 export const API_URL = `${BASE_URL}/api/v1`;
 

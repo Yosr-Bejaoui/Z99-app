@@ -5,26 +5,36 @@ import { User, LoginResponse, RegisterResponse, AuthTokens, LoginCredentials, Re
 
 export const authService = {
   // Register new user
-  async register(data: RegisterData): Promise<RegisterResponse> {
+  async register(data: RegisterData): Promise<{ message: string }> {
     try {
+      // Backend expects: username, email, password, confirm_password, first_name, last_name
+      const nameParts = data.name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
       const response = await api.post(ENDPOINTS.REGISTER, {
+        username: data.email.split('@')[0] + Math.floor(Math.random() * 1000), // Generate username from email
         email: data.email,
         password: data.password,
-        password2: data.password2,
-        name: data.name,
+        confirm_password: data.password2,
+        first_name: firstName,
+        last_name: lastName,
       });
 
-      const { access, refresh, user } = response.data;
+      // Registration returns a message, not tokens (requires OTP verification)
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
 
-      // Store tokens and user data
-      if (access && refresh) {
-        await AsyncStorage.multiSet([
-          [STORAGE_KEYS.ACCESS_TOKEN, access],
-          [STORAGE_KEYS.REFRESH_TOKEN, refresh],
-          [STORAGE_KEYS.USER, JSON.stringify(user)],
-        ]);
-      }
-
+  // Activate account with OTP
+  async activateAccount(email: string, code: string): Promise<{ message: string }> {
+    try {
+      const response = await api.post(ENDPOINTS.ACTIVATE, {
+        email,
+        code,
+      });
       return response.data;
     } catch (error) {
       throw new Error(getErrorMessage(error));
@@ -34,11 +44,13 @@ export const authService = {
   // Login user
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
+      console.log('Attempting login for:', credentials.email);
       const response = await api.post(ENDPOINTS.LOGIN, {
         email: credentials.email,
         password: credentials.password,
       });
 
+      console.log('Login response received:', JSON.stringify(response.data));
       const { access, refresh, user } = response.data;
 
       // Store tokens and user data only if they exist
@@ -48,12 +60,15 @@ export const authService = {
           [STORAGE_KEYS.REFRESH_TOKEN, refresh],
           [STORAGE_KEYS.USER, JSON.stringify(user)],
         ]);
+        console.log('Tokens stored successfully');
       } else {
-        throw new Error('Invalid response from server');
+        console.error('Missing tokens in response:', { access: !!access, refresh: !!refresh });
+        throw new Error('Invalid response from server - missing authentication tokens');
       }
 
       return response.data;
     } catch (error) {
+      console.error('Login error:', error);
       throw new Error(getErrorMessage(error));
     }
   },

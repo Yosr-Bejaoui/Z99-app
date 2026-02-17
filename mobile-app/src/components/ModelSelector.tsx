@@ -1,24 +1,21 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { colors } from '../theme/colors';
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Modal,
+  FlatList,
+  Pressable,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, borderRadius } from '../theme';
 
 interface Model {
   id: number;
   name: string;
-  color?: string;
+  description?: string;
 }
-
-// Default models if none provided
-const defaultModels: Model[] = [
-  { id: 1, name: 'ChatGPT', color: '#10b981' },
-  { id: 2, name: 'Gemini', color: '#3b82f6' },
-  { id: 3, name: 'Claude', color: '#f59e0b' },
-  { id: 4, name: 'Mistral', color: '#f97316' },
-  { id: 5, name: 'DeepSeek', color: '#8b5cf6' },
-];
-
-// Color palette for models
-const modelColors = ['#10b981', '#3b82f6', '#f59e0b', '#f97316', '#8b5cf6', '#ec4899', '#06b6d4'];
 
 interface ModelSelectorProps {
   selected: number | string | null;
@@ -26,83 +23,162 @@ interface ModelSelectorProps {
   models?: Model[];
 }
 
-const ModelSelector: React.FC<ModelSelectorProps> = ({ selected, onSelect, models }) => {
-  const displayModels = models && models.length > 0 ? models : defaultModels;
+const ModelSelector: React.FC<ModelSelectorProps> = ({ selected, onSelect, models = [] }) => {
+  const [isOpen, setIsOpen] = useState(false);
   
-  const getShortName = (name: string): string => {
-    // Generate short name from model name
-    if (name.length <= 4) return name.toUpperCase();
-    const words = name.split(/[\s-_]+/);
-    if (words.length > 1) {
-      return words.map(w => w[0]).join('').toUpperCase().slice(0, 4);
-    }
-    return name.slice(0, 3).toUpperCase();
+  const selectedModel = models.find(m => m.id === selected);
+  const displayName = selectedModel?.name || 'Select Model';
+
+  const handleSelect = (id: number) => {
+    onSelect(id);
+    setIsOpen(false);
   };
-  
+
   return (
-    <View style={styles.container}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+    <>
+      <TouchableOpacity 
+        style={styles.selector} 
+        onPress={() => setIsOpen(true)}
+        activeOpacity={0.7}
       >
-        {displayModels.map((model, index) => (
-          <TouchableOpacity
-            key={model.id}
-            onPress={() => onSelect(model.id)}
-            style={[
-              styles.modelButton,
-              selected === model.id && styles.modelButtonSelected,
-            ]}
-          >
-            <View style={[styles.dot, { backgroundColor: model.color || modelColors[index % modelColors.length] }]} />
-            <Text
-              style={[
-                styles.modelName,
-                selected === model.id && styles.modelNameSelected,
-              ]}
-            >
-              {getShortName(model.name)}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
+        <Text style={styles.selectorText} numberOfLines={1}>
+          {displayName}
+        </Text>
+        <Ionicons 
+          name="chevron-down" 
+          size={18} 
+          color={colors.textSecondary} 
+        />
+      </TouchableOpacity>
+
+      <Modal
+        visible={isOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <Pressable 
+          style={styles.modalOverlay} 
+          onPress={() => setIsOpen(false)}
+        >
+          <View style={styles.dropdown}>
+            <View style={styles.dropdownHeader}>
+              <Text style={styles.dropdownTitle}>Select Model</Text>
+              <TouchableOpacity onPress={() => setIsOpen(false)}>
+                <Ionicons name="close" size={22} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={models}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.dropdownItem,
+                    selected === item.id && styles.dropdownItemSelected,
+                  ]}
+                  onPress={() => handleSelect(item.id)}
+                >
+                  <View style={styles.modelInfo}>
+                    <Text style={[
+                      styles.modelName,
+                      selected === item.id && styles.modelNameSelected,
+                    ]}>
+                      {item.name}
+                    </Text>
+                    {item.description && (
+                      <Text style={styles.modelDescription}>{item.description}</Text>
+                    )}
+                  </View>
+                  {selected === item.id && (
+                    <Ionicons name="checkmark" size={20} color={colors.primary} />
+                  )}
+                </TouchableOpacity>
+              )}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+            />
+          </View>
+        </Pressable>
+      </Modal>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 16,
-    padding: 6,
-  },
-  scrollContent: {
-    gap: 6,
-  },
-  modelButton: {
+  selector: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-    gap: 8,
+    backgroundColor: colors.card,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.lg,
+    gap: spacing.sm,
+    minWidth: 140,
   },
-  modelButtonSelected: {
-    backgroundColor: 'rgba(45, 212, 191, 0.15)',
+  selectorText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    flex: 1,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: colors.overlay,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  dropdown: {
+    backgroundColor: colors.backgroundSecondary,
+    borderRadius: borderRadius.lg,
+    width: '100%',
+    maxWidth: 340,
+    maxHeight: 400,
+    overflow: 'hidden',
+  },
+  dropdownHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  dropdownTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  dropdownItemSelected: {
+    backgroundColor: colors.surfaceHover,
+  },
+  modelInfo: {
+    flex: 1,
   },
   modelName: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '500',
-    color: colors.textMuted,
+    color: colors.textPrimary,
   },
   modelNameSelected: {
     color: colors.primary,
+  },
+  modelDescription: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.lg,
   },
 });
 

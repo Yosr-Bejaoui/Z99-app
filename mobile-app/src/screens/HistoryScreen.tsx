@@ -5,16 +5,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   RefreshControl,
   TextInput,
   Alert,
   ActivityIndicator,
   Image,
   Modal,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDrawer } from '../context';
+import { colors, spacing, borderRadius } from '../theme';
 import { HistoryEmptyState } from '../components/EmptyState';
 import { historyService, mediaService, getErrorMessage } from '../services';
 import type { HistoryItem } from '../services/types';
@@ -23,6 +26,9 @@ import GlassCard from '../components/GlassCard';
 type FilterType = 'all' | 'chat' | 'image' | 'video' | 'audio' | '3d';
 
 const HistoryScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
+  const { openDrawer } = useDrawer();
   const [filter, setFilter] = useState<FilterType>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
@@ -242,16 +248,22 @@ const HistoryScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      
       {/* Header */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>History</Text>
-          <Text style={styles.headerSubtitle}>Your recent conversations and generations</Text>
-        </View>
+        <TouchableOpacity 
+          style={styles.headerButton} 
+          onPress={openDrawer}
+        >
+          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>History</Text>
+        <View style={styles.headerButton} />
       </View>
-
-      {/* Search Bar */}
+      
+      {/* Search */}
       <View style={styles.searchContainer}>
         <Ionicons name="search-outline" size={20} color={colors.textMuted} />
         <TextInput
@@ -381,7 +393,7 @@ const HistoryScreen: React.FC = () => {
       )}
 
       {renderDetailModal()}
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -391,17 +403,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  headerButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,

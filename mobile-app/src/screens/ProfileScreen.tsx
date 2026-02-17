@@ -5,18 +5,20 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Image,
   Switch,
   Alert,
   ActivityIndicator,
   Modal,
   TextInput,
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { colors } from '../theme/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDrawer } from '../context';
+import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import { useAuth } from '../context';
 import { authService, planService, getErrorMessage } from '../services';
@@ -48,6 +50,8 @@ interface ProfileScreenProps {
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const { user, logout, isLoading, refreshUser } = useAuth();
+  const insets = useSafeAreaInsets();
+  const { openDrawer } = useDrawer();
   const [settings, setSettings] = useState({
     notifications: true,
     darkMode: true,
@@ -264,32 +268,31 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      
+      {/* Top Header with Menu */}
+      <View style={styles.topHeader}>
+        <TouchableOpacity 
+          style={styles.menuButton} 
+          onPress={openDrawer}
+        >
+          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
+        </TouchableOpacity>
+        <Text style={styles.topHeaderTitle}>Profile</Text>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Ionicons name="settings-outline" size={22} color={colors.foreground} />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <View style={styles.headerActions}>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => navigation.navigate('Notifications')}
-            >
-              <Ionicons name="notifications-outline" size={22} color={colors.foreground} />
-              <View style={styles.notificationDot} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => navigation.navigate('Settings')}
-            >
-              <Ionicons name="settings-outline" size={22} color={colors.foreground} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
         {/* Profile Card */}
         <GlassCard style={styles.profileCard}>
           <View style={styles.avatarContainer}>
@@ -466,7 +469,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       </ScrollView>
       
       {renderEditModal()}
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -474,6 +477,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  topHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  topHeaderTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  menuButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   scrollView: {
     flex: 1,

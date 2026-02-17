@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -12,13 +13,14 @@ import { AuthProvider, useAuth } from './src/context';
 import LandingScreen from './src/screens/LandingScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
+import OTPVerificationScreen from './src/screens/OTPVerificationScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import HelpScreen from './src/screens/HelpScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import SubscriptionPlansScreen from './src/screens/SubscriptionPlansScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
-import MainTabNavigator from './src/navigation/MainTabNavigator';
+import DrawerNavigator from './src/navigation/DrawerNavigator';
 
 // AI Feature Screens
 import TextToVideoScreen from './src/screens/TextToVideoScreen';
@@ -35,6 +37,7 @@ export type RootStackParamList = {
   Landing: undefined;
   Login: undefined;
   SignUp: undefined;
+  OTPVerification: { email: string };
   ForgotPassword: undefined;
   Main: undefined;
   Settings: undefined;
@@ -99,10 +102,11 @@ function Navigation() {
       <Stack.Screen name="Landing" component={LandingScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
+      <Stack.Screen name="OTPVerification" component={OTPVerificationScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen 
         name="Main" 
-        component={MainTabNavigator}
+        component={DrawerNavigator}
         options={{ animation: 'fade' }}
       />
       <Stack.Screen 

@@ -1,108 +1,122 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { colors, spacing, borderRadius } from '../theme';
 
 interface MessageBubbleProps {
   content: string;
   isUser: boolean;
   timestamp?: string;
+  modelName?: string;
+  avatar?: string;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ content, isUser, timestamp }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ 
+  content, 
+  isUser, 
+  timestamp,
+  modelName = 'AI',
+  avatar,
+}) => {
+  // User message - ChatGPT style (right-aligned, subtle background)
   if (isUser) {
     return (
-      <View style={styles.userContainer}>
-        <LinearGradient
-          colors={[colors.primary, colors.secondary]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.userBubble}
-        >
-          <Text style={styles.userText}>{content}</Text>
-        </LinearGradient>
-        {timestamp && <Text style={styles.timestamp}>{timestamp}</Text>}
+      <View style={styles.messageRow}>
+        <View style={styles.userMessageContainer}>
+          <View style={styles.userBubble}>
+            <Text style={styles.messageText}>{content}</Text>
+          </View>
+        </View>
+        <View style={styles.userAvatar}>
+          <Ionicons name="person" size={16} color={colors.textSecondary} />
+        </View>
       </View>
     );
   }
 
+  // AI message - ChatGPT style (full width, no bubble, just content)
   return (
-    <View style={styles.assistantContainer}>
-      <View style={styles.assistantHeader}>
-        <View style={styles.assistantAvatar}>
-          <Ionicons name="sparkles" size={14} color={colors.primary} />
-        </View>
-        <Text style={styles.assistantLabel}>AI Assistant</Text>
+    <View style={styles.aiMessageRow}>
+      <View style={styles.aiAvatar}>
+        {avatar ? (
+          <Image source={{ uri: avatar }} style={styles.avatarImage} />
+        ) : (
+          <Ionicons name="sparkles" size={16} color={colors.primary} />
+        )}
       </View>
-      <View style={styles.assistantBubble}>
-        <Text style={styles.assistantText}>{content}</Text>
+      <View style={styles.aiMessageContainer}>
+        <Text style={styles.modelLabel}>{modelName}</Text>
+        <Text style={styles.messageText}>{content}</Text>
       </View>
-      {timestamp && <Text style={styles.timestamp}>{timestamp}</Text>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  userContainer: {
-    alignItems: 'flex-end',
-    marginBottom: 16,
+  messageRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
+  },
+  userMessageContainer: {
+    maxWidth: '80%',
   },
   userBubble: {
-    maxWidth: '85%',
-    borderRadius: 20,
-    borderBottomRightRadius: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: colors.userMessage,
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
-  userText: {
-    color: '#fff',
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  assistantContainer: {
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  assistantHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  assistantAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 8,
-    backgroundColor: 'rgba(45, 212, 191, 0.15)',
+  userAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
   },
-  assistantLabel: {
+  aiMessageRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
+  },
+  aiAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarImage: {
+    width: 28,
+    height: 28,
+    borderRadius: borderRadius.full,
+  },
+  aiMessageContainer: {
+    flex: 1,
+    paddingRight: spacing.xl,
+  },
+  modelLabel: {
     fontSize: 13,
-    color: colors.textMuted,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
   },
-  assistantBubble: {
-    maxWidth: '85%',
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    borderBottomLeftRadius: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  assistantText: {
+  messageText: {
     color: colors.textPrimary,
     fontSize: 15,
-    lineHeight: 22,
+    lineHeight: 24,
   },
   timestamp: {
     fontSize: 11,
     color: colors.textMuted,
-    marginTop: 4,
-    marginHorizontal: 4,
+    marginTop: spacing.xs,
   },
 });
 

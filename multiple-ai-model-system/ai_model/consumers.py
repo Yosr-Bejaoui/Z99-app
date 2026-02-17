@@ -848,43 +848,121 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                 
                 #text to image generation
                 elif model_type=="text_to_image":
-                  payload={
-                        "enable_base64_output": False,
-                        "enable_sync_mode": False,
-                        "prompt":prompt,
-                        "seed":-1,
-                        "size": f"{height} * {width}" if height and width  else "1024*1024"
-                    }
-                                              
-                  try:
-                     
-                    ai_response = await wavespeed_ai_call(
-                        model_id=model_id,
-                        api_key=api_key,
-                        payload=payload,
-                        user_id=self.user.id,
-                        base_cost=base_cost
-                    )
-                    
-                    if ai_response:
-                        print("AI RESPONSE FROM WEAVESPEEDAI:", ai_response)
-                        raw_images = ai_response.get("images", [])
-                        final_images = []
-                        if raw_images:
-                            downloaded = await database_sync_to_async(download_and_store_webp)(image_urls=raw_images)
-                            final_images = [img for img in downloaded if img]
+                  provider = getattr(model, "provider", "").lower()
+                  
+                  # Route Google/Gemini models to gemini_response
+                  if provider == "google":
+                    try:
+                      ai_response = await gemini_response(
+                          message=prompt,
+                          model_id=model_id,
+                          api_key=api_key,
+                          user_id=self.user.id,
+                          images_data_list=image if image else None,
+                          num_images=1,
+                          base_cost=base_cost,
+                          width=width,
+                          height=height,
+                          model_type="text_to_image"
+                      )
+                      
+                      if ai_response:
+                          print("AI RESPONSE FROM GEMINI:", ai_response)
+                          raw_images = ai_response.get("images", [])
+                          final_images = []
+                          if raw_images:
+                              # Check if images need downloading (not base64)
+                              if raw_images[0].startswith("data:"):
+                                  final_images = raw_images
+                              else:
+                                  downloaded = await database_sync_to_async(download_and_store_webp)(image_urls=raw_images)
+                                  final_images = [img for img in downloaded if img]
 
-                        saved_ai_message = await self.save_message(
-                            self.session_id,
-                            self.user,
-                            "ai",
-                            content = ai_response.get("text") or ai_response.get("content") or ai_response.get("error") or "",
-                            images=final_images if final_images else raw_images if not any(img.startswith("data:") for img in raw_images) else []
+                          saved_ai_message = await self.save_message(
+                              self.session_id,
+                              self.user,
+                              "ai",
+                              content=ai_response.get("text") or ai_response.get("content") or "Image generated successfully.",
+                              images=final_images if final_images else raw_images
+                          )
+                          if saved_ai_message:
+                              await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
+                    except Exception as e:
+                        print(f"Gemini text_to_image error: {str(e)}")
+                        await self.send_json_with_credits({"type": "error", "message": f"Error: {str(e)}"})
+                  
+                  # Route OpenAI models to gpt_response
+                  elif provider == "openai":
+                    try:
+                      ai_response = await gpt_response(
+                          message=prompt,
+                          model_id=model_id,
+                          api_key=api_key,
+                          user_id=self.user.id,
+                          base_cost=base_cost,
+                          model_type="text_to_image"
+                      )
+                      
+                      if ai_response:
+                          print("AI RESPONSE FROM OPENAI:", ai_response)
+                          raw_images = ai_response.get("images", [])
+                          final_images = []
+                          if raw_images:
+                              downloaded = await database_sync_to_async(download_and_store_webp)(image_urls=raw_images)
+                              final_images = [img for img in downloaded if img]
+
+                          saved_ai_message = await self.save_message(
+                              self.session_id,
+                              self.user,
+                              "ai",
+                              content=ai_response.get("text") or "Image generated successfully.",
+                              images=final_images if final_images else raw_images
+                          )
+                          if saved_ai_message:
+                              await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
+                    except Exception as e:
+                        print(f"OpenAI text_to_image error: {str(e)}")
+                        await self.send_json_with_credits({"type": "error", "message": f"Error: {str(e)}"})
+                  
+                  # Default: WaveSpeedAI
+                  else:
+                    payload={
+                          "enable_base64_output": False,
+                          "enable_sync_mode": False,
+                          "prompt":prompt,
+                          "seed":-1,
+                          "size": f"{height} * {width}" if height and width  else "1024*1024"
+                      }
+                                                
+                    try:
+                       
+                        ai_response = await wavespeed_ai_call(
+                            model_id=model_id,
+                            api_key=api_key,
+                            payload=payload,
+                            user_id=self.user.id,
+                            base_cost=base_cost
                         )
-                        if saved_ai_message:
-                            await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
-                  except Exception as e:
-                      await self.send_json_with_credits({"type": "error", "message": f"Error: {str(e)}"})
+                    
+                        if ai_response:
+                            print("AI RESPONSE FROM WEAVESPEEDAI:", ai_response)
+                            raw_images = ai_response.get("images", [])
+                            final_images = []
+                            if raw_images:
+                                downloaded = await database_sync_to_async(download_and_store_webp)(image_urls=raw_images)
+                                final_images = [img for img in downloaded if img]
+
+                            saved_ai_message = await self.save_message(
+                                self.session_id,
+                                self.user,
+                                "ai",
+                                content = ai_response.get("text") or ai_response.get("content") or ai_response.get("error") or "",
+                                images=final_images if final_images else raw_images if not any(img.startswith("data:") for img in raw_images) else []
+                            )
+                            if saved_ai_message:
+                                await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
+                    except Exception as e:
+                        await self.send_json_with_credits({"type": "error", "message": f"Error: {str(e)}"})
                 
                 #text to video generation
                 elif model_type=="text_to_video":

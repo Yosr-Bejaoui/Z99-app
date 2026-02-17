@@ -10,10 +10,10 @@ import {
   Platform,
   Animated,
   Alert,
+  StatusBar,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { colors, spacing, borderRadius } from '../theme';
 import GradientButton from '../components/GradientButton';
 import GlassCard from '../components/GlassCard';
 import { useAuth } from '../context';
@@ -64,11 +64,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     
     try {
       await login({ email: email.trim(), password });
-      // Navigation will happen automatically via AuthContext
-      navigation.replace('Main');
+      // Navigate to main screen after successful login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -83,10 +85,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={[colors.background, '#1a1d24', colors.background]}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -107,17 +107,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.logoContainer}>
-                <LinearGradient
-                  colors={[colors.primary, colors.secondary]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.logoGradient}
-                >
-                  <Ionicons name="sparkles" size={32} color="#fff" />
-                </LinearGradient>
+                <View style={styles.logo}>
+                  <Ionicons name="sparkles" size={32} color={colors.primary} />
+                </View>
               </View>
               <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>Sign in to continue to AImpress</Text>
+              <Text style={styles.subtitle}>Sign in to continue</Text>
             </View>
 
             {/* Login Form */}
@@ -210,13 +205,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -224,7 +220,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 24,
+    padding: spacing.xl,
   },
   content: {
     flex: 1,
@@ -232,46 +228,47 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: spacing.xxl,
   },
   logoContainer: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
-  logoGradient: {
-    width: 70,
-    height: 70,
-    borderRadius: 20,
+  logo: {
+    width: 64,
+    height: 64,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textMuted,
   },
   formCard: {
-    padding: 24,
+    padding: spacing.xl,
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   inputLabel: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     fontWeight: '500',
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    backgroundColor: colors.backgroundSecondary,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -279,12 +276,12 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     color: colors.textPrimary,
-    marginLeft: 12,
+    marginLeft: spacing.md,
     fontSize: 16,
   },
   forgotPassword: {
     alignSelf: 'flex-end',
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   forgotPasswordText: {
     color: colors.primary,
@@ -294,24 +291,24 @@ const styles = StyleSheet.create({
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 107, 107, 0.1)',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: borderRadius.sm,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
   },
   errorText: {
-    color: '#ff6b6b',
+    color: colors.error,
     fontSize: 14,
-    marginLeft: 8,
+    marginLeft: spacing.sm,
     flex: 1,
   },
   loginButton: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   dividerLine: {
     flex: 1,
@@ -321,28 +318,28 @@ const styles = StyleSheet.create({
   dividerText: {
     color: colors.textMuted,
     fontSize: 14,
-    marginHorizontal: 16,
+    marginHorizontal: spacing.lg,
   },
   socialButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingVertical: 14,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
   },
   socialButtonText: {
     color: colors.textPrimary,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '500',
-    marginLeft: 12,
+    marginLeft: spacing.md,
   },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 32,
+    marginTop: spacing.xxl,
   },
   signUpText: {
     color: colors.textMuted,

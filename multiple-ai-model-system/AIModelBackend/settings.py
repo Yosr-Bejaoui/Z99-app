@@ -57,6 +57,7 @@ if ENVIRONMENT != 'production':
         '7817aa52e070.ngrok-free.app',
         '192.168.1.19',
         '172.18.133.153',
+        '10.133.245.121',
     ]
 
 CSRF_TRUSTED_ORIGINS = [

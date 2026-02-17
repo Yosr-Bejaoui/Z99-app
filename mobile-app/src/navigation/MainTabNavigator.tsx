@@ -2,8 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors } from '../theme/colors';
+import { colors, spacing } from '../theme';
 
 import ChatScreen from '../screens/ChatScreen';
 import ImageGenScreen from '../screens/ImageGenScreen';
@@ -16,24 +15,17 @@ const Tab = createBottomTabNavigator();
 interface TabIconProps {
   focused: boolean;
   iconName: keyof typeof Ionicons.glyphMap;
+  iconOutline: keyof typeof Ionicons.glyphMap;
 }
 
-const TabIcon: React.FC<TabIconProps> = ({ focused, iconName }) => {
-  if (focused) {
-    return (
-      <View style={styles.activeIconContainer}>
-        <LinearGradient
-          colors={[colors.primary, colors.secondary]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.activeIconGradient}
-        >
-          <Ionicons name={iconName} size={22} color="#fff" />
-        </LinearGradient>
-      </View>
-    );
-  }
-  return <Ionicons name={iconName} size={24} color={colors.textMuted} />;
+const TabIcon: React.FC<TabIconProps> = ({ focused, iconName, iconOutline }) => {
+  return (
+    <Ionicons 
+      name={focused ? iconName : iconOutline} 
+      size={24} 
+      color={focused ? colors.primary : colors.textMuted} 
+    />
+  );
 };
 
 const MainTabNavigator: React.FC = () => {
@@ -53,16 +45,16 @@ const MainTabNavigator: React.FC = () => {
         component={ChatScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="chatbubble" />
+            <TabIcon focused={focused} iconName="chatbubble" iconOutline="chatbubble-outline" />
           ),
         }}
       />
       <Tab.Screen
-        name="Image"
+        name="Create"
         component={ImageGenScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="image" />
+            <TabIcon focused={focused} iconName="add-circle" iconOutline="add-circle-outline" />
           ),
         }}
       />
@@ -71,7 +63,7 @@ const MainTabNavigator: React.FC = () => {
         component={HistoryScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="time" />
+            <TabIcon focused={focused} iconName="time" iconOutline="time-outline" />
           ),
         }}
       />
@@ -80,7 +72,7 @@ const MainTabNavigator: React.FC = () => {
         component={CreditsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="card" />
+            <TabIcon focused={focused} iconName="wallet" iconOutline="wallet-outline" />
           ),
         }}
       />
@@ -89,7 +81,7 @@ const MainTabNavigator: React.FC = () => {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="person" />
+            <TabIcon focused={focused} iconName="person" iconOutline="person-outline" />
           ),
         }}
       />
@@ -99,28 +91,17 @@ const MainTabNavigator: React.FC = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: colors.background,
-    borderTopColor: colors.border,
+    backgroundColor: colors.backgroundSecondary,
     borderTopWidth: 1,
-    height: Platform.OS === 'ios' ? 88 : 70,
-    paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 12,
+    borderTopColor: colors.border,
+    height: Platform.OS === 'ios' ? 88 : 64,
+    paddingTop: spacing.xs,
+    paddingBottom: Platform.OS === 'ios' ? 28 : spacing.sm,
   },
   tabBarLabel: {
     fontSize: 11,
     fontWeight: '500',
-    marginTop: 4,
-  },
-  activeIconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeIconGradient: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 2,
   },
 });
 
