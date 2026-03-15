@@ -11,19 +11,30 @@ import {
   Animated,
   Alert,
   StatusBar,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius } from '../theme';
 import GradientButton from '../components/GradientButton';
 import GlassCard from '../components/GlassCard';
 import { useAuth } from '../context';
+import { useTranslation } from 'react-i18next';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
+
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../types/navigation';
 
 interface LoginScreenProps {
-  navigation: any;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Login'>;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
-  const { login } = useAuth();
+  const { t } = useTranslation();
+  const { login, googleLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +43,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
+
+  const googleAndroidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
+  const googleIosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+  const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+
+  const isGoogleConfigured =
+    (Platform.OS === 'android' && !!googleAndroidClientId) ||
+    (Platform.OS === 'ios' && !!googleIosClientId) ||
+    (Platform.OS === 'web' && !!googleWebClientId);
+
+  // Google OAuth setup
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    // Expo's Google provider requires platform client IDs to be defined.
+    // Use harmless placeholders so missing env vars don't crash the app at startup.
+    androidClientId: googleAndroidClientId || 'placeholder-android.apps.googleusercontent.com',
+    iosClientId: googleIosClientId || 'placeholder-ios.apps.googleusercontent.com',
+    webClientId: googleWebClientId || 'placeholder-web.apps.googleusercontent.com',
+  });
 
   useEffect(() => {
     Animated.parallel([
@@ -48,164 +77,239 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     ]).start();
   }, []);
 
+  // Handle Google auth response
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      if (id_token) {
+        handleGoogleAuthSuccess(id_token);
+      }
+    } else if (response?.type === 'error') {
+      setError(t('login.error.loginFailed'));
+    }
+  }, [response]);
+
+  const handleGoogleAuthSuccess = async (idToken: string) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      await googleLogin(idToken);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
+    } catch (err: any) {
+      setError(err.message || t('login.error.loginFailed'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleLogin = async () => {
     // Validate inputs
     if (!email.trim()) {
-      setError('Email is required');
+      setError(t('login.error.emailRequired'));
+      return;
+    }
+    if (!isValidEmail(email.trim())) {
+      setError(t('login.error.emailInvalid'));
       return;
     }
     if (!password) {
-      setError('Password is required');
+      setError(t('login.error.passwordRequired'));
       return;
     }
-    
+
     setError('');
     setIsLoading(true);
-    
+
     try {
-      await login({ email: email.trim(), password });
+      await login({ email: email.trim(), password: password.trim() });
       // Navigate to main screen after successful login
       navigation.reset({
         index: 0,
         routes: [{ name: 'Main' }],
       });
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(err.message || t('login.error.loginFailed'));
+    } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
-    // Google OAuth login - would require expo-auth-session setup
-    Alert.alert(
-      'Google Sign In',
-      'Google Sign In will be available soon!',
-      [{ text: 'OK' }]
-    );
+    if (request && isGoogleConfigured) {
+      promptAsync();
+    } else {
+      Alert.alert(
+        t('login.googleTitle'),
+        'Google Sign-In is not configured yet. Please set up OAuth Client IDs.',
+        [{ text: t('common.ok') }]
+      );
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardView}
         >
-          <Animated.View
-            style={[
-              styles.content,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-              },
-            ]}
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
           >
-            {/* Header */}
-            <View style={styles.header}>
-              <View style={styles.logoContainer}>
-                <View style={styles.logo}>
-                  <Ionicons name="sparkles" size={32} color={colors.primary} />
+            <Animated.View
+              style={[
+                styles.content,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }],
+                },
+              ]}
+            >
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={styles.logoContainer}>
+                  <View style={styles.logo}>
+                    <Ionicons name="sparkles" size={32} color={colors.primary} />
+                  </View>
                 </View>
-              </View>
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>Sign in to continue</Text>
-            </View>
-
-            {/* Login Form */}
-            <GlassCard style={styles.formCard}>
-              {/* Email Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Email</Text>
-                <View style={styles.inputWrapper}>
-                  <Ionicons name="mail-outline" size={20} color={colors.textMuted} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your email"
-                    placeholderTextColor={colors.textMuted}
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
-                </View>
+                <Text style={styles.title}>{t('login.title')}</Text>
+                <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
               </View>
 
-              {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Password</Text>
-                <View style={styles.inputWrapper}>
-                  <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your password"
-                    placeholderTextColor={colors.textMuted}
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
-                  />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                    <Ionicons
-                      name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-                      size={20}
-                      color={colors.textMuted}
+              {/* Login Form */}
+              <GlassCard style={styles.formCard}>
+                {/* Email Input */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>{t('login.emailLabel')}</Text>
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="mail-outline" size={20} color={colors.textMuted} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder={t('login.emailPlaceholder')}
+                      placeholderTextColor={colors.textMuted}
+                      value={email}
+                      onChangeText={(text) => {
+                        setEmail(text);
+                        if (error) setError('');
+                      }}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      autoComplete="off"
+                      textContentType="none"
+                      selectionColor={colors.primary}
+                      underlineColorAndroid="transparent"
+                      accessibilityLabel={t('login.a11y.email')}
+                      accessibilityHint={t('login.a11y.emailHint')}
                     />
-                  </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
 
-              {/* Forgot Password */}
-              <TouchableOpacity 
-                style={styles.forgotPassword}
-                onPress={() => navigation.navigate('ForgotPassword')}
-              >
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-              </TouchableOpacity>
-
-              {/* Error Message */}
-              {error ? (
-                <View style={styles.errorContainer}>
-                  <Ionicons name="alert-circle" size={18} color="#ff6b6b" />
-                  <Text style={styles.errorText}>{error}</Text>
+                {/* Password Input */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>{t('login.passwordLabel')}</Text>
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder={t('login.passwordPlaceholder')}
+                      placeholderTextColor={colors.textMuted}
+                      value={password}
+                      onChangeText={(text) => {
+                        setPassword(text);
+                        if (error) setError('');
+                      }}
+                      secureTextEntry={!showPassword}
+                      autoCorrect={false}
+                      autoComplete="off"
+                      textContentType="none"
+                      selectionColor={colors.primary}
+                      underlineColorAndroid="transparent"
+                      accessibilityLabel={t('login.a11y.password')}
+                      accessibilityHint={t('login.a11y.passwordHint')}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                      accessibilityLabel={showPassword ? t('login.a11y.hidePassword') : t('login.a11y.showPassword')}
+                      accessibilityRole="button"
+                    >
+                      <Ionicons
+                        name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                        size={20}
+                        color={colors.textMuted}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              ) : null}
 
-              {/* Login Button */}
-              <GradientButton
-                title={isLoading ? 'Signing in...' : 'Sign In'}
-                onPress={handleLogin}
-                style={styles.loginButton}
-                disabled={isLoading}
-              />
+                {/* Forgot Password */}
+                <TouchableOpacity
+                  style={styles.forgotPassword}
+                  onPress={() => navigation.navigate('ForgotPassword')}
+                  accessibilityLabel={t('login.a11y.forgotPassword')}
+                  accessibilityRole="link"
+                >
+                  <Text style={styles.forgotPasswordText}>{t('login.forgotPassword')}</Text>
+                </TouchableOpacity>
 
-              {/* Divider */}
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or continue with</Text>
-                <View style={styles.dividerLine} />
+                {/* Error Message */}
+                {error ? (
+                  <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={18} color="#ff6b6b" />
+                    <Text style={styles.errorText}>{error}</Text>
+                  </View>
+                ) : null}
+
+                {/* Login Button */}
+                <GradientButton
+                  title={isLoading ? t('login.signingIn') : t('login.signInButton')}
+                  onPress={handleLogin}
+                  style={styles.loginButton}
+                  disabled={isLoading}
+                />
+
+                {/* Divider */}
+                <View style={styles.divider}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>{t('login.divider')}</Text>
+                  <View style={styles.dividerLine} />
+                </View>
+
+                {/* Social Login */}
+                <TouchableOpacity
+                  style={styles.socialButton}
+                  onPress={handleGoogleLogin}
+                  accessibilityLabel={t('login.a11y.googleSignIn')}
+                  accessibilityRole="button"
+                >
+                  <Ionicons name="logo-google" size={20} color={colors.textPrimary} />
+                  <Text style={styles.socialButtonText}>{t('login.google')}</Text>
+                </TouchableOpacity>
+              </GlassCard>
+
+              {/* Sign Up Link */}
+              <View style={styles.signUpContainer}>
+                <Text style={styles.signUpText}>{t('login.noAccount')}</Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('SignUp')}
+                  accessibilityLabel={t('login.a11y.signUp')}
+                  accessibilityRole="link"
+                >
+                  <Text style={styles.signUpLink}>{t('login.signUpLink')}</Text>
+                </TouchableOpacity>
               </View>
-
-              {/* Social Login */}
-              <TouchableOpacity style={styles.socialButton} onPress={handleGoogleLogin}>
-                <Ionicons name="logo-google" size={20} color={colors.textPrimary} />
-                <Text style={styles.socialButtonText}>Continue with Google</Text>
-              </TouchableOpacity>
-            </GlassCard>
-
-            {/* Sign Up Link */}
-            <View style={styles.signUpContainer}>
-              <Text style={styles.signUpText}>Don't have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-                <Text style={styles.signUpLink}>Sign Up</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+            </Animated.View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -271,6 +375,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
+    height: 52,
   },
   input: {
     flex: 1,
@@ -278,6 +383,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginLeft: spacing.md,
     fontSize: 16,
+    paddingVertical: 0,
   },
   forgotPassword: {
     alignSelf: 'flex-end',

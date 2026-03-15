@@ -1,23 +1,42 @@
+import { NativeModules, Platform } from 'react-native';
+
+const getBundleHost = (): string | null => {
+  const scriptUrl = NativeModules.SourceCode?.scriptURL;
+
+  if (typeof scriptUrl !== 'string' || scriptUrl.length === 0) {
+    return null;
+  }
+
+  const hostMatch = scriptUrl.match(/^[a-z]+:\/\/([^/:]+)/i);
+  if (!hostMatch) {
+    return null;
+  }
+
+  const host = hostMatch[1];
+  if (Platform.OS === 'android' && (host === 'localhost' || host === '127.0.0.1')) {
+    return '10.0.2.2';
+  }
+
+  return host;
+};
+
 // API Configuration
-// Update this URL based on your environment
+const defaultApiHost = getBundleHost() || (Platform.OS === 'android' ? '10.0.2.2' : 'localhost');
+const defaultApiBaseUrl = `http://${defaultApiHost}:8082/api/v1`;
+const configuredApiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || defaultApiBaseUrl;
 
-// For development on same network as backend server
-export const API_BASE_URL = 'http://10.133.245.121:8082/api/v1';
-
-// For local development (if backend runs locally)
-// export const API_BASE_URL = 'http://localhost:8082/api/v1';
-
-// For production
-// export const API_BASE_URL = 'https://your-production-domain.com/api/v1';
+export const API_BASE_URL = configuredApiBaseUrl.replace(/\/+$/, '');
 
 // WebSocket URL for real-time chat
-export const WS_BASE_URL = 'ws://10.133.245.121:8082/ws';
+const apiOrigin = API_BASE_URL.replace(/\/api\/v1$/, '');
+export const WS_BASE_URL = `${apiOrigin.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:')}/ws`;
 
 // API Endpoints
 export const ENDPOINTS = {
   // Auth
   REGISTER: '/accounts/register/',
   ACTIVATE: '/accounts/activate/',
+  RESEND_OTP: '/accounts/resend-otp/',
   LOGIN: '/accounts/login/',
   GOOGLE_LOGIN: '/accounts/google/login/',
   LOGOUT: '/accounts/logout/',
