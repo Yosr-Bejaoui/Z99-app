@@ -9,8 +9,8 @@ import {
   Platform,
   ScrollView,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +24,7 @@ import { ENDPOINTS } from '../services/config';
 type Step = 'email' | 'otp' | 'password' | 'success';
 
 const ForgotPasswordScreen: React.FC = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
@@ -36,9 +37,15 @@ const ForgotPasswordScreen: React.FC = () => {
 
   const otpRefs = useRef<(TextInput | null)[]>([]);
 
+  const isValidEmail = (emailStr: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr);
+
   const handleSendOTP = async () => {
     if (!email.trim()) {
-      setError('Please enter your email address');
+      setError(t('forgotPassword.email.emptyError'));
+      return;
+    }
+    if (!isValidEmail(email.trim())) {
+      setError(t('forgotPassword.email.invalidError'));
       return;
     }
 
@@ -48,9 +55,9 @@ const ForgotPasswordScreen: React.FC = () => {
     try {
       await api.post(ENDPOINTS.FORGOT_PASSWORD, { email: email.trim() });
       setStep('otp');
-      Alert.alert('Success', 'A verification code has been sent to your email');
+      Alert.alert(t('common.success'), t('forgotPassword.email.success'));
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to send verification code');
+      setError(err.response?.data?.error || t('forgotPassword.email.sendError'));
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +87,7 @@ const ForgotPasswordScreen: React.FC = () => {
   const handleVerifyOTP = () => {
     const otpCode = otp.join('');
     if (otpCode.length !== 6) {
-      setError('Please enter the complete verification code');
+      setError(t('forgotPassword.otp.incompleteError'));
       return;
     }
     setError('');
@@ -89,17 +96,17 @@ const ForgotPasswordScreen: React.FC = () => {
 
   const handleResetPassword = async () => {
     if (!newPassword.trim()) {
-      setError('Please enter a new password');
+      setError(t('forgotPassword.password.emptyError'));
       return;
     }
 
     if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters');
+      setError(t('forgotPassword.password.lengthError'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('forgotPassword.password.mismatchError'));
       return;
     }
 
@@ -114,7 +121,7 @@ const ForgotPasswordScreen: React.FC = () => {
       });
       setStep('success');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to reset password');
+      setError(err.response?.data?.error || t('forgotPassword.password.resetError'));
     } finally {
       setIsLoading(false);
     }
@@ -124,10 +131,10 @@ const ForgotPasswordScreen: React.FC = () => {
     setIsLoading(true);
     try {
       await api.post(ENDPOINTS.FORGOT_PASSWORD, { email: email.trim() });
-      Alert.alert('Success', 'A new verification code has been sent');
+      Alert.alert(t('common.success'), t('forgotPassword.otp.resendSuccess'));
       setOtp(['', '', '', '', '', '']);
     } catch (err: any) {
-      Alert.alert('Error', 'Failed to resend code. Please try again.');
+      Alert.alert(t('common.error'), t('forgotPassword.otp.resendError'));
     } finally {
       setIsLoading(false);
     }
@@ -144,9 +151,9 @@ const ForgotPasswordScreen: React.FC = () => {
         </LinearGradient>
       </View>
 
-      <Text style={styles.title}>Forgot Password?</Text>
+      <Text style={styles.title}>{t('forgotPassword.email.title')}</Text>
       <Text style={styles.subtitle}>
-        Enter your email address and we'll send you a verification code to reset your password.
+        {t('forgotPassword.email.subtitle')}
       </Text>
 
       <GlassCard style={styles.inputCard}>
@@ -154,7 +161,7 @@ const ForgotPasswordScreen: React.FC = () => {
           <Ionicons name="mail-outline" size={20} color={colors.textMuted} />
           <TextInput
             style={styles.input}
-            placeholder="Email address"
+            placeholder={t('forgotPassword.email.placeholder')}
             placeholderTextColor={colors.textMuted}
             value={email}
             onChangeText={setEmail}
@@ -168,7 +175,7 @@ const ForgotPasswordScreen: React.FC = () => {
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <GradientButton
-        title={isLoading ? 'Sending...' : 'Send Verification Code'}
+        title={isLoading ? t('forgotPassword.email.sending') : t('forgotPassword.email.button')}
         onPress={handleSendOTP}
         disabled={isLoading}
         style={styles.button}
@@ -187,9 +194,9 @@ const ForgotPasswordScreen: React.FC = () => {
         </LinearGradient>
       </View>
 
-      <Text style={styles.title}>Enter Verification Code</Text>
+      <Text style={styles.title}>{t('forgotPassword.otp.title')}</Text>
       <Text style={styles.subtitle}>
-        We've sent a 6-digit code to {email}
+        {t('forgotPassword.otp.subtitle', { email })}
       </Text>
 
       <View style={styles.otpContainer}>
@@ -214,7 +221,7 @@ const ForgotPasswordScreen: React.FC = () => {
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <GradientButton
-        title="Verify Code"
+        title={t('forgotPassword.otp.button')}
         onPress={handleVerifyOTP}
         disabled={isLoading}
         style={styles.button}
@@ -222,8 +229,8 @@ const ForgotPasswordScreen: React.FC = () => {
 
       <TouchableOpacity onPress={handleResendOTP} disabled={isLoading}>
         <Text style={styles.resendText}>
-          Didn't receive the code?{' '}
-          <Text style={styles.resendLink}>Resend</Text>
+          {t('forgotPassword.otp.resendText')}
+          <Text style={styles.resendLink}>{t('forgotPassword.otp.resendLink')}</Text>
         </Text>
       </TouchableOpacity>
     </>
@@ -240,9 +247,9 @@ const ForgotPasswordScreen: React.FC = () => {
         </LinearGradient>
       </View>
 
-      <Text style={styles.title}>Create New Password</Text>
+      <Text style={styles.title}>{t('forgotPassword.password.title')}</Text>
       <Text style={styles.subtitle}>
-        Your new password must be at least 8 characters long
+        {t('forgotPassword.password.subtitle')}
       </Text>
 
       <GlassCard style={styles.inputCard}>
@@ -250,7 +257,7 @@ const ForgotPasswordScreen: React.FC = () => {
           <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
           <TextInput
             style={styles.input}
-            placeholder="New password"
+            placeholder={t('forgotPassword.password.newPlaceholder')}
             placeholderTextColor={colors.textMuted}
             value={newPassword}
             onChangeText={setNewPassword}
@@ -271,7 +278,7 @@ const ForgotPasswordScreen: React.FC = () => {
           <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
           <TextInput
             style={styles.input}
-            placeholder="Confirm new password"
+            placeholder={t('forgotPassword.password.confirmPlaceholder')}
             placeholderTextColor={colors.textMuted}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
@@ -283,7 +290,7 @@ const ForgotPasswordScreen: React.FC = () => {
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <GradientButton
-        title={isLoading ? 'Resetting...' : 'Reset Password'}
+        title={isLoading ? t('forgotPassword.password.resetting') : t('forgotPassword.password.button')}
         onPress={handleResetPassword}
         disabled={isLoading}
         style={styles.button}
@@ -302,13 +309,13 @@ const ForgotPasswordScreen: React.FC = () => {
         </LinearGradient>
       </View>
 
-      <Text style={styles.title}>Password Reset!</Text>
+      <Text style={styles.title}>{t('forgotPassword.successScreen.title')}</Text>
       <Text style={styles.subtitle}>
-        Your password has been successfully reset. You can now log in with your new password.
+        {t('forgotPassword.successScreen.subtitle')}
       </Text>
 
       <GradientButton
-        title="Back to Login"
+        title={t('forgotPassword.successScreen.button')}
         onPress={() => navigation.navigate('Login' as never)}
         style={styles.button}
       />
@@ -469,6 +476,8 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     marginTop: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   otpContainer: {
     flexDirection: 'row',

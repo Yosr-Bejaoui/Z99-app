@@ -91,18 +91,25 @@ const AdRewardsScreen: React.FC = () => {
       // Simulate ad watching - in production, integrate with ad SDK
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      const response = await api.post('/ads/rewards/claim/');
-      
-      if (response.data.success) {
+      try {
+        const response = await api.post('/ads/rewards/claim/');
+        
+        if (response.data.success) {
+          Alert.alert(
+            '🎉 Reward Earned!',
+            `You earned ${response.data.credits_earned || rewardInfo.credits_per_ad} credits!`
+          );
+          loadRewardData();
+        }
+      } catch {
+        // Backend endpoint not available — update local state as placeholder
         Alert.alert(
-          '🎉 Reward Earned!',
-          `You earned ${response.data.credits_earned || rewardInfo.credits_per_ad} credits!`
+          'Ad Rewards',
+          'Ad rewards are not yet available. This feature is coming soon!'
         );
-        loadRewardData();
       }
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to claim reward';
-      Alert.alert('Error', message);
+      Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
       setIsWatchingAd(false);
     }

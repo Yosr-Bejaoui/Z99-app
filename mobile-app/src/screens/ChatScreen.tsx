@@ -184,9 +184,7 @@ const ChatScreen: React.FC = () => {
             const rawMessage = data.message;
 
             // Ignore echo of the user's own message (we already render it locally)
-            if (rawMessage && typeof rawMessage === 'object' && rawMessage.sender === 'user') {
-              setIsTyping(false);
-              return;
+            if (rawMessage && typeof rawMessage === 'object' && rawMessage.sender === 'user') { return;
             }
 
             let messageContent = '';

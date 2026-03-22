@@ -12,29 +12,32 @@ import {
   Alert,
   RefreshControl,
   StatusBar,
+  Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useDrawer } from '../context';
+import { useDrawer, useCredits } from '../context';
 import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
+import Toast, { showToast } from '../components/Toast';
 import { chatService, mediaService, getErrorMessage } from '../services';
 import { WS_BASE_URL, STORAGE_KEYS } from '../services/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 const imageWidth = (width - 48 - 12) / 2;
 
 const styles_options = [
-  { id: 'realistic', label: 'Realistic', icon: 'camera' as const },
-  { id: 'anime', label: 'Anime', icon: 'color-palette' as const },
-  { id: 'digital', label: 'Digital Art', icon: 'desktop' as const },
-  { id: '3d', label: '3D Render', icon: 'cube' as const },
-  { id: 'painting', label: 'Painting', icon: 'brush' as const },
-  { id: 'sketch', label: 'Sketch', icon: 'pencil' as const },
+  { id: 'realistic', labelKey: 'imageGen.style.realistic', icon: 'camera' as const },
+  { id: 'anime', labelKey: 'imageGen.style.anime', icon: 'color-palette' as const },
+  { id: 'digital', labelKey: 'imageGen.style.digital', icon: 'desktop' as const },
+  { id: '3d', labelKey: 'imageGen.style.threeD', icon: 'cube' as const },
+  { id: 'painting', labelKey: 'imageGen.style.painting', icon: 'brush' as const },
+  { id: 'sketch', labelKey: 'imageGen.style.sketch', icon: 'pencil' as const },
 ];
 
 const resolution_options = [
@@ -48,6 +51,7 @@ interface AIModel {
   name: string;
   provider: string;
   color: string;
+  base_cost?: number;
 }
 
 interface GeneratedImage {
@@ -58,13 +62,15 @@ interface GeneratedImage {
 }
 
 const ImageGenScreen: React.FC = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { openDrawer } = useDrawer();
+  const { credits, hasEnoughCredits, refreshCredits } = useCredits();
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('realistic');
   const [selectedResolution, setSelectedResolution] = useState('1024x1024');
-  const [selectedModel, setSelectedModel] = useState<number | null>(null);
+  const [selectedModel, setSelectedModel] = useState<AIModel | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [aiModels, setAIModels] = useState<AIModel[]>([]);
@@ -72,6 +78,7 @@ const ImageGenScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const sessionRef = useRef<number | null>(null);
 
@@ -89,10 +96,11 @@ const ImageGenScreen: React.FC = () => {
     try {
       setIsLoadingModels(true);
       const response = await chatService.getModels('text_to_image');
-      // Filter for image generation models
-      const imageModels = response.results.filter(
+      // Get all image generation models
+      const allImageModels = response.results.filter(
         (m: any) => m.model_type === 'text_to_image' || m.category === 'image'
       );
+      const imageModels = allImageModels.length > 0 ? allImageModels : [];
       
       const modelColors = ['#10b981', '#8b5cf6', '#f59e0b', '#3b82f6', '#ef4444', '#06b6d4'];
       const formattedModels: AIModel[] = imageModels.map((m: any, idx: number) => ({
@@ -100,15 +108,16 @@ const ImageGenScreen: React.FC = () => {
         name: m.name,
         provider: m.provider || 'AI',
         color: modelColors[idx % modelColors.length],
+        base_cost: m.base_cost || 10,
       }));
       
       setAIModels(formattedModels);
       if (formattedModels.length > 0 && !selectedModel) {
-        setSelectedModel(formattedModels[0].id);
+        setSelectedModel(formattedModels[0]);
       }
     } catch (err) {
       console.error('Failed to fetch AI models:', err);
-      setError('Failed to load AI models. Please try again.');
+      setError(t('imageGen.model.loadError'));
     } finally {
       setIsLoadingModels(false);
     }
@@ -152,22 +161,51 @@ const ImageGenScreen: React.FC = () => {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
-      Alert.alert('Empty Prompt', 'Please enter a description for your image.');
+      Alert.alert(t('imageGen.emptyPrompt.title'), t('imageGen.emptyPrompt.message'));
       return;
     }
 
     if (!selectedModel) {
-      Alert.alert('No Model Selected', 'Please select an AI model first.');
+      Alert.alert(t('imageGen.noModel.title'), t('imageGen.noModel.message'));
+      return;
+    }
+    const cost = selectedModel.base_cost || 10;
+    const currentCredits = credits?.credits || 0;
+
+    // Check if user has enough credits
+    if (!hasEnoughCredits(cost)) {
+      Alert.alert(
+        t('imageGen.insufficientCredits.title'),
+        t('imageGen.insufficientCredits.message', { cost, balance: currentCredits }),
+        [
+          { text: t('imageGen.insufficientCredits.cancel'), style: 'cancel' },
+          {
+            text: t('imageGen.insufficientCredits.buy'),
+            style: 'default',
+            onPress: () => {
+              // Navigate to subscription plan screen
+              // navigation.navigate('SubscriptionPlans');
+            },
+          },
+        ]
+      );
       return;
     }
 
+    // No confirmation needed - proceed directly
     setIsGenerating(true);
     setProgress(0);
     setError(null);
 
+    // Close any existing WebSocket connection before starting new one
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
     try {
       // Create session first
-      const session = await chatService.createSession(selectedModel, 'text_to_image');
+      const session = await chatService.createSession(selectedModel.id, 'text_to_image');
       sessionRef.current = session.id;
 
       // Connect WebSocket
@@ -190,6 +228,14 @@ const ImageGenScreen: React.FC = () => {
                 created_at: new Date().toISOString(),
               };
               setGeneratedImages((prev) => [newImage, ...prev]);
+
+              // Show cost toast
+              const cost = selectedModel?.base_cost || 10;
+              showToast(
+                t('imageGen.costToast', { cost }),
+                'success'
+              );
+              refreshCredits(); // Refresh to get the latest balance
             }
             setIsGenerating(false);
             setProgress(100);
@@ -213,6 +259,14 @@ const ImageGenScreen: React.FC = () => {
                 created_at: data.message.created_at || new Date().toISOString(),
               };
               setGeneratedImages((prev) => [newImage, ...prev]);
+
+              // Show cost toast
+              const cost = selectedModel?.base_cost || 10;
+              showToast(
+                t('imageGen.costToast', { cost }),
+                'success'
+              );
+              refreshCredits(); // Refresh to get the latest balance
             }
             setIsGenerating(false);
             setProgress(100);
@@ -248,27 +302,19 @@ const ImageGenScreen: React.FC = () => {
   };
 
   const handleImagePress = (image: GeneratedImage) => {
-    Alert.alert(
-      'Image Options',
-      'What would you like to do?',
-      [
-        { text: 'Download', onPress: () => handleDownload(image) },
-        { text: 'Share', onPress: () => handleShare(image) },
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
+    setSelectedImage(image);
   };
 
   const handleDownload = async (image: GeneratedImage) => {
     try {
       const result = await mediaService.saveImageToGallery(image.url);
       if (result.success) {
-        Alert.alert('Success', 'Image saved to gallery!');
+        Alert.alert(t('common.success'), t('imageGen.downloadSuccess'));
       } else {
-        Alert.alert('Error', result.error || 'Failed to save image');
+        Alert.alert(t('common.error'), result.error || t('imageGen.downloadError'));
       }
     } catch (err) {
-      Alert.alert('Error', getErrorMessage(err));
+      Alert.alert(t('common.error'), getErrorMessage(err));
     }
   };
 
@@ -276,7 +322,7 @@ const ImageGenScreen: React.FC = () => {
     try {
       await mediaService.shareFile(image.url, `Check out this AI-generated image: ${image.prompt}`);
     } catch (err) {
-      Alert.alert('Error', getErrorMessage(err));
+      Alert.alert(t('common.error'), getErrorMessage(err));
     }
   };
 
@@ -285,7 +331,7 @@ const ImageGenScreen: React.FC = () => {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading models...</Text>
+          <Text style={styles.loadingText}>{t('imageGen.model.loading')}</Text>
         </View>
       );
     }
@@ -293,7 +339,7 @@ const ImageGenScreen: React.FC = () => {
     if (aiModels.length === 0) {
       return (
         <TouchableOpacity style={styles.retryButton} onPress={fetchAIModels}>
-          <Text style={styles.retryText}>No models available. Tap to retry.</Text>
+          <Text style={styles.retryText}>{t('imageGen.model.retry')}</Text>
         </TouchableOpacity>
       );
     }
@@ -307,17 +353,17 @@ const ImageGenScreen: React.FC = () => {
         {aiModels.map((model) => (
           <TouchableOpacity
             key={model.id}
-            onPress={() => setSelectedModel(model.id)}
+            onPress={() => setSelectedModel(model)}
             style={[
               styles.modelButton,
-              selectedModel === model.id && styles.modelButtonSelected,
+              selectedModel?.id === model.id && styles.modelButtonSelected,
             ]}
           >
             <View style={[styles.modelDot, { backgroundColor: model.color }]} />
             <Text
               style={[
                 styles.modelButtonText,
-                selectedModel === model.id && styles.modelButtonTextSelected,
+                selectedModel?.id === model.id && styles.modelButtonTextSelected,
               ]}
             >
               {model.name}
@@ -340,7 +386,7 @@ const ImageGenScreen: React.FC = () => {
         >
           <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create</Text>
+        <Text style={styles.headerTitle}>{t('imageGen.title')}</Text>
         <View style={styles.headerButton} />
       </View>
       
@@ -366,10 +412,13 @@ const ImageGenScreen: React.FC = () => {
 
         {/* Prompt Input */}
         <GlassCard style={styles.promptCard}>
-          <Text style={styles.sectionTitle}>Describe your image</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={styles.sectionTitle}>{t('imageGen.prompt.title')}</Text>
+            <Text style={{ color: colors.textMuted, fontSize: 12 }}>{prompt.length}/2000</Text>
+          </View>
           <TextInput
             style={styles.promptInput}
-            placeholder="A serene mountain landscape at golden hour with dramatic clouds..."
+            placeholder={t('imageGen.prompt.placeholder')}
             placeholderTextColor={colors.textMuted}
             value={prompt}
             onChangeText={setPrompt}
@@ -377,18 +426,21 @@ const ImageGenScreen: React.FC = () => {
             numberOfLines={4}
             textAlignVertical="top"
             editable={!isGenerating}
+            maxLength={2000}
+            accessibilityLabel={t('imageGen.a11y.prompt')}
+            accessibilityHint={t('imageGen.a11y.promptHint')}
           />
         </GlassCard>
 
         {/* Model Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Model</Text>
+          <Text style={styles.sectionTitle}>{t('imageGen.model.title')}</Text>
           {renderModelSelector()}
         </View>
 
         {/* Style Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Style</Text>
+          <Text style={styles.sectionTitle}>{t('imageGen.style.title')}</Text>
           <View style={styles.styleGrid}>
             {styles_options.map((style) => (
               <TouchableOpacity
@@ -411,7 +463,7 @@ const ImageGenScreen: React.FC = () => {
                     selectedStyle === style.id && styles.styleButtonTextSelected,
                   ]}
                 >
-                  {style.label}
+                  {t(style.labelKey)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -420,7 +472,7 @@ const ImageGenScreen: React.FC = () => {
 
         {/* Resolution Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Resolution</Text>
+          <Text style={styles.sectionTitle}>{t('imageGen.resolution.title')}</Text>
           <View style={styles.resolutionRow}>
             {resolution_options.map((res) => (
               <TouchableOpacity
@@ -451,13 +503,13 @@ const ImageGenScreen: React.FC = () => {
             <View style={styles.progressBarBackground}>
               <View style={[styles.progressBar, { width: `${progress}%` }]} />
             </View>
-            <Text style={styles.progressText}>Generating... {Math.round(progress)}%</Text>
+            <Text style={styles.progressText}>{t('imageGen.progress', { percent: Math.round(progress) })}</Text>
           </View>
         )}
 
         {/* Generate Button */}
         <GradientButton
-          title={isGenerating ? 'Generating...' : 'Generate Image'}
+          title={isGenerating ? t('imageGen.generating') : `${t('imageGen.generateButton')} (${selectedModel?.base_cost || 10} ${t('common.credits')})`}
           onPress={handleGenerate}
           style={styles.generateButton}
           disabled={isGenerating || !prompt.trim() || !selectedModel}
@@ -473,7 +525,7 @@ const ImageGenScreen: React.FC = () => {
         {/* Generated Images Gallery */}
         {generatedImages.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Generated Images</Text>
+            <Text style={styles.sectionTitle}>{t('imageGen.gallery.title')}</Text>
             <View style={styles.imageGrid}>
               {generatedImages.map((img) => (
                 <TouchableOpacity
@@ -519,13 +571,59 @@ const ImageGenScreen: React.FC = () => {
         {generatedImages.length === 0 && !isGenerating && (
           <View style={styles.emptyState}>
             <Ionicons name="images-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyStateText}>No images generated yet</Text>
+            <Text style={styles.emptyStateText}>{t('imageGen.emptyState.text')}</Text>
             <Text style={styles.emptyStateSubtext}>
-              Enter a prompt above and tap Generate to create your first image
+              {t('imageGen.emptyState.subtext')}
             </Text>
           </View>
         )}
       </ScrollView>
+
+      {/* Image Viewer Modal */}
+      <Modal
+        visible={!!selectedImage}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedImage(null)}
+      >
+        <View style={styles.imageViewerOverlay}>
+          <TouchableOpacity
+            style={styles.imageViewerClose}
+            onPress={() => setSelectedImage(null)}
+          >
+            <Ionicons name="close" size={28} color="#fff" />
+          </TouchableOpacity>
+          {selectedImage && (
+            <>
+              <Image
+                source={{ uri: selectedImage.url }}
+                style={styles.imageViewerImage}
+                resizeMode="contain"
+              />
+              <View style={styles.imageViewerActions}>
+                <TouchableOpacity
+                  style={styles.imageViewerButton}
+                  onPress={() => {
+                    handleDownload(selectedImage);
+                  }}
+                >
+                  <Ionicons name="download-outline" size={24} color="#fff" />
+                  <Text style={styles.imageViewerButtonText}>{t('imageGen.imageOptions.download')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.imageViewerButton}
+                  onPress={() => {
+                    handleShare(selectedImage);
+                  }}
+                >
+                  <Ionicons name="share-outline" size={24} color="#fff" />
+                  <Text style={styles.imageViewerButtonText}>{t('imageGen.imageOptions.share')}</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -786,6 +884,38 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing.sm,
     paddingHorizontal: spacing.xxl,
+  },
+  imageViewerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageViewerClose: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: 10,
+  },
+  imageViewerImage: {
+    width: width - 40,
+    height: width - 40,
+    borderRadius: borderRadius.lg,
+  },
+  imageViewerActions: {
+    flexDirection: 'row',
+    gap: spacing.xl,
+    marginTop: spacing.xl,
+  },
+  imageViewerButton: {
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  imageViewerButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 

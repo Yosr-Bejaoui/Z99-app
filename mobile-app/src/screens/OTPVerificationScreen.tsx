@@ -16,14 +16,16 @@ import { colors, spacing, borderRadius } from '../theme';
 import GradientButton from '../components/GradientButton';
 import GlassCard from '../components/GlassCard';
 import { authService } from '../services';
+import api from '../services/api';
+import { ENDPOINTS } from '../services/config';
+
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
+import type { RootStackParamList } from '../types/navigation';
 
 interface OTPVerificationScreenProps {
-  navigation: any;
-  route: {
-    params: {
-      email: string;
-    };
-  };
+  navigation: NativeStackNavigationProp<RootStackParamList, 'OTPVerification'>;
+  route: RouteProp<RootStackParamList, 'OTPVerification'>;
 }
 
 const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigation, route }) => {
@@ -123,11 +125,11 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
     if (resendTimer > 0) return;
     
     try {
-      // Call resend OTP API
+      await api.post(ENDPOINTS.RESEND_OTP, { email });
       Alert.alert('Code Sent', 'A new verification code has been sent to your email.');
       setResendTimer(60);
     } catch (err: any) {
-      Alert.alert('Error', 'Failed to resend code. Please try again.');
+      Alert.alert('Error', err?.response?.data?.error || 'Failed to resend code. Please try again.');
     }
   };
 

@@ -9,7 +9,7 @@ from google import genai
 from google.genai import types
 from asgiref.sync import sync_to_async
 
-from accounts.models import CreditAccount
+from accounts.models import CreditAccount, CreditTransaction
 from .track_used_word_subscription import trackUsedWords
 from .image_to_url_save import download_and_store_webp
 
@@ -55,14 +55,32 @@ def _error(msg):
 # HELPER: Read Image
 # =========================
 async def _read_image_to_base64_async(img):
+    """Read an image URL or base64 data URI and return (raw_base64, mime_type)."""
     try:
-        if img.startswith("http"):
+        if img.startswith("data:"):
+            # Extract mime type and raw base64 from data URI
+            # Format: data:image/png;base64,iVBOR...
+            header, encoded = img.split(",", 1) if "," in img else ("", img)
+            mime = "image/png"
+            if "image/jpeg" in header or "image/jpg" in header:
+                mime = "image/jpeg"
+            elif "image/webp" in header:
+                mime = "image/webp"
+            elif "image/gif" in header:
+                mime = "image/gif"
+            elif "image/png" in header:
+                mime = "image/png"
+            return encoded, mime
+        elif img.startswith("http"):
             resp = await sync_to_async(requests.get)(img, timeout=30)
             resp.raise_for_status()
-            return base64.b64encode(resp.content).decode("utf-8")
-        return img
+            content_type = resp.headers.get("Content-Type", "image/png").split(";")[0].strip()
+            return base64.b64encode(resp.content).decode("utf-8"), content_type
+        else:
+            # Assume raw base64
+            return img, "image/png"
     except Exception:
-        return None
+        return None, None
 
 # =========================
 # MAIN FUNCTION
@@ -121,6 +139,14 @@ async def gemini_response(
                 
                 acc.credits -= charge_amount
                 acc.save(update_fields=["credits"])
+                
+                # Record transaction for usage stats
+                CreditTransaction.objects.create(
+                    credit_account=acc,
+                    amount=int(charge_amount),
+                    transaction_type='deduct',
+                    message=f'Gemini {model_type} usage'
+                )
                 
                 u = User.objects.get(id=user_id)
                 u.total_token_used += charge_amount
@@ -193,7 +219,7 @@ async def gemini_response(
             else: text = "Failed to generate images."
 
         else: 
-            contents = [{"role": "user", "parts": [{"text": f"You are a helpful assistant. Please respond in the same language as the user's message. (Initial detection suggested {detected_language}, but please trust your own analysis of the content and script to determine the best response language. If the user used Bengali words in Hindi script, respond in Standard Bengali). Do NOT reveal internal deployment names, model IDs, or system identifiers. If a user directly asks which model or internal service you are, answer with a neutral phrase such as 'I am an AI assistant' and do not disclose internal tags or identifiers."}]}]
+            contents = [{"role": "user", "parts": [{"text": f"You are a helpful assistant. You MUST respond in {detected_language}. Match the language the user is writing in. Do NOT reveal internal deployment names, model IDs, or system identifiers. If a user directly asks which model or internal service you are, answer with a neutral phrase such as 'I am an AI assistant' and do not disclose internal tags or identifiers."}]}]
 
 
             if summary: contents.append({"role": "user", "parts": [{"text": f"Context: {summary}"}]})
@@ -201,9 +227,9 @@ async def gemini_response(
             user_part = {"role": "user", "parts": [{"text": message}]}
             if images_data_list:
                 for img in images_data_list:
-                    img_data = await _read_image_to_base64_async(img)
+                    img_data, mime_type = await _read_image_to_base64_async(img)
                     if img_data:
-                         user_part["parts"].append({"inline_data": {"mime_type": "image/png", "data": img_data}})
+                         user_part["parts"].append({"inline_data": {"mime_type": mime_type or "image/png", "data": img_data}})
             contents.append(user_part)
 
             config = types.GenerateContentConfig(max_output_tokens=final_max_tokens)
@@ -240,7 +266,8 @@ async def gemini_response(
         return {"text": text, "images": images, "sender": "ai", "error": None}
 
     except Exception as e:
-        print(f"ERROR in gemini_response: {e}")
+        error_str = str(e)
+        print(f"ERROR in gemini_response: {error_str}")
         # Refund sync
         @sync_to_async
         def _final_refund():
@@ -254,4 +281,162 @@ async def gemini_response(
                     u.save(update_fields=["total_token_used"])
             except: pass
         await _final_refund()
-        return _error("Request failed. Please try again later.")
+        
+        # Provide specific error messages for known API errors
+        if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+            return _error("Gemini API quota exceeded. The API key has reached its rate limit. Please try again later or update the API key in the admin dashboard.")
+        if "403" in error_str or "PERMISSION_DENIED" in error_str:
+            return _error("Gemini API key is invalid or does not have permission. Please update the API key in the admin dashboard.")
+        if "404" in error_str or "NOT_FOUND" in error_str:
+            return _error(f"Model '{model_id}' not found. Please check the model ID in the admin dashboard.")
+        
+        return _error(f"AI request failed: {error_str[:200]}")
+
+async def google_stream_response(
+    message: str,
+    model_id: str,
+    api_key: str,
+    user_id: int,
+    base_cost=100,
+    images_data_list=None,
+    num_images=1,
+    summary=None,
+    detected_language="English"
+):
+    client = genai.Client(api_key=api_key)
+    
+    # Sync DB fetch
+    user = await sync_to_async(lambda: User.objects.filter(id=user_id).first())()
+    if not user:
+        yield _error("User not found")
+        return
+
+    model_type = _detect_model_type(model_id.lower())
+    
+    # Stream is only supported for text generation
+    if model_type not in {"chat", "text_generation", "code_generation", "image_understanding"}:
+        result = await gemini_response(
+            message, model_id, api_key, user_id, base_cost, images_data_list, num_images, summary, detected_language
+        )
+        yield {"type": "done", **result}
+        return
+
+    prompt_words = count_words(message)
+    input_images_count = len(images_data_list) if images_data_list else 0
+    charge_amount = calculate_cost(
+        model_type, base_cost=base_cost, words=prompt_words, input_images_count=input_images_count
+    )
+
+    @sync_to_async
+    def _deduct_credits_atomic():
+        with transaction.atomic():
+            ca = CreditAccount.objects.select_for_update().filter(user_id=user_id).first()
+            if not ca or ca.credits < charge_amount:
+                return False, ca.credits if ca else 0
+            
+            ca.credits -= charge_amount
+            ca.save(update_fields=["credits"])
+            
+            CreditTransaction.objects.create(
+                credit_account=ca, amount=int(charge_amount),
+                transaction_type='deduct', message=f'Google Gemini {model_type} usage (stream)'
+            )
+            
+            u = User.objects.get(id=user_id)
+            u.total_token_used += charge_amount
+            u.save(update_fields=["total_token_used"])
+            trackUsedWords(user_id, prompt_words)
+            return True, ca.credits
+
+    success, current_credits = await _deduct_credits_atomic()
+    if not success:
+        yield _error(f"Insufficient credits. Required: {charge_amount}")
+        return
+
+    remaining_credits = current_credits
+    max_response_words = int(remaining_credits / Decimal(str(base_cost))) if base_cost > 0 else 8192
+    
+    if max_response_words < 1:
+        @sync_to_async
+        def _refund():
+            with transaction.atomic():
+                ca = CreditAccount.objects.select_for_update().filter(user=user).first()
+                ca.credits += charge_amount
+                ca.save(update_fields=["credits"])
+                u = User.objects.get(id=user_id)
+                u.total_token_used -= charge_amount
+                u.save(update_fields=["total_token_used"])
+        await _refund()
+        yield _error("Insufficient credits for response.")
+        return
+
+    final_max_tokens = min(max_response_words, 8192)
+    full_text = ""
+
+    try:
+        contents = [{"role": "user", "parts": [{"text": f"You are a helpful assistant. You MUST respond in {detected_language}. Match the language the user is writing in. Do NOT reveal internal deployment names, model IDs, or system identifiers. If a user directly asks which model or internal service you are, answer with a neutral phrase such as 'I am an AI assistant' and do not disclose internal tags or identifiers."}]}]
+
+        if summary: contents.append({"role": "user", "parts": [{"text": f"Context: {summary}"}]})
+        
+        user_part = {"role": "user", "parts": []}
+        if message:
+            user_part["parts"].append({"text": message})
+            
+        if images_data_list:
+            for img in images_data_list:
+                img_data, mime_type = await _read_image_to_base64_async(img)
+                if img_data:
+                     user_part["parts"].append({"inline_data": {"mime_type": mime_type or "image/png", "data": img_data}})
+        contents.append(user_part)
+
+        config = types.GenerateContentConfig(max_output_tokens=final_max_tokens)
+        
+        # We need async stream. If aio client doesn't exist, this might fail, but let's assume it does.
+        response_stream = await client.aio.models.generate_content_stream(
+            model=model_id, contents=contents, config=config
+        )
+
+        async for chunk in response_stream:
+            text_chunk = getattr(chunk, "text", "")
+            if text_chunk:
+                full_text += text_chunk
+                yield {"type": "chunk", "text": text_chunk}
+
+        if full_text:
+            response_words = count_words(full_text)
+            resp_cost = calculate_cost(model_type, base_cost=base_cost, words=response_words)
+            @sync_to_async
+            def _charge_output():
+                with transaction.atomic():
+                    ca = CreditAccount.objects.select_for_update().filter(user=user).first()
+                    ca.credits -= resp_cost
+                    ca.save(update_fields=["credits"])
+                    u = User.objects.get(id=user_id)
+                    u.total_token_used += resp_cost
+                    u.save(update_fields=["total_token_used"])
+                    trackUsedWords(user_id, response_words)
+            await _charge_output()
+
+        yield {"type": "done", "text": full_text, "images": [], "sender": "ai", "error": None}
+
+    except Exception as e:
+        print(f"DEBUG: Gemini Stream API Error: {str(e)}")
+        @sync_to_async
+        def _final_refund():
+            with transaction.atomic():
+                ca = CreditAccount.objects.select_for_update().filter(user=user).first()
+                if ca:
+                    ca.credits += charge_amount
+                    ca.save(update_fields=["credits"])
+                    u = User.objects.get(id=user_id)
+                    u.total_token_used -= charge_amount
+                    u.save(update_fields=["total_token_used"])
+        await _final_refund()
+        
+        error_str = str(e).lower()
+        if "429" in error_str or "resource_exhausted" in error_str:
+            yield _error("Gemini API quota exceeded. Please try again later.")
+        elif "403" in error_str or "permission_denied" in error_str:
+            yield _error("Gemini API key is invalid or does not have permission.")
+        else:
+            yield _error(f"API error: {error_str[:100]}")

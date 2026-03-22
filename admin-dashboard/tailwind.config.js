@@ -7,23 +7,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0a0a0f',
-        surface: '#111118',
-        card: '#16161d',
-        border: '#2a2a35',
+        // ChatGPT-inspired colors matching mobile app
+        background: '#212121',
+        surface: '#171717',
+        card: '#2f2f2f',
+        border: '#3f3f3f',
         primary: {
-          DEFAULT: '#2dd4bf',
-          hover: '#14b8a6',
-          light: 'rgba(45, 212, 191, 0.1)',
+          DEFAULT: '#10a37f',
+          hover: '#0d8a6a',
+          light: 'rgba(16, 163, 127, 0.1)',
         },
-        secondary: '#8b5cf6',
-        accent: '#f97316',
-        success: '#22c55e',
+        secondary: '#3b82f6', // blue
+        accent: '#8b5cf6', // purple
+        success: '#10b981', // green
         warning: '#f59e0b',
         error: '#ef4444',
         foreground: {
-          DEFAULT: '#ffffff',
-          muted: '#9ca3af',
+          DEFAULT: '#ececec',
+          muted: '#8e8e8e',
         },
       },
       fontFamily: {

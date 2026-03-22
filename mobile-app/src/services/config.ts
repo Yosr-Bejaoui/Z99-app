@@ -20,10 +20,24 @@ const getBundleHost = (): string | null => {
   return host;
 };
 
+const getHostFromUrl = (url?: string): string | null => {
+  if (!url) return null;
+  const match = url.match(/^[a-z]+:\/\/([^/:]+)/i);
+  return match ? match[1] : null;
+};
+
 // API Configuration
-const defaultApiHost = getBundleHost() || (Platform.OS === 'android' ? '10.0.2.2' : 'localhost');
-const defaultApiBaseUrl = `http://${defaultApiHost}:8082/api/v1`;
-const configuredApiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || defaultApiBaseUrl;
+const bundleHost = getBundleHost();
+const defaultApiHost = bundleHost || (Platform.OS === 'android' ? '10.0.2.2' : 'localhost');
+const defaultApiBaseUrl = `http://${defaultApiHost}:8000/api/v1`;
+const envApiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+const envApiHost = getHostFromUrl(envApiBaseUrl);
+
+// Only force emulator loopback when Metro bundle host explicitly resolves to 10.0.2.2.
+// In standalone APK builds, bundleHost is often null and should not be treated as emulator.
+const isAndroidEmulator = Platform.OS === 'android' && bundleHost === '10.0.2.2';
+// Force API URL to local network IP for testing
+const configuredApiBaseUrl = 'http://192.168.1.11:8000/api/v1';
 
 export const API_BASE_URL = configuredApiBaseUrl.replace(/\/+$/, '');
 

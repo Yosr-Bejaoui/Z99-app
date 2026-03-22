@@ -45,3 +45,8 @@ celerybeat.pid
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Backup and data dumps
+data.json
+*backup*.json
+*.rdb

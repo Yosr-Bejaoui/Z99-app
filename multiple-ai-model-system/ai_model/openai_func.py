@@ -6,7 +6,7 @@ from django.db import transaction
 from openai import OpenAI, AsyncOpenAI
 from asgiref.sync import sync_to_async
 
-from accounts.models import CreditAccount
+from accounts.models import CreditAccount, CreditTransaction
 from .track_used_word_subscription import trackUsedWords
 from .image_to_url_save import download_and_store_video
 
@@ -27,7 +27,7 @@ def calculate_cost(model_type, *, base_cost, words=0, num_images=1, secounds=4, 
     if model_type in {"chat", "completion", "image_understanding"}:
         return (Decimal(words) * base_cost) + (Decimal(input_images_count) * base_cost)
 
-    if model_type == "image_generation":
+    if model_type in {"image_generation", "text_to_image"}:
         return Decimal(num_images) * base_cost
     
     if model_type == "video_generation":
@@ -107,6 +107,14 @@ async def gpt_response(
             ca.credits -= charge_amount
             ca.save(update_fields=["credits"])
             
+            # Record transaction for usage stats
+            CreditTransaction.objects.create(
+                credit_account=ca,
+                amount=int(charge_amount),
+                transaction_type='deduct',
+                message=f'OpenAI {model_type} usage'
+            )
+            
             u = User.objects.get(id=user_id)
             u.total_token_used += charge_amount
             u.save(update_fields=["total_token_used"])
@@ -150,7 +158,7 @@ async def gpt_response(
 
     try:
         if model_type in {"chat", "completion", "image_understanding"}:
-            messages = [{"role": "system", "content": f"You are a helpful assistant. Please respond in the same language as the user's message. (Initial detection suggested {detected_language}, but please trust your own analysis of the content and script to determine the best response language. If the user used Bengali words in Hindi script, respond in Standard Bengali). Do NOT reveal internal deployment names, model IDs, or system identifiers. If a user directly asks which model or internal service you are, answer with a neutral phrase such as 'I am an AI assistant' and do not disclose internal tags or identifiers."}]
+            messages = [{"role": "system", "content": f"You are a helpful assistant. You MUST respond in {detected_language}. Match the language the user is writing in. Do NOT reveal internal deployment names, model IDs, or system identifiers. If a user directly asks which model or internal service you are, answer with a neutral phrase such as 'I am an AI assistant' and do not disclose internal tags or identifiers."}]
 
 
             if summary:
@@ -192,7 +200,7 @@ async def gpt_response(
                         trackUsedWords(user_id, response_words)
                 await _charge_output()
 
-        elif model_type == "image_generation":
+        elif model_type in ["image_generation", "text_to_image"]:
             gen_n = 1 if "dall-e-3" in model_id.lower() else num_images
             current_size = f"{width}x{height}"
             if "dall-e-3" in model_id.lower() and current_size not in ["1024x1024", "1792x1024", "1024x1792"]:
@@ -226,6 +234,155 @@ async def gpt_response(
                     u.save(update_fields=["total_token_used"])
         await _final_refund()
         return _error(f"Request failed: {str(e)}")
+
+async def gpt_stream_response(
+    message: str,
+    model_id: str,
+    api_key: str,
+    user_id: int,
+    base_cost=100,
+    images_data_list=None,
+    audio_data=None,
+    num_images=1,
+    summary=None,
+    height=1024,
+    width=1024,
+    duration=4,
+    aspect_ratio=None,
+    detected_language="English"
+):
+    client = AsyncOpenAI(api_key=api_key)
+    
+    # Sync DB fetch
+    user = await sync_to_async(lambda: User.objects.filter(id=user_id).first())()
+    if not user:
+        yield _error("User not found")
+        return
+
+    model_type = _detect_model(model_id.lower())
+    
+    # We only stream for text/chat models
+    if model_type not in {"chat", "completion", "image_understanding"}:
+        # For non-streaming models, fallback to sync wait and wrap in a single yield
+        result = await gpt_response(
+            message, model_id, api_key, user_id, base_cost, images_data_list, audio_data,
+            num_images, summary, height, width, duration, aspect_ratio, detected_language
+        )
+        yield {"type": "done", **result}
+        return
+
+    prompt_words = count_words(message)
+    input_images_count = len(images_data_list) if images_data_list else 0
+    charge_amount = calculate_cost(
+        model_type, base_cost=base_cost, words=prompt_words, input_images_count=input_images_count
+    )
+
+    # Deduct credits atomically
+    @sync_to_async
+    def _deduct_credits_atomic():
+        with transaction.atomic():
+            ca = CreditAccount.objects.select_for_update().filter(user_id=user_id).first()
+            if not ca or ca.credits < charge_amount:
+                return False, ca.credits if ca else 0
+            
+            ca.credits -= charge_amount
+            ca.save(update_fields=["credits"])
+            
+            CreditTransaction.objects.create(
+                credit_account=ca, amount=int(charge_amount),
+                transaction_type='deduct', message=f'OpenAI {model_type} usage (stream)'
+            )
+            
+            u = User.objects.get(id=user_id)
+            u.total_token_used += charge_amount
+            u.save(update_fields=["total_token_used"])
+            trackUsedWords(user_id, prompt_words)
+            return True, ca.credits
+
+    success, current_credits = await _deduct_credits_atomic()
+    if not success:
+        yield _error(f"Insufficient credits. Required: {charge_amount}")
+        return
+
+    remaining_credits = current_credits
+    max_response_words = int(remaining_credits / Decimal(str(base_cost))) if base_cost > 0 else 4096
+    
+    if max_response_words < 1:
+        @sync_to_async
+        def _refund():
+            with transaction.atomic():
+                ca = CreditAccount.objects.select_for_update().filter(user=user).first()
+                ca.credits += charge_amount
+                ca.save(update_fields=["credits"])
+                u = User.objects.get(id=user_id)
+                u.total_token_used -= charge_amount
+                u.save(update_fields=["total_token_used"])
+        await _refund()
+        yield _error("Insufficient credits for response.")
+        return
+
+    final_max_tokens = min(max_response_words, 4096)
+    full_text = ""
+
+    try:
+        messages = [{"role": "system", "content": f"You are a helpful assistant. You MUST respond in {detected_language}. Match the language the user is writing in. Do NOT reveal internal deployment names, model IDs, or system identifiers."}]
+        if summary:
+            messages.append({"role": "system", "content": f"Conversation summary: {summary}"})
+
+        user_content = []
+        if message: user_content.append({"type": "text", "text": message})
+        if images_data_list:
+            for img_url in images_data_list:
+                user_content.append({"type": "image_url", "image_url": {"url": img_url}})
+        
+        messages.append({"role": "user", "content": user_content or " "})
+
+        stream = await client.chat.completions.create(
+            model=model_id,
+            messages=messages,
+            max_tokens=final_max_tokens,
+            stream=True
+        )
+
+        async for chunk in stream:
+            if chunk.choices and len(chunk.choices) > 0:
+                delta = chunk.choices[0].delta.content
+                if delta:
+                    full_text += delta
+                    yield {"type": "chunk", "text": delta}
+
+        # Calculate final cost
+        if full_text:
+            response_words = count_words(full_text)
+            resp_cost = calculate_cost(model_type, base_cost=base_cost, words=response_words)
+            @sync_to_async
+            def _charge_output():
+                with transaction.atomic():
+                    ca = CreditAccount.objects.select_for_update().filter(user=user).first()
+                    ca.credits -= resp_cost
+                    ca.save(update_fields=["credits"])
+                    u = User.objects.get(id=user_id)
+                    u.total_token_used += resp_cost
+                    u.save(update_fields=["total_token_used"])
+                    trackUsedWords(user_id, response_words)
+            await _charge_output()
+
+        yield {"type": "done", "text": full_text, "images": [], "sender": "ai", "error": None}
+
+    except Exception as e:
+        print(f"ERROR in stream: {e}")
+        @sync_to_async
+        def _final_refund():
+            with transaction.atomic():
+                ca = CreditAccount.objects.select_for_update().filter(user=user).first()
+                if ca:
+                    ca.credits += charge_amount
+                    ca.save(update_fields=["credits"])
+                    u = User.objects.get(id=user_id)
+                    u.total_token_used -= charge_amount
+                    u.save(update_fields=["total_token_used"])
+        await _final_refund()
+        yield _error(f"Request failed: {str(e)}")
 
 async def _handle_openai_video_generation(client, model_id, message, duration, size):
     try:

@@ -48,14 +48,15 @@ export const settingsService = {
     const profileData: Record<string, string> = {};
     
     if (data.name) {
-      const [firstName, ...lastNameParts] = data.name.split(' ');
+      const [firstName, ...lastNameParts] = data.name.trim().split(/\s+/);
       profileData.first_name = firstName;
-      profileData.last_name = lastNameParts.join(' ');
+      profileData.last_name = lastNameParts.join(' ') || firstName;
     }
     if (data.email) profileData.email = data.email;
     if (data.username) profileData.username = data.username;
     
-    const response = await api.patch('/accounts/profile/', profileData);
+    // Use POST since ProfileView.create() handles upsert
+    const response = await api.post('/accounts/profile/', profileData);
     return response.data;
   },
 

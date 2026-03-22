@@ -92,7 +92,7 @@ class CreditTransaction(models.Model):
 class UserProfile(models.Model):
     user=models.OneToOneField(CustomUser,on_delete=models.CASCADE,related_name='profile')
     first_name=models.CharField(max_length=50)
-    last_name=models.CharField(max_length=50)
+    last_name=models.CharField(max_length=50, blank=True, default='')
     avatar=models.ImageField(upload_to='profile',null=True,blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)

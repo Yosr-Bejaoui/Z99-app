@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customuser',
             name='total_token_used',
-            field=models.DecimalField(blank=True, decimal_places=2, default=0, max_digits=1000000000, null=True),
+            field=models.DecimalField(blank=True, decimal_places=2, default=0, max_digits=30, null=True),
         ),
     ]

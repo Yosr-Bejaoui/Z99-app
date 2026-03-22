@@ -3,8 +3,12 @@ import api from '../services/api';
 
 // Mock the API
 jest.mock('../services/api', () => ({
-  get: jest.fn(),
-  delete: jest.fn(),
+  __esModule: true,
+  default: {
+    get: jest.fn(),
+    delete: jest.fn(),
+  },
+  getErrorMessage: (error: Error) => error.message,
 }));
 
 describe('History Service', () => {
@@ -36,9 +40,16 @@ describe('History Service', () => {
 
       const result = await historyService.getHistory();
 
-      expect(api.get).toHaveBeenCalledWith('/chat/sessions/', { params: {} });
-      expect(result).toHaveProperty('items');
-      expect(result).toHaveProperty('total');
+      expect(api.get).toHaveBeenCalledWith('/chat/session/list/?');
+      expect(result).toEqual({
+        count: 2,
+        next: undefined,
+        previous: undefined,
+        results: [
+          expect.objectContaining({ id: 1, type: 'chat', title: 'Chat 1' }),
+          expect.objectContaining({ id: 2, type: 'image', title: 'Image 2' }),
+        ],
+      });
     });
 
     it('should filter history by type', async () => {
@@ -48,9 +59,7 @@ describe('History Service', () => {
 
       await historyService.getHistory({ type: 'image' });
 
-      expect(api.get).toHaveBeenCalledWith('/chat/sessions/', {
-        params: { session_type: 'image' },
-      });
+      expect(api.get).toHaveBeenCalledWith('/chat/session/list/?session_type=image');
     });
 
     it('should handle search query', async () => {
@@ -60,9 +69,7 @@ describe('History Service', () => {
 
       await historyService.getHistory({ search: 'test query' });
 
-      expect(api.get).toHaveBeenCalledWith('/chat/sessions/', {
-        params: { search: 'test query' },
-      });
+      expect(api.get).toHaveBeenCalledWith('/chat/session/list/?search=test+query');
     });
   });
 
@@ -72,7 +79,7 @@ describe('History Service', () => {
 
       await historyService.deleteHistoryItem(123);
 
-      expect(api.delete).toHaveBeenCalledWith('/chat/sessions/123/');
+      expect(api.delete).toHaveBeenCalledWith('/chat/session/list/123/');
     });
   });
 });

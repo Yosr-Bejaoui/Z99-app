@@ -48,6 +48,7 @@ interface AIModel {
 
 const ImageEditorScreen: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
   const [selectedTool, setSelectedTool] = useState('enhance');
   const [prompt, setPrompt] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -90,6 +91,9 @@ const ImageEditorScreen: React.FC = () => {
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
+      if (result.assets[0].base64) {
+        setSelectedImageBase64(`data:image/jpeg;base64,${result.assets[0].base64}`);
+      }
     }
   };
 
@@ -108,6 +112,9 @@ const ImageEditorScreen: React.FC = () => {
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
+      if (result.assets[0].base64) {
+        setSelectedImageBase64(`data:image/jpeg;base64,${result.assets[0].base64}`);
+      }
     }
   };
 
@@ -124,36 +131,43 @@ const ImageEditorScreen: React.FC = () => {
       console.log('WebSocket connected');
       ws.send(JSON.stringify({
         message: prompt || `Apply ${selectedTool} to this image`,
-        images: [selectedImage],
+        images: [selectedImageBase64 || selectedImage],
         tool: selectedTool,
       }));
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      
-      if (data.image_url || data.url || data.images) {
-        const imageUrl = data.image_url || data.url || (data.images && data.images[0]);
-        setEditedImages(prev => [
-          {
-            id: Date.now().toString(),
-            url: imageUrl,
-            tool: selectedTool,
-            prompt: prompt,
-            status: 'completed',
-          },
-          ...prev.filter(i => i.status !== 'processing'),
-        ]);
-        setIsProcessing(false);
-      } else if (data.error) {
-        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
-        Alert.alert('Error', errorMsg);
-        setEditedImages(prev => prev.filter(i => i.status !== 'processing'));
-        setIsProcessing(false);
+      try {
+        const data = JSON.parse(event.data);
+        
+        if (data.image_url || data.url || data.images) {
+          const imageUrl = data.image_url || data.url || (data.images && data.images[0]);
+          setEditedImages(prev => [
+            {
+              id: Date.now().toString(),
+              url: imageUrl,
+              tool: selectedTool,
+              prompt: prompt,
+              status: 'completed',
+            },
+            ...prev.filter(i => i.status !== 'processing'),
+          ]);
+          setIsProcessing(false);
+          ws.close();
+        } else if (data.error) {
+          const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+          Alert.alert('Error', errorMsg);
+          setEditedImages(prev => prev.filter(i => i.status !== 'processing'));
+          setIsProcessing(false);
+          ws.close();
+        }
+      } catch (e) {
+        console.error('Error parsing WebSocket message:', e);
       }
     };
 
     ws.onerror = () => {
+      Alert.alert('Connection Error', 'Failed to connect to the server. Please try again.');
       setIsProcessing(false);
     };
 

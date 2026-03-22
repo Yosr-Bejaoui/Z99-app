@@ -14,15 +14,15 @@ export interface Plan {
 
 export interface Subscription {
   id: number;
-  user: {
+  user_details?: {
     id: number;
     email: string;
-    name: string;
+    username: string;
   };
-  plan: Plan;
+  plan_details?: Plan;
   status: 'active' | 'cancelled' | 'expired' | 'inactive';
   start_date: string;
-  end_date: string;
+  expire_date: string;
   price: number;
   credits_words: number;
   used_words: number;
@@ -96,11 +96,11 @@ export const subscriptionsService = {
     const params = new URLSearchParams();
     params.append('page', page.toString());
     if (status && status !== 'all') params.append('status', status);
-    
+
     const response = await api.get<{ results?: Subscription[]; count?: number } | Subscription[]>(
       `/plan/admin/subscriptions/?${params.toString()}`
     );
-    
+
     // Handle both paginated and non-paginated responses
     if (Array.isArray(response.data)) {
       return {

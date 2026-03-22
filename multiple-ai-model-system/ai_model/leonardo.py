@@ -3,6 +3,7 @@ from accounts.models import CreditAccount, User
 from .track_used_word_subscription import trackUsedWords
 from .image_to_url_save import download_and_store_webp  # your existing function
 import math
+import time
 
 # Helper: Count Words (1 word = 5 non-space chars)
 def count_words(text):
@@ -38,6 +39,8 @@ def leonardo_response(
     api_key: str = None,
     BASE_COST: int = 500,
     max_images_per_request: int = 1,
+    images_data_list=None,
+    summary: str = None,
 ):
     try:
     
@@ -108,10 +111,30 @@ def leonardo_response(
 
         data = response.json()
         temp_urls = []
-        for img_block in data.get("sdGenerationJob", {}).get("generated_images", []):
-            url = img_block.get("url")
-            if url:
-                temp_urls.append(url)
+        generation_id = data.get("sdGenerationJob", {}).get("generationId")
+        
+        if not generation_id:
+            # Maybe it directly returned images in older API? Let's check anyway
+            for img_block in data.get("sdGenerationJob", {}).get("generated_images", []):
+                url = img_block.get("url")
+                if url:
+                    temp_urls.append(url)
+        else:
+            max_retries = 30
+            for _ in range(max_retries):
+                time.sleep(3)
+                res = requests.get(f"https://cloud.leonardo.ai/api/rest/v1/generations/{generation_id}", headers=headers, timeout=30)
+                if res.status_code == 200:
+                    gen_data = res.json().get("generations_by_pk", {})
+                    status = gen_data.get("status", "")
+                    if status == "COMPLETE":
+                        for img_block in gen_data.get("generated_images", []):
+                            url = img_block.get("url")
+                            if url:
+                                temp_urls.append(url)
+                        break
+                    elif status == "FAILED":
+                        raise Exception("Leonardo image generation failed.")
 
         
         permanent_urls = download_and_store_webp(temp_urls)

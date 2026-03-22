@@ -21,31 +21,17 @@ import { useDrawer } from '../context';
 import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import { useAuth } from '../context';
-import { authService, planService, getErrorMessage } from '../services';
+import { authService, getErrorMessage } from '../services';
 import GradientButton from '../components/GradientButton';
+import { useTranslation } from 'react-i18next';
+import { SUPPORTED_LANGUAGES, changeLanguage, getCurrentLanguage } from '../i18n';
+import type { LanguageCode } from '../i18n';
 
-interface SettingsItem {
-  id: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  type: 'link' | 'toggle' | 'badge';
-  value?: string | boolean;
-  color?: string;
-}
-
-const settingsItems: SettingsItem[] = [
-  { id: 'notifications', icon: 'notifications-outline', label: 'Notifications', type: 'toggle', value: true },
-  { id: 'darkMode', icon: 'moon-outline', label: 'Dark Mode', type: 'toggle', value: true },
-  { id: 'language', icon: 'language-outline', label: 'Language', type: 'badge', value: 'English' },
-  { id: 'security', icon: 'shield-outline', label: 'Security', type: 'link' },
-  { id: 'help', icon: 'help-circle-outline', label: 'Help & Support', type: 'link' },
-  { id: 'about', icon: 'information-circle-outline', label: 'About', type: 'link' },
-  { id: 'privacy', icon: 'lock-closed-outline', label: 'Privacy Policy', type: 'link' },
-  { id: 'terms', icon: 'document-text-outline', label: 'Terms of Service', type: 'link' },
-];
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../types/navigation';
 
 interface ProfileScreenProps {
-  navigation: any;
+  navigation: NativeStackNavigationProp<RootStackParamList>;
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
@@ -54,7 +40,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const { openDrawer } = useDrawer();
   const [settings, setSettings] = useState({
     notifications: true,
-    darkMode: true,
   });
   const [loggingOut, setLoggingOut] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -62,15 +47,19 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const [editEmail, setEditEmail] = useState(user?.email || '');
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const { t, i18n } = useTranslation();
+  const currentLangCode = (i18n.language || 'en') as LanguageCode;
+  const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === currentLangCode) || SUPPORTED_LANGUAGES[0];
 
   const handleSignOut = async () => {
     Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
+      t('profile.signOut.title'),
+      t('profile.signOut.message'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('profile.signOut.cancel'), style: 'cancel' },
         {
-          text: 'Sign Out',
+          text: t('profile.signOut.confirm'),
           style: 'destructive',
           onPress: async () => {
             setLoggingOut(true);
@@ -81,7 +70,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 routes: [{ name: 'Landing' }],
               });
             } catch (error) {
-              Alert.alert('Error', 'Failed to sign out. Please try again.');
+              Alert.alert(t('common.error'), t('profile.signOut.error'));
             } finally {
               setLoggingOut(false);
             }
@@ -95,7 +84,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
     if (!permissionResult.granted) {
-      Alert.alert('Permission Required', 'Please allow access to your photo library to upload a profile picture.');
+      Alert.alert(t('profile.image.permissionTitle'), t('profile.image.libraryPermission'));
       return;
     }
 
@@ -115,7 +104,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     
     if (!permissionResult.granted) {
-      Alert.alert('Permission Required', 'Please allow access to your camera to take a profile picture.');
+      Alert.alert(t('profile.image.permissionTitle'), t('profile.image.cameraPermission'));
       return;
     }
 
@@ -135,29 +124,35 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       setIsUploadingImage(true);
       await authService.updateProfilePicture(uri);
       refreshUser?.();
-      Alert.alert('Success', 'Profile picture updated successfully!');
+      Alert.alert(t('profile.image.success'), t('profile.image.successMessage'));
     } catch (error) {
-      Alert.alert('Error', getErrorMessage(error));
+      Alert.alert(t('common.error'), getErrorMessage(error));
     } finally {
       setIsUploadingImage(false);
     }
   };
 
+  const handleOpenEditModal = () => {
+    setEditName(user?.name || '');
+    setEditEmail(user?.email || '');
+    setShowEditModal(true);
+  };
+
   const showImageOptions = () => {
     Alert.alert(
-      'Change Profile Picture',
-      'Choose an option',
+      t('profile.image.changeTitle'),
+      t('profile.image.chooseOption'),
       [
-        { text: 'Take Photo', onPress: handleTakePhoto },
-        { text: 'Choose from Library', onPress: handlePickImage },
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('profile.image.takePhoto'), onPress: handleTakePhoto },
+        { text: t('profile.image.chooseFromLibrary'), onPress: handlePickImage },
+        { text: t('profile.image.cancel'), style: 'cancel' },
       ]
     );
   };
 
   const handleUpdateProfile = async () => {
     if (!editName.trim()) {
-      Alert.alert('Error', 'Name cannot be empty');
+      Alert.alert(t('common.error'), t('profile.update.nameEmpty'));
       return;
     }
 
@@ -169,9 +164,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       });
       refreshUser?.();
       setShowEditModal(false);
-      Alert.alert('Success', 'Profile updated successfully!');
+      Alert.alert(t('profile.update.success'), t('profile.update.successMessage'));
     } catch (error) {
-      Alert.alert('Error', getErrorMessage(error));
+      Alert.alert(t('common.error'), getErrorMessage(error));
     } finally {
       setIsUpdating(false);
     }
@@ -205,7 +200,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       const date = new Date(user.created_at);
       return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     }
-    return 'N/A';
+    return t('common.na');
   };
 
   // Get subscription status color
@@ -226,30 +221,30 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Edit Profile</Text>
+            <Text style={styles.modalTitle}>{t('profile.editModal.title')}</Text>
             <TouchableOpacity onPress={() => setShowEditModal(false)}>
               <Ionicons name="close" size={24} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
           
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Name</Text>
+            <Text style={styles.inputLabel}>{t('profile.editModal.nameLabel')}</Text>
             <TextInput
               style={styles.input}
               value={editName}
               onChangeText={setEditName}
-              placeholder="Enter your name"
+              placeholder={t('profile.editModal.namePlaceholder')}
               placeholderTextColor={colors.textMuted}
             />
           </View>
           
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Email</Text>
+            <Text style={styles.inputLabel}>{t('profile.editModal.emailLabel')}</Text>
             <TextInput
               style={styles.input}
               value={editEmail}
               onChangeText={setEditEmail}
-              placeholder="Enter your email"
+              placeholder={t('profile.editModal.emailPlaceholder')}
               placeholderTextColor={colors.textMuted}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -257,7 +252,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
           </View>
           
           <GradientButton
-            title={isUpdating ? 'Updating...' : 'Save Changes'}
+            title={isUpdating ? t('profile.editModal.saving') : t('profile.editModal.saveButton')}
             onPress={handleUpdateProfile}
             disabled={isUpdating}
             style={styles.saveButton}
@@ -279,7 +274,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         >
           <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
-        <Text style={styles.topHeaderTitle}>Profile</Text>
+        <Text style={styles.topHeaderTitle}>{t('profile.title')}</Text>
         <TouchableOpacity
           style={styles.menuButton}
           onPress={() => navigation.navigate('Settings')}
@@ -317,12 +312,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           <View style={styles.nameContainer}>
-            <Text style={styles.userName}>{user?.name || 'User'}</Text>
-            <TouchableOpacity onPress={() => {
-              setEditName(user?.name || '');
-              setEditEmail(user?.email || '');
-              setShowEditModal(true);
-            }}>
+            <Text style={styles.userName}>{user?.name || t('profile.defaultName')}</Text>
+            <TouchableOpacity onPress={handleOpenEditModal}>
               <Ionicons name="pencil-outline" size={16} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
@@ -332,7 +323,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
           <View style={[styles.subscriptionBadge, { borderColor: getSubscriptionColor() }]}>
             <Ionicons name="star" size={14} color={getSubscriptionColor()} />
             <Text style={[styles.subscriptionText, { color: getSubscriptionColor() }]}>
-              {user?.subscription?.plan?.name || 'Free'} Plan
+              {user?.subscription?.plan?.name || 'Free'} {t('profile.planSuffix')}
             </Text>
           </View>
           
@@ -340,35 +331,48 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
           <View style={styles.quickStats}>
             <View style={styles.quickStatItem}>
               <Text style={styles.quickStatValue}>{user?.total_words_used || 0}</Text>
-              <Text style={styles.quickStatLabel}>Words</Text>
+              <Text style={styles.quickStatLabel}>{t('profile.stats.words')}</Text>
             </View>
             <View style={styles.quickStatDivider} />
             <View style={styles.quickStatItem}>
               <Text style={styles.quickStatValue}>{user?.total_images_generated || 0}</Text>
-              <Text style={styles.quickStatLabel}>Images</Text>
+              <Text style={styles.quickStatLabel}>{t('profile.stats.images')}</Text>
             </View>
             <View style={styles.quickStatDivider} />
             <View style={styles.quickStatItem}>
               <Text style={styles.quickStatValue}>{user?.subscription?.plan?.name || 'Free'}</Text>
-              <Text style={styles.quickStatLabel}>Plan</Text>
+              <Text style={styles.quickStatLabel}>{t('profile.stats.plan')}</Text>
             </View>
           </View>
         </GlassCard>
 
         {/* Account Info */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
+          <Text style={styles.sectionTitle}>{t('profile.account.title')}</Text>
           <GlassCard style={styles.infoCard}>
             <View style={styles.infoRow}>
               <View style={styles.infoIcon}>
                 <Ionicons name="mail" size={18} color={colors.primary} />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Email</Text>
-                <Text style={styles.infoValue}>{user?.email || 'N/A'}</Text>
+                <Text style={styles.infoLabel}>{t('profile.account.emailLabel')}</Text>
+                <Text style={styles.infoValue}>{user?.email || t('common.na')}</Text>
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleOpenEditModal}>
                 <Ionicons name="pencil-outline" size={18} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.infoDivider} />
+            <View style={styles.infoRow}>
+              <View style={styles.infoIcon}>
+                <Ionicons name="lock-closed" size={18} color={colors.primary} />
+              </View>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>{t('profile.account.changePassword')}</Text>
+                <Text style={styles.infoValue}>{t('profile.account.updatePassword')}</Text>
+              </View>
+              <TouchableOpacity onPress={() => navigation.navigate('ChangePassword')}>
+                <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
             <View style={styles.infoDivider} />
@@ -377,74 +381,110 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 <Ionicons name="card" size={18} color={colors.primary} />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Plan</Text>
-                <Text style={styles.infoValue}>{user?.subscription?.plan?.name || 'Free Tier'}</Text>
+                <Text style={styles.infoLabel}>{t('profile.account.planLabel')}</Text>
+                <Text style={styles.infoValue}>{user?.subscription?.plan?.name || t('profile.account.freeTier')}</Text>
               </View>
-              <TouchableOpacity style={styles.upgradeButton}>
-                <Text style={styles.upgradeButtonText}>Upgrade</Text>
+              <TouchableOpacity style={styles.upgradeButton} onPress={() => navigation.navigate('SubscriptionPlans')}>
+                <Text style={styles.upgradeButtonText}>{t('profile.account.upgrade')}</Text>
               </TouchableOpacity>
-            </View>
-            <View style={styles.infoDivider} />
-            <View style={styles.infoRow}>
-              <View style={styles.infoIcon}>
-                <Ionicons name="calendar" size={18} color={colors.primary} />
-              </View>
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Member Since</Text>
-                <Text style={styles.infoValue}>{formatMemberSince()}</Text>
-              </View>
             </View>
           </GlassCard>
         </View>
 
         {/* Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Settings</Text>
+          <Text style={styles.sectionTitle}>{t('profile.settings.title')}</Text>
           <GlassCard style={styles.settingsCard}>
-            {settingsItems.map((item, index) => (
-              <React.Fragment key={item.id}>
-                {index > 0 && <View style={styles.settingsDivider} />}
-                <TouchableOpacity
-                  style={styles.settingsRow}
-                  onPress={() => {
-                    if (item.type === 'toggle') {
-                      toggleSetting(item.id);
-                    } else if (item.type === 'link') {
-                      if (item.id === 'help') {
-                        navigation.navigate('Help');
-                      } else if (item.id === 'security') {
-                        navigation.navigate('Settings');
-                      } else {
-                        // Navigate to Settings for other items
-                        navigation.navigate('Settings');
-                      }
-                    }
-                  }}
-                  disabled={item.type === 'toggle'}
-                >
-                  <View style={[styles.settingsIcon, { backgroundColor: `${colors.primary}15` }]}>
-                    <Ionicons name={item.icon} size={20} color={colors.primary} />
-                  </View>
-                  <Text style={styles.settingsLabel}>{item.label}</Text>
-                  {item.type === 'toggle' && (
-                    <Switch
-                      value={settings[item.id as keyof typeof settings]}
-                      onValueChange={() => toggleSetting(item.id)}
-                      trackColor={{ false: colors.surface, true: colors.primary }}
-                      thumbColor="#fff"
-                    />
-                  )}
-                  {item.type === 'badge' && (
-                    <View style={styles.settingsBadge}>
-                      <Text style={styles.settingsBadgeText}>{item.value}</Text>
-                    </View>
-                  )}
-                  {item.type === 'link' && (
-                    <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-                  )}
-                </TouchableOpacity>
-              </React.Fragment>
-            ))}
+            {/* Notifications */}
+            <TouchableOpacity
+              style={styles.settingsRow}
+              onPress={() => toggleSetting('notifications')}
+            >
+              <View style={[styles.settingsIcon, { backgroundColor: `${colors.primary}15` }]}>
+                <Ionicons name="notifications-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.settingsLabel}>{t('profile.settings.notifications')}</Text>
+              <Switch
+                value={settings.notifications}
+                onValueChange={() => toggleSetting('notifications')}
+                trackColor={{ false: colors.surface, true: colors.primary }}
+                thumbColor="#fff"
+              />
+            </TouchableOpacity>
+
+            <View style={styles.settingsDivider} />
+
+            {/* Language */}
+            <TouchableOpacity style={styles.settingsRow} onPress={() => setShowLanguageModal(true)}>
+              <View style={[styles.settingsIcon, { backgroundColor: `${colors.primary}15` }]}>
+                <Ionicons name="language-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.settingsLabel}>{t('profile.language')}</Text>
+              <View style={styles.settingsBadge}>
+                <Text style={styles.settingsBadgeText}>{currentLang.flag} {currentLang.nativeName}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} style={{ marginLeft: 8 }} />
+            </TouchableOpacity>
+          </GlassCard>
+        </View>
+
+        {/* Support & Legal */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('profile.support.title')}</Text>
+          <GlassCard style={styles.settingsCard}>
+            {/* Help */}
+            <TouchableOpacity
+              style={styles.settingsRow}
+              onPress={() => navigation.navigate('Help')}
+            >
+              <View style={[styles.settingsIcon, { backgroundColor: `${colors.primary}15` }]}>
+                <Ionicons name="help-circle-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.settingsLabel}>{t('profile.support.helpSupport')}</Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <View style={styles.settingsDivider} />
+
+            {/* About */}
+            <TouchableOpacity
+              style={styles.settingsRow}
+              onPress={() => navigation.navigate('About')}
+            >
+              <View style={[styles.settingsIcon, { backgroundColor: `${colors.primary}15` }]}>
+                <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.settingsLabel}>{t('profile.support.about')}</Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <View style={styles.settingsDivider} />
+
+            {/* Terms of Service */}
+            <TouchableOpacity
+              style={styles.settingsRow}
+              onPress={() => navigation.navigate('TermsOfService')}
+            >
+              <View style={[styles.settingsIcon, { backgroundColor: `${colors.primary}15` }]}>
+                <Ionicons name="document-text-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.settingsLabel}>{t('profile.support.terms')}</Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <View style={styles.settingsDivider} />
+
+            {/* Privacy Policy */}
+            <TouchableOpacity
+              style={styles.settingsRow}
+              onPress={() => navigation.navigate('PrivacyPolicy')}
+            >
+              <View style={[styles.settingsIcon, { backgroundColor: `${colors.primary}15` }]}>
+                <Ionicons name="lock-closed-outline" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.settingsLabel}>{t('profile.support.privacy')}</Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+            </TouchableOpacity>
           </GlassCard>
         </View>
 
@@ -460,15 +500,59 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             <Ionicons name="log-out-outline" size={20} color="#ef4444" />
           )}
           <Text style={styles.signOutText}>
-            {loggingOut ? 'Signing Out...' : 'Sign Out'}
+            {loggingOut ? t('profile.signOut.signingOut') : t('profile.signOut.confirm')}
           </Text>
         </TouchableOpacity>
 
         {/* Version */}
-        <Text style={styles.version}>Version 1.0.0</Text>
+        <Text style={styles.version}>{t('profile.version')}</Text>
       </ScrollView>
       
       {renderEditModal()}
+
+      {/* Language Picker Modal */}
+      <Modal
+        visible={showLanguageModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowLanguageModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('profile.selectLanguage')}</Text>
+              <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
+                <Ionicons name="close" size={24} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+            {SUPPORTED_LANGUAGES.map((lang) => (
+              <TouchableOpacity
+                key={lang.code}
+                style={[
+                  styles.languageOption,
+                  currentLangCode === lang.code && styles.languageOptionActive,
+                ]}
+                onPress={async () => {
+                  await changeLanguage(lang.code);
+                  setShowLanguageModal(false);
+                }}
+              >
+                <Text style={styles.languageFlag}>{lang.flag}</Text>
+                <View style={styles.languageTextContainer}>
+                  <Text style={[
+                    styles.languageNativeName,
+                    currentLangCode === lang.code && styles.languageTextActive,
+                  ]}>{lang.nativeName}</Text>
+                  <Text style={styles.languageEnglishName}>{lang.name}</Text>
+                </View>
+                {currentLangCode === lang.code && (
+                  <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -836,6 +920,37 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.textSecondary,
+  },
+  // Language picker styles
+  languageOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 4,
+  },
+  languageOptionActive: {
+    backgroundColor: `${colors.primary}15`,
+  },
+  languageFlag: {
+    fontSize: 24,
+    marginRight: 14,
+  },
+  languageTextContainer: {
+    flex: 1,
+  },
+  languageNativeName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  languageEnglishName: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  languageTextActive: {
+    color: colors.primary,
   },
 });
 

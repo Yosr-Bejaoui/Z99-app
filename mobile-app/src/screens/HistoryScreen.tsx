@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useDrawer } from '../context';
 import { colors, spacing, borderRadius } from '../theme';
 import { HistoryEmptyState } from '../components/EmptyState';
@@ -25,10 +26,15 @@ import GlassCard from '../components/GlassCard';
 
 type FilterType = 'all' | 'chat' | 'image' | 'video' | 'audio' | '3d';
 
-const HistoryScreen: React.FC = () => {
+interface HistoryScreenProps {
+  navigation?: any;
+}
+
+const HistoryScreen: React.FC<HistoryScreenProps> = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-  const { openDrawer } = useDrawer();
+  const { openDrawer, navigateTo } = useDrawer();
   const [filter, setFilter] = useState<FilterType>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
@@ -37,16 +43,27 @@ const HistoryScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fetchHistory();
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
   }, []);
 
-  const fetchHistory = async () => {
+  // Re-fetch when filter changes
+  useEffect(() => {
+    fetchHistory(filter === 'all' ? undefined : filter);
+  }, [filter]);
+
+  const fetchHistory = async (type?: string) => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await historyService.getHistory({ page_size: 50 });
+      const params: any = { page_size: 15 };
+      if (type) params.type = type;
+      const response = await historyService.getHistory(params);
       setHistoryItems(response.results);
     } catch (err) {
       setError(getErrorMessage(err));
@@ -62,31 +79,38 @@ const HistoryScreen: React.FC = () => {
     setRefreshing(false);
   }, []);
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
+    
+    // Clear previous timer
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    
     if (query.trim().length === 0) {
       fetchHistory();
       return;
     }
     
+    // Debounce search by 500ms
     if (query.trim().length >= 2) {
-      try {
-        const results = await historyService.searchHistory(query);
-        setHistoryItems(results);
-      } catch (err) {
-        console.error('Search failed:', err);
-      }
+      searchTimerRef.current = setTimeout(async () => {
+        try {
+          const results = await historyService.searchHistory(query);
+          setHistoryItems(results);
+        } catch (err) {
+          console.error('Search failed:', err);
+        }
+      }, 500);
     }
   };
 
   const handleDeleteItem = (item: HistoryItem) => {
     Alert.alert(
-      'Delete Item',
-      `Are you sure you want to delete "${item.title}"?`,
+      t('history.deleteItem.title'),
+      t('history.deleteItem.message', { title: item.title }),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('history.deleteItem.cancel'), style: 'cancel' },
         { 
-          text: 'Delete', 
+          text: t('history.deleteItem.confirm'), 
           style: 'destructive',
           onPress: async () => {
             try {
@@ -96,9 +120,9 @@ const HistoryScreen: React.FC = () => {
               if (selectedItem?.id === item.id) {
                 setSelectedItem(null);
               }
-              Alert.alert('Success', 'Item deleted successfully');
+              Alert.alert(t('common.success'), t('history.deleteItem.success'));
             } catch (err) {
-              Alert.alert('Error', getErrorMessage(err));
+              Alert.alert(t('common.error'), getErrorMessage(err));
             } finally {
               setIsDeleting(false);
             }
@@ -110,7 +134,7 @@ const HistoryScreen: React.FC = () => {
 
   const handleDownload = async (item: HistoryItem) => {
     if (!item.content_url) {
-      Alert.alert('Error', 'No downloadable content available');
+      Alert.alert(t('common.error'), t('history.download.noContent'));
       return;
     }
     
@@ -123,24 +147,22 @@ const HistoryScreen: React.FC = () => {
       } else if (item.type === 'audio') {
         result = await mediaService.saveAudioFile(item.content_url);
       } else {
-        Alert.alert('Info', 'Download not supported for this type');
+        Alert.alert(t('common.error'), t('history.download.notSupported'));
         return;
       }
       
       if (result.success) {
-        Alert.alert('Success', 'Saved successfully!');
+        Alert.alert(t('common.success'), t('history.download.success'));
       } else {
-        Alert.alert('Error', result.error || 'Failed to save');
+        Alert.alert(t('common.error'), result.error || t('history.download.error'));
       }
     } catch (err) {
-      Alert.alert('Error', getErrorMessage(err));
+      Alert.alert(t('common.error'), getErrorMessage(err));
     }
   };
 
-  const filteredItems = historyItems.filter((item) => {
-    if (filter === 'all') return true;
-    return item.type === filter;
-  });
+  // Server already filters by type when filter changes, so no local re-filter needed
+  const filteredItems = historyItems;
 
   const getIcon = (type: HistoryItem['type']) => {
     switch (type) {
@@ -160,9 +182,9 @@ const HistoryScreen: React.FC = () => {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
     
-    if (hours < 1) return 'Just now';
-    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+    if (hours < 1) return t('history.date.justNow');
+    if (hours < 24) return t('history.date.hoursAgo', { count: hours });
+    if (days < 7) return t('history.date.daysAgo', { count: days });
     return date.toLocaleDateString();
   };
 
@@ -192,39 +214,52 @@ const HistoryScreen: React.FC = () => {
           
           <View style={styles.modalDetails}>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Model</Text>
+              <Text style={styles.detailLabel}>{t('history.detail.model')}</Text>
               <Text style={styles.detailValue}>{selectedItem?.model}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Type</Text>
+              <Text style={styles.detailLabel}>{t('history.detail.type')}</Text>
               <Text style={styles.detailValue}>{selectedItem?.type}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Words Used</Text>
+              <Text style={styles.detailLabel}>{t('history.detail.wordsUsed')}</Text>
               <Text style={styles.detailValue}>{selectedItem?.words_used || 0}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Created</Text>
+              <Text style={styles.detailLabel}>{t('history.detail.created')}</Text>
               <Text style={styles.detailValue}>
-                {selectedItem?.created_at ? formatDate(selectedItem.created_at) : 'Unknown'}
+                {selectedItem?.created_at ? formatDate(selectedItem.created_at) : t('history.detail.unknown')}
               </Text>
             </View>
             {selectedItem?.prompt && (
               <View style={styles.promptSection}>
-                <Text style={styles.detailLabel}>Prompt</Text>
+                <Text style={styles.detailLabel}>{t('history.detail.prompt')}</Text>
                 <Text style={styles.promptText}>{selectedItem.prompt}</Text>
               </View>
             )}
           </View>
           
           <View style={styles.modalActions}>
+            {selectedItem?.type === 'chat' && selectedItem?.session_id && (
+              <TouchableOpacity 
+                style={[styles.actionButton, styles.continueButton]}
+                onPress={() => {
+                  setSelectedItem(null);
+                  // Use drawer navigation to pass sessionId
+                  navigateTo('ChatScreen', { sessionId: selectedItem.session_id });
+                }}
+              >
+                <Ionicons name="chatbubble-outline" size={20} color={colors.primary} />
+                <Text style={styles.actionButtonText}>{t('history.detail.continue')}</Text>
+              </TouchableOpacity>
+            )}
             {selectedItem?.content_url && (
               <TouchableOpacity 
                 style={styles.actionButton}
                 onPress={() => selectedItem && handleDownload(selectedItem)}
               >
                 <Ionicons name="download-outline" size={20} color={colors.primary} />
-                <Text style={styles.actionButtonText}>Download</Text>
+                <Text style={styles.actionButtonText}>{t('history.detail.download')}</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity 
@@ -237,7 +272,7 @@ const HistoryScreen: React.FC = () => {
               ) : (
                 <>
                   <Ionicons name="trash-outline" size={20} color={colors.error} />
-                  <Text style={[styles.actionButtonText, styles.deleteButtonText]}>Delete</Text>
+                  <Text style={[styles.actionButtonText, styles.deleteButtonText]}>{t('history.detail.delete')}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -259,7 +294,7 @@ const HistoryScreen: React.FC = () => {
         >
           <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>History</Text>
+        <Text style={styles.headerTitle}>{t('history.title')}</Text>
         <View style={styles.headerButton} />
       </View>
       
@@ -268,7 +303,7 @@ const HistoryScreen: React.FC = () => {
         <Ionicons name="search-outline" size={20} color={colors.textMuted} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search history..."
+          placeholder={t('history.searchPlaceholder')}
           placeholderTextColor={colors.textMuted}
           value={searchQuery}
           onChangeText={handleSearch}
@@ -298,7 +333,7 @@ const HistoryScreen: React.FC = () => {
         style={styles.filterScrollContainer}
         contentContainerStyle={styles.filterContainer}
       >
-        {(['all', 'chat', 'image', 'video', 'audio', '3d'] as FilterType[]).map((f) => (
+        {(['all', 'chat', 'image'] as FilterType[]).map((f) => (
           <TouchableOpacity
             key={f}
             style={[styles.filterTab, filter === f && styles.filterTabActive]}
@@ -307,12 +342,12 @@ const HistoryScreen: React.FC = () => {
             {f !== 'all' && (
               <Ionicons
                 name={getIcon(f as HistoryItem['type'])}
-                size={16}
+                size={14}
                 color={filter === f ? colors.primary : colors.textMuted}
               />
             )}
             <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>
-              {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+              {f === 'all' ? t('history.filter.all') : f === '3d' ? t('history.filter.threeD') : t(`history.filter.${f}`)}
             </Text>
           </TouchableOpacity>
         ))}
@@ -322,7 +357,7 @@ const HistoryScreen: React.FC = () => {
       {isLoading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading history...</Text>
+          <Text style={styles.loadingText}>{t('history.loading')}</Text>
         </View>
       )}
 
@@ -342,7 +377,7 @@ const HistoryScreen: React.FC = () => {
             />
           }
         >
-          {filteredItems.map((item) => (
+          {filteredItems.slice(0, 20).map((item) => (
             <TouchableOpacity 
               key={item.id} 
               style={styles.historyItem}
@@ -361,7 +396,7 @@ const HistoryScreen: React.FC = () => {
                   {item.title}
                 </Text>
                 <Text style={styles.itemMeta}>
-                  {item.model} · {item.words_used || 0} words
+                  {item.model} · {item.words_used || 0} {t('history.itemMeta.words')}
                 </Text>
               </View>
               <View style={styles.itemRight}>
@@ -386,7 +421,7 @@ const HistoryScreen: React.FC = () => {
           {filteredItems.length === 0 && searchQuery && (
             <View style={styles.noResults}>
               <Ionicons name="search-outline" size={48} color={colors.textMuted} />
-              <Text style={styles.noResultsText}>No results found for "{searchQuery}"</Text>
+              <Text style={styles.noResultsText}>{t('history.noResults', { query: searchQuery })}</Text>
             </View>
           )}
         </ScrollView>
@@ -422,10 +457,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textPrimary,
   },
-  headerSubtitle: {
-    fontSize: 14,
-    color: colors.textMuted,
-  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -460,28 +491,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   filterScrollContainer: {
-    maxHeight: 50,
+    flexGrow: 0,
+    flexShrink: 0,
+    marginTop: 8,
+    marginBottom: 4,
   },
   filterContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 8,
+    paddingHorizontal: 12,
+    gap: 6,
+    alignItems: 'center',
   },
   filterTab: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
     backgroundColor: colors.surface,
-    gap: 6,
+    gap: 4,
   },
   filterTabActive: {
     backgroundColor: 'rgba(45, 212, 191, 0.15)',
   },
   filterText: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.textMuted,
     fontWeight: '500',
   },
@@ -649,6 +683,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.primary,
+  },
+  continueButton: {
+    borderColor: colors.primary,
+    backgroundColor: 'rgba(45, 212, 191, 0.1)',
   },
   deleteButton: {
     borderColor: colors.error,

@@ -53,11 +53,24 @@ async def wavespeed_ai_call(model_id, api_key, payload=None, poll_interval=0.5, 
         # Run synchronous requests in a thread pool using sync_to_async
         response = await sync_to_async(requests.post, thread_sensitive=False)(url, headers=headers, data=json.dumps(payload), timeout=60)
         response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        error_detail = ""
+        try:
+            error_detail = e.response.json().get("message", str(e))
+        except:
+            error_detail = str(e)
+        print(f"WaveSpeedAI HTTP Error: {error_detail}")
+        if "api_key" in error_detail.lower() or "authorization" in error_detail.lower():
+            return {"error": "Authentication failed: Invalid API key."}
+        if "insufficient" in error_detail.lower() or "credit" in error_detail.lower():
+            return {"error": "WaveSpeedAI service unavailable. The API provider needs to top up their credits. Please try a different model or contact support."}
+        return {"error": f"WaveSpeedAI Error: {error_detail}"}
     except Exception as e:
         error_str = str(e)
+        print(f"WaveSpeedAI Request Error: {error_str}")
         if "api_key" in error_str.lower() or "authorization" in error_str.lower():
             return {"error": "Authentication failed: Invalid API key."}
-        return {"error": f"Error submitting request. Please try again later."}
+        return {"error": f"Request error: {error_str}"}
 
     request_id = response.json().get("data", {}).get("id")
     if not request_id:

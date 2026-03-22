@@ -36,10 +36,14 @@ GOOGLE_PACKAGE_NAME = "com.yourapp.ai" # your app’s actual package name
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-se07a)!8@y+syd4m4)bgy-9-9+bla8f^#db0bhk8#5lqqyrf8=')
+_default_secret = 'dev-only-insecure-key-change-before-production'
+SECRET_KEY = config('SECRET_KEY', default=_default_secret if ENVIRONMENT != 'production' else '')
+
+if ENVIRONMENT == 'production' and SECRET_KEY in ('', _default_secret):
+    raise ValueError('SECRET_KEY must be set to a secure value in production.')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Allowed hosts configuration
 # For production: set ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com in .env
@@ -55,19 +59,39 @@ if ENVIRONMENT != 'production':
         'overrigged-botanically-lila.ngrok-free.dev',
         '4867888fdea6.ngrok-free.app',
         '7817aa52e070.ngrok-free.app',
-        '192.168.1.19',
+        'aeronautic-unjumpable-nahla.ngrok-free.dev',
+        '10.224.57.121',
         '172.18.133.153',
         '10.133.245.121',
+        '192.168.1.17',
+        '192.168.1.16',
+        '10.84.46.121',
     ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://overrigged-botanically-lila.ngrok-free.dev",
-    'http://10.10.13.75:8000',
-    'https://4867888fdea6.ngrok-free.app',
-    "https://710.10.13.60:8082",
-    "http://localhost:8000",
-    "http://localhost:3000",
-]
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://localhost:8000,http://localhost:3000,http://127.0.0.1:8000,http://127.0.0.1:3000',
+    cast=Csv(),
+)
+
+if ENVIRONMENT != 'production':
+    CSRF_TRUSTED_ORIGINS += [
+        'https://overrigged-botanically-lila.ngrok-free.dev',
+        'https://aeronautic-unjumpable-nahla.ngrok-free.dev',
+        'https://4867888fdea6.ngrok-free.app',
+    ]
+
+# Proxy settings for ngrok/reverse proxy
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SESSION_COOKIE_SECURE = ENVIRONMENT == 'production'
+CSRF_COOKIE_SECURE = ENVIRONMENT == 'production'
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=ENVIRONMENT == 'production', cast=bool)
+SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=31536000 if ENVIRONMENT == 'production' else 0, cast=int)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = ENVIRONMENT == 'production'
+SECURE_HSTS_PRELOAD = ENVIRONMENT == 'production'
+
 # Application definition
 APPEND_SLASH = False
 INSTALLED_APPS = [
@@ -113,12 +137,6 @@ UNFOLD = {
 }
 SORA_HIGH_RES_ENABLED = True
 
-REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ]
-}
-
 # Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -144,6 +162,7 @@ CELERY_TIMEZONE = 'UTC'
 
 STRIPE_SECRET_KEY =config("STRIPE_SECRET_KEY")
 WEBHOOK_SECRET=config("WEBHOOK_SECRET_KEY")
+AI_WEBHOOK_SECRET = config("AI_WEBHOOK_SECRET", default="")
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -169,13 +188,16 @@ STORAGES = {
 # BLACKLIST_AFTER_ROTATION = True
 
 REST_FRAMEWORK = {
-    
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
       # 'users.authentication.CookieJWTAuthentication',
     ),
+    # Secure-by-default: endpoints require auth unless explicitly marked public.
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -252,11 +274,21 @@ ASGI_APPLICATION = 'AIModelBackend.asgi.application'
 #         },
 #     },
 # }
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    },
-}
+if ENVIRONMENT == 'production':
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [REDIS_URL],
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -329,14 +361,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Configuration
 # https://github.com/adamchainz/django-cors-headers
-CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL', default=False, cast=bool)
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
 
-# For production, specify allowed origins:
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000',
-    cast=Csv()
+    default='http://localhost:3000,http://localhost:8080,http://localhost:8081,http://127.0.0.1:3000,http://127.0.0.1:8081',
+    cast=Csv(),
 )
+
+if CORS_ALLOW_ALL_ORIGINS and ENVIRONMENT == 'production':
+    raise ValueError('CORS_ALLOW_ALL_ORIGINS must be false in production.')
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -465,7 +499,6 @@ LOGGING = {
 }
 
 # Create logs directory if it doesn't exist
-import os
 LOGS_DIR = BASE_DIR / 'logs'
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)

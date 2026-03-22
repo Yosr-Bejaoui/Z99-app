@@ -24,11 +24,17 @@ export const creditsService = {
   async getCreditBalance(): Promise<CreditAccount> {
     try {
       const response = await api.get('/accounts/credit-account/');
-      const data = response.data;
+      const raw = response.data;
+      const data = Array.isArray(raw)
+        ? raw[0] || {}
+        : (raw?.results && Array.isArray(raw.results) ? raw.results[0] || {} : raw || {});
+      const parsedCredits = Number(
+        data.credits ?? data.credit_balance ?? data.balance ?? data.words ?? 0
+      );
       
       return {
-        credits: data.credit_balance || data.balance || 0,
-        total_credits: (data.credit_balance || data.balance || 0) + (data.bonus_credits || 0),
+        credits: Number.isFinite(parsedCredits) ? parsedCredits : 0,
+        total_credits: (Number.isFinite(parsedCredits) ? parsedCredits : 0) + (data.bonus_credits || 0),
         bonus_credits: data.bonus_credits || 0,
         usedWords: data.used_words || data.words_used || 0,
         isPro: data.is_pro || data.subscription_active || false,
@@ -70,27 +76,27 @@ export const creditsService = {
   },
 
   /**
-   * Get available credit packages
+   * Get available credit packages (derived from plans)
    */
   async getCreditPackages(): Promise<CreditPackage[]> {
     try {
-      const response = await api.get('/accounts/credit-packages/');
+      const response = await api.get('/plan/list/');
       const data = response.data;
       
       const packages = Array.isArray(data) ? data : data.results || [];
       return packages.map((pkg: any) => ({
         id: pkg.id,
-        name: pkg.name,
-        credits: pkg.credits || pkg.word_credit || 0,
-        price: parseFloat(pkg.price) || 0,
+        name: pkg.name || pkg.plan_name || 'Credit Package',
+        credits: pkg.words_or_credits || pkg.credits || 0,
+        price: parseFloat(pkg.amount || pkg.price) || 0,
         currency: pkg.currency || 'USD',
         bonus_credits: pkg.bonus_credits || 0,
         description: pkg.description,
-        featured: pkg.featured || false,
+        featured: pkg.featured || pkg.is_popular || false,
         best_value: pkg.best_value || pkg.is_popular || false,
       }));
     } catch (error) {
-      throw new Error(getErrorMessage(error));
+      return [];
     }
   },
 
@@ -167,13 +173,16 @@ export const creditsService = {
         credits: response.data.credits_added || response.data.credits || 0,
         message: response.data.message || 'Credits added successfully',
       };
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        throw new Error('Promo code feature is not available yet.');
+      }
       throw new Error(getErrorMessage(error));
     }
   },
 
   /**
-   * Get usage statistics
+   * Get usage statistics (computed from transactions)
    */
   async getUsageStats(): Promise<{
     today_used: number;
@@ -182,15 +191,33 @@ export const creditsService = {
     total_used: number;
   }> {
     try {
-      const response = await api.get('/accounts/usage-stats/');
-      return {
-        today_used: response.data.today_used || 0,
-        week_used: response.data.week_used || 0,
-        month_used: response.data.month_used || 0,
-        total_used: response.data.total_used || 0,
-      };
+      const response = await api.get('/accounts/transactions/');
+      const transactions = Array.isArray(response.data) ? response.data : response.data.results || [];
+      
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekStart = new Date(todayStart);
+      weekStart.setDate(weekStart.getDate() - 7);
+      const monthStart = new Date(todayStart);
+      monthStart.setDate(monthStart.getDate() - 30);
+
+      let today_used = 0, week_used = 0, month_used = 0, total_used = 0;
+
+      for (const tx of transactions) {
+        const amount = Math.abs(tx.amount || 0);
+        const isDebit = (tx.transaction_type === 'deduct' || tx.transaction_type === 'debit' || tx.type === 'debit' || tx.amount < 0);
+        if (!isDebit) continue;
+        
+        const txDate = new Date(tx.created_at || tx.date);
+        total_used += amount;
+        if (txDate >= monthStart) month_used += amount;
+        if (txDate >= weekStart) week_used += amount;
+        if (txDate >= todayStart) today_used += amount;
+      }
+
+      return { today_used, week_used, month_used, total_used };
     } catch (error) {
-      throw new Error(getErrorMessage(error));
+      return { today_used: 0, week_used: 0, month_used: 0, total_used: 0 };
     }
   },
 };

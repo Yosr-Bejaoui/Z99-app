@@ -22,8 +22,11 @@ import {
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../types/navigation';
+
 interface OnboardingScreenProps {
-  navigation: any;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Onboarding'>;
 }
 
 interface SlideItem {
@@ -41,7 +44,7 @@ const slides: SlideItem[] = [
     icon: 'sparkles',
     iconColor: '#2dd4bf',
     title: 'Welcome to',
-    subtitle: 'AI Platform',
+    subtitle: 'Z99',
     description: 'Access the world\'s most powerful AI models in one place. Chat, create images, generate videos, and more.',
   },
   {
@@ -229,13 +232,6 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }) => {
         <GradientButton
           title={currentIndex === slides.length - 1 ? "Get Started" : "Next"}
           onPress={handleNext}
-          icon={
-            <Ionicons
-              name={currentIndex === slides.length - 1 ? "checkmark" : "arrow-forward"}
-              size={18}
-              color={colors.background}
-            />
-          }
           style={styles.nextButton}
         />
 
@@ -346,6 +342,8 @@ const styles = StyleSheet.create({
   nextButton: {
     width: '100%',
     marginBottom: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loginText: {
     fontSize: typography.fontSizes.sm,

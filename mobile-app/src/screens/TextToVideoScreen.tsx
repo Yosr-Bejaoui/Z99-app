@@ -100,34 +100,42 @@ const TextToVideoScreen: React.FC = () => {
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('WS message:', data);
-      
-      if (data.video_url || data.url) {
-        const videoUrl = data.video_url || data.url;
-        setGeneratedVideos(prev => [
-          {
-            id: Date.now().toString(),
-            url: videoUrl,
-            prompt: prompt,
-            status: 'completed',
-          },
-          ...prev.filter(v => v.status !== 'generating'),
-        ]);
-        setIsGenerating(false);
-        setPrompt('');
-      } else if (data.error) {
-        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
-        Alert.alert('Error', errorMsg);
-        setGeneratedVideos(prev => prev.filter(v => v.status !== 'generating'));
-        setIsGenerating(false);
-      } else if (data.status === 'processing' || data.message) {
-        // Still processing
+      try {
+        const data = JSON.parse(event.data);
+        console.log('WS message:', data);
+        
+        if (data.video_url || data.url) {
+          const videoUrl = data.video_url || data.url;
+          setGeneratedVideos(prev => [
+            {
+              id: Date.now().toString(),
+              url: videoUrl,
+              prompt: prompt,
+              status: 'completed',
+            },
+            ...prev.filter(v => v.status !== 'generating'),
+          ]);
+          setIsGenerating(false);
+          setPrompt('');
+          ws.close();
+        } else if (data.error) {
+          const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+          Alert.alert('Error', errorMsg);
+          setGeneratedVideos(prev => prev.filter(v => v.status !== 'generating'));
+          setIsGenerating(false);
+          ws.close();
+        } else if (data.status === 'processing' || data.message) {
+          // Still processing
+        }
+      } catch (e) {
+        console.error('Error parsing WebSocket message:', e);
       }
     };
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
+      Alert.alert('Connection Error', 'Failed to connect to the server. Please try again.');
+      setGeneratedVideos(prev => prev.filter(v => v.status !== 'generating'));
       setIsGenerating(false);
     };
 
@@ -190,7 +198,10 @@ const TextToVideoScreen: React.FC = () => {
 
         {/* Prompt Input */}
         <GlassCard style={styles.promptCard}>
-          <Text style={styles.sectionTitle}>Describe your video</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={styles.sectionTitle}>Describe your video</Text>
+            <Text style={{ color: colors.textMuted, fontSize: 12 }}>{prompt.length}/2000</Text>
+          </View>
           <TextInput
             style={styles.promptInput}
             placeholder="A drone flying over a beautiful mountain landscape at sunset..."
@@ -200,6 +211,9 @@ const TextToVideoScreen: React.FC = () => {
             multiline
             numberOfLines={4}
             textAlignVertical="top"
+            maxLength={2000}
+            accessibilityLabel="Video generation prompt"
+            accessibilityHint="Describe the video you want to generate"
           />
         </GlassCard>
 

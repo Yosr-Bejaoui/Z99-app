@@ -274,7 +274,7 @@ class AdminRevenueView(APIView):
         now = timezone.now()
         
         # Total revenue
-        total_revenue = Revenue.objects.filter(status='completed').aggregate(
+        total_revenue = Revenue.objects.aggregate(
             total=Sum('amount')
         )['total'] or Decimal('0')
         
@@ -284,37 +284,27 @@ class AdminRevenueView(APIView):
         month_start = today.replace(day=1)
         
         today_revenue = Revenue.objects.filter(
-            date=today,
-            status='completed'
+            created_at__date=today
         ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
         
         week_revenue = Revenue.objects.filter(
-            date__gte=week_start,
-            status='completed'
+            created_at__date__gte=week_start
         ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
         
         month_revenue = Revenue.objects.filter(
-            date__gte=month_start,
-            status='completed'
+            created_at__date__gte=month_start
         ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
         
         # Daily revenue for the last 30 days
         thirty_days_ago = today - timedelta(days=30)
         daily_revenue = Revenue.objects.filter(
-            date__gte=thirty_days_ago,
-            status='completed'
+            created_at__date__gte=thirty_days_ago
         ).annotate(
-            day=TruncDate('date')
+            day=TruncDate('created_at')
         ).values('day').annotate(
             total=Sum('amount'),
             count=Count('id')
         ).order_by('day')
-        
-        # Revenue by status
-        revenue_by_status = Revenue.objects.values('status').annotate(
-            total=Sum('amount'),
-            count=Count('id')
-        )
         
         return Response({
             "success": True,
@@ -323,7 +313,6 @@ class AdminRevenueView(APIView):
                 "today_revenue": float(today_revenue),
                 "week_revenue": float(week_revenue),
                 "month_revenue": float(month_revenue),
-                "daily_revenue": list(daily_revenue),
-                "revenue_by_status": list(revenue_by_status)
+                "daily_revenue": list(daily_revenue)
             }
         })

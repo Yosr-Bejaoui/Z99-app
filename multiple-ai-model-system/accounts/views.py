@@ -9,9 +9,42 @@ from .models import OTP,CreditAccount
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .tasks import send_otp_email_task
+from django.conf import settings
+import logging
 User= get_user_model()
 from random import randint
+
+logger = logging.getLogger(__name__)
+
+
+def _send_otp_with_fallback(subject, user_email, message, message_type='registration'):
+    """Try Celery first, then synchronous email; don't raise to API callers."""
+    try:
+        send_otp_email_task.delay(
+            subject=subject,
+            user_email=user_email,
+            message=message,
+            message_type=message_type,
+        )
+        return True
+    except Exception:
+        logger.exception("Failed to queue OTP email task; falling back to sync email")
+
+    try:
+        send_the_email(
+            subject=subject,
+            user_email=user_email,
+            message=message,
+            message_type=message_type,
+        )
+        return True
+    except Exception:
+        logger.exception("Fallback synchronous email also failed")
+        return False
+
+
 class RegisterView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -21,7 +54,13 @@ class RegisterView(APIView):
             code = randint(100000,999999)
             OTP.objects.create(user=user, code=code, type='registration')
             message = f"Hello {user.username}\n\n Your verification code is: {code} ! It will expire in 10 minutes.\n\nThank you for registering with us!\n\nBest regards,\nMultiAI Platform Team"
-            send_otp_email_task.delay(subject="Welcome to MultiAI Platform 🚀",user_email=user.email,message=message,message_type='registration')
+            email_sent = _send_otp_with_fallback(
+                subject="Welcome to MultiAI Platform 🚀",
+                user_email=user.email,
+                message=message,
+                message_type='registration',
+            )
+                
 #             send_otp_email_task.apply_async(
 #     args=(),  # if you have only kwargs, leave empty
 #     kwargs={
@@ -31,12 +70,19 @@ class RegisterView(APIView):
 #         "message_type": "registration"
 #     }
 # )
+            response_payload = {
+                "message": "User registered successfully. Please check your email for the verification code."
+            }
+            if not email_sent and settings.DEBUG:
+                response_payload["message"] = "User registered, but email delivery failed in development. Use the OTP from this response."
+                response_payload["otp"] = str(code)
 
-            return Response({"message": "User registered successfully. Please check your email for the verification code."}, status=status.HTTP_201_CREATED)
+            return Response(response_payload, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ActivateAccountView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = UserAccountActivationSerializer(data=request.data)
         if serializer.is_valid():
@@ -47,12 +93,48 @@ class ActivateAccountView(APIView):
             OTP.objects.filter(user=user, type='registration').delete()
             return Response({"message": "Account activated successfully."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ResendOTPView(APIView):
+    """Resend OTP code for account activation"""
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "No account found with this email."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Delete old OTPs and create a new one
+        OTP.objects.filter(user=user, type='registration').delete()
+        code = randint(100000, 999999)
+        OTP.objects.create(user=user, code=code, type='registration')
+
+        message = f"Hello {user.username}\n\nYour new verification code is: {code}. It will expire in 10 minutes.\n\nBest regards,\nMultiAI Platform Team"
+        
+        email_sent = _send_otp_with_fallback(
+            subject="Your New Verification Code 🚀",
+            user_email=email,
+            message=message,
+            message_type='registration',
+        )
+
+        response_payload = {"message": "A new verification code has been sent to your email."}
+        if not email_sent and settings.DEBUG:
+            response_payload["message"] = "OTP regenerated, but email delivery failed in development. Use the OTP from this response."
+            response_payload["otp"] = str(code)
+
+        return Response(response_payload, status=status.HTTP_200_OK)
     
 
 from .serializers import LoginSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 class LoginView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -63,12 +145,15 @@ class LoginView(APIView):
             refresh = RefreshToken.for_user(user)
             return Response({
                 'user':{
+                'id': user.id,
                 'user_id': user.id,
                 'email': user.email,
                 'username': user.username,
+                'name': f"{user.first_name} {user.last_name}".strip() or user.username,
                 'is_active': user.is_active,
                 'subscribed':user.subscribed,
                 'is_staff': user.is_staff,
+                'is_superuser': user.is_superuser,
                 'first_name': user.first_name,
                 'last_name': user.last_name,
                 'credits_balance': user.creditaccount.credits if hasattr(user, 'creditaccount') else 0,
@@ -124,6 +209,7 @@ class GoogleLoginAPIView(APIView):
     """
     Receives Google id_token from frontend and returns JWT tokens.
     """
+    permission_classes = [AllowAny]
     def post(self, request):
         id_token = request.data.get("id_token")
         if not id_token:
@@ -156,6 +242,7 @@ from .serializers import ForgotPasswordSerializer
 from django.shortcuts import get_object_or_404
 
 class ForgotPasswordView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         serializer = ForgotPasswordSerializer(data=request.data)
         if serializer.is_valid():
@@ -168,17 +255,27 @@ class ForgotPasswordView(APIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
 
+            OTP.objects.filter(user=user, type='password_reset').delete()
             code = randint(100000, 999999)
-            OTP.objects.create(user=user, code=code, type='registration')
+            OTP.objects.create(user=user, code=code, type='password_reset')
             
             message = f"Hello! Your temporary code is {code}. It will expire in 10 minutes."
-            send_otp_email_task.delay(
+            
+            email_sent = _send_otp_with_fallback(
                 subject="Forgot Password 🚀",
                 user_email=email,
                 message=message,
-                message_type='forgot password'
+                message_type='forgot password',
             )
-            return Response({"success": "OTP sent successfully to your email"}, status=status.HTTP_200_OK)
+
+            response_payload = {"success": "OTP sent successfully to your email"}
+            if not email_sent and settings.DEBUG:
+                response_payload = {
+                    "success": "OTP generated, but email delivery failed in development. Use the OTP from this response.",
+                    "otp": str(code),
+                }
+
+            return Response(response_payload, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -187,6 +284,7 @@ class ForgotPasswordView(APIView):
 from .serializers import ResetPasswordSerializer
 
 class ResetView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
@@ -199,7 +297,7 @@ class ResetView(APIView):
             except User.DoesNotExist:
                 return Response({"error": "User not available on this email"}, status=status.HTTP_404_NOT_FOUND)
 
-            otp = OTP.objects.filter(user=user, code=code).first()
+            otp = OTP.objects.filter(user=user, code=code, type='password_reset').first()
             if not otp:
                 return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -248,11 +346,23 @@ class ProfileView(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             first_name=request.data.get("first_name",None)
             last_name=request.data.get("last_name",None)
+            email=request.data.get("email",None)
+            username=request.data.get("username",None)
+            update_fields = []
             if first_name:
                 request.user.first_name=first_name
+                update_fields.append('first_name')
             if last_name:
                 request.user.last_name=last_name
-            request.user.save(update_fields=['first_name','last_name'])
+                update_fields.append('last_name')
+            if email:
+                request.user.email=email
+                update_fields.append('email')
+            if username:
+                request.user.username=username
+                update_fields.append('username')
+            if update_fields:
+                request.user.save(update_fields=update_fields)
             self.perform_update(serializer)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return super().create(request, *args, **kwargs)
@@ -404,5 +514,40 @@ class ChangePasswordView(APIView):
         
         return Response(
             {"message": "Password changed successfully."},
+            status=status.HTTP_200_OK
+        )
+
+
+class DeleteAccountView(APIView):
+    """
+    Delete account for authenticated users.
+    Requires password confirmation.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        password = request.data.get('password')
+        
+        if not password:
+            return Response(
+                {"error": "Password is required to confirm account deletion."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = request.user
+        
+        # Verify password
+        if not user.check_password(password):
+            return Response(
+                {"error": "Password is incorrect."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Delete the user account
+        user_email = user.email
+        user.delete()
+        
+        return Response(
+            {"message": f"Account for {user_email} has been deleted successfully."},
             status=status.HTTP_200_OK
         )

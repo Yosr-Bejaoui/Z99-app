@@ -1,7 +1,5 @@
 import React from 'react';
 import { Text, View, StyleSheet, TextStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { gradients } from '../theme';
 
 interface GradientTextProps {
   children: string;

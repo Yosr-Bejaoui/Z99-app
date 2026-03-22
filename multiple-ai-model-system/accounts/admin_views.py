@@ -3,14 +3,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.db.models import Count, Sum, Q
 from django.db.models.functions import TruncDate, TruncMonth
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, date
 from .models import CreditAccount, CreditTransaction
 from .serializers import AdminUserSerializer
 from ai_model.models import ChatSession, ChatMessage, AIModelInfo
-from plan.models import PlanModel, Revenue
+from plan.models import PlanModel, Revenue, SubscriptionModel
 from invoices.models import InvoiceModel
 
 User = get_user_model()
@@ -100,16 +101,234 @@ class AdminUserViewSet(viewsets.ModelViewSet):
             CreditTransaction.objects.create(
                 credit_account=credit_account,
                 amount=amount,
-                transaction_type='credit',
-                description='Admin credit addition'
+                transaction_type='add',
+                message='Admin credit addition'
             )
             
             return Response({
                 'message': f'Added {amount} credits to user',
-                'new_balance': credit_account.credits
+                'new_balance': int(credit_account.credits)
             })
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def purchases(self, request, pk=None):
+        """Get user's purchase/invoice history"""
+        user = self.get_object()
+        invoices = InvoiceModel.objects.filter(user=user).order_by('-created_at')
+        
+        data = []
+        for inv in invoices:
+            data.append({
+                'id': inv.id,
+                'plan_name': inv.plan.name if inv.plan else 'N/A',
+                'amount': str(inv.amount),
+                'status': inv.status,
+                'payment_method': inv.payment_method,
+                'created_at': inv.created_at.isoformat() if inv.created_at else None,
+            })
+        
+        return Response(data)
+
+    @action(detail=True, methods=['get'])
+    def usage(self, request, pk=None):
+        """Get user's usage statistics"""
+        user = self.get_object()
+        
+        # Chat sessions count
+        chat_sessions = ChatSession.objects.filter(user=user).count()
+        
+        # Total messages
+        total_messages = ChatMessage.objects.filter(session__user=user).count()
+        
+        # Credit transactions
+        try:
+            credit_account = CreditAccount.objects.get(user=user)
+            transactions = CreditTransaction.objects.filter(
+                credit_account=credit_account
+            ).order_by('-created_at')[:20]
+            
+            transaction_data = [{
+                'id': t.id,
+                'amount': t.amount,
+                'type': t.transaction_type,
+                'description': t.message or '',
+                'created_at': t.created_at.isoformat() if t.created_at else None,
+            } for t in transactions]
+            
+            total_credits_used = CreditTransaction.objects.filter(
+                credit_account=credit_account,
+                transaction_type='deduct'
+            ).aggregate(total=Sum('amount'))['total'] or 0
+        except CreditAccount.DoesNotExist:
+            transaction_data = []
+            total_credits_used = 0
+        
+        return Response({
+            'chat_sessions': chat_sessions,
+            'total_messages': total_messages,
+            'total_credits_used': abs(total_credits_used),
+            'total_token_used': user.total_token_used or 0,
+            'transactions': transaction_data,
+        })
+
+    @action(detail=True, methods=['post'])
+    def set_credits(self, request, pk=None):
+        """Set user's credit balance to a specific amount"""
+        user = self.get_object()
+        amount = request.data.get('amount')
+        reason = request.data.get('reason', 'Admin credit adjustment')
+        
+        # Validate amount
+        if amount is None:
+            return Response({'error': 'Amount is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            amount = int(amount)
+            if amount < 0:
+                return Response({'error': 'Amount cannot be negative'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            credit_account, _ = CreditAccount.objects.get_or_create(user=user)
+            old_balance = int(credit_account.credits)
+            credit_account.credits = amount
+            credit_account.save()
+            
+            # Log the transaction
+            diff = amount - old_balance
+            if diff != 0:
+                CreditTransaction.objects.create(
+                    credit_account=credit_account,
+                    amount=abs(diff),
+                    transaction_type='add' if diff > 0 else 'deduct',
+                    message=reason
+                )
+            
+            return Response({
+                'message': f'Credits set to {amount}',
+                'old_balance': old_balance,
+                'new_balance': int(credit_account.credits)
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def assign_plan(self, request, pk=None):
+        """Assign a subscription plan to user"""
+        user = self.get_object()
+        plan_id = request.data.get('plan_id')
+        duration_type = request.data.get('duration_type', 'monthly')
+        
+        if not plan_id:
+            return Response({'error': 'Plan ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            plan = PlanModel.objects.get(id=plan_id, is_active=True)
+            
+            # Calculate dates based on duration
+            start = date.today()
+            if duration_type == 'weekly':
+                expire = start + timedelta(days=7)
+            elif duration_type == 'yearly':
+                expire = start + timedelta(days=365)
+            else:  # monthly
+                expire = start + timedelta(days=30)
+            
+            # Create or update subscription
+            subscription, created = SubscriptionModel.objects.update_or_create(
+                user=user,
+                status='active',
+                defaults={
+                    'plan': plan,
+                    'price': plan.amount,
+                    'credits_words': plan.words_or_credits,
+                    'used_words': 0,
+                    'duration_type': duration_type,
+                    'start_date': start,
+                    'expire_date': expire,
+                    'status': 'active',
+                }
+            )
+            
+            # Update user subscribed status
+            user.subscribed = True
+            user.save()
+            
+            # Add credits from plan
+            credit_account, _ = CreditAccount.objects.get_or_create(user=user)
+            credit_account.credits += plan.words_or_credits
+            credit_account.save()
+            
+            CreditTransaction.objects.create(
+                credit_account=credit_account,
+                amount=plan.words_or_credits,
+                transaction_type='add',
+                message=f'Plan assigned by admin: {plan.name}'
+            )
+            
+            return Response({
+                'message': f'Plan {plan.name} assigned successfully',
+                'subscription_id': subscription.id,
+                'credits_added': plan.words_or_credits,
+                'expires': expire.isoformat()
+            })
+        except PlanModel.DoesNotExist:
+            return Response({'error': 'Plan not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def reset_password(self, request, pk=None):
+        """Reset user's password"""
+        user = self.get_object()
+        new_password = request.data.get('new_password')
+        
+        if not new_password or len(new_password) < 8:
+            return Response({'error': 'Password must be at least 8 characters'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user.password = make_password(new_password)
+            user.save()
+            return Response({'message': 'Password reset successfully'})
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def subscription(self, request, pk=None):
+        """Get user's current subscription"""
+        user = self.get_object()
+        
+        try:
+            sub = SubscriptionModel.objects.filter(user=user, status='active').order_by('-created_at').first()
+            if sub:
+                return Response({
+                    'id': sub.id,
+                    'plan_id': sub.plan.id if sub.plan else None,
+                    'plan_name': sub.plan.name if sub.plan else 'N/A',
+                    'credits_words': sub.credits_words,
+                    'used_words': sub.used_words,
+                    'duration_type': sub.duration_type,
+                    'start_date': sub.start_date.isoformat() if sub.start_date else None,
+                    'expire_date': sub.expire_date.isoformat() if sub.expire_date else None,
+                    'status': sub.status,
+                })
+            return Response(None)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def plans(self, request):
+        """Get all available plans"""
+        plans = PlanModel.objects.filter(is_active=True)
+        data = [{
+            'id': p.id,
+            'name': p.name,
+            'plan_code': p.plan_code,
+            'description': p.description,
+            'words_or_credits': p.words_or_credits,
+            'amount': str(p.amount),
+        } for p in plans]
+        return Response(data)
 
 
 class DashboardStatsView(APIView):
@@ -165,7 +384,7 @@ class DashboardStatsView(APIView):
         active_models = AIModelInfo.objects.filter(is_active=True).count()
         
         # Most used model
-        most_used = ChatSession.objects.values('ai_model__name').annotate(
+        most_used = ChatSession.objects.values('model__name').annotate(
             count=Count('id')
         ).order_by('-count').first()
         
@@ -191,7 +410,7 @@ class DashboardStatsView(APIView):
             'models': {
                 'total': total_models,
                 'active': active_models,
-                'most_used': most_used['ai_model__name'] if most_used else 'N/A',
+                'most_used': most_used['model__name'] if most_used else 'N/A',
             }
         })
 
@@ -328,7 +547,7 @@ class ModelUsageStatsView(APIView):
     def get(self, request):
         # Get usage count per model
         model_usage = ChatSession.objects.values(
-            'ai_model__id', 'ai_model__name', 'ai_model__provider', 'ai_model__model_type'
+            'model__id', 'model__name', 'model__provider', 'model__model_type'
         ).annotate(
             usage_count=Count('id')
         ).order_by('-usage_count')
@@ -339,10 +558,10 @@ class ModelUsageStatsView(APIView):
         for item in model_usage:
             percentage = round((item['usage_count'] / total_usage * 100), 1) if total_usage > 0 else 0
             result.append({
-                'id': item['ai_model__id'],
-                'name': item['ai_model__name'] or 'Unknown',
-                'provider': item['ai_model__provider'] or 'Unknown',
-                'model_type': item['ai_model__model_type'] or 'chat',
+                'id': item['model__id'],
+                'name': item['model__name'] or 'Unknown',
+                'provider': item['model__provider'] or 'Unknown',
+                'model_type': item['model__model_type'] or 'chat',
                 'usage_count': item['usage_count'],
                 'percentage': percentage,
             })
@@ -367,13 +586,19 @@ class TopUsersView(APIView):
         
         result = []
         for user in top_users:
+            # Get active subscription plan name
+            active_sub = user.subscriptions.filter(status='active').select_related('plan').first()
+            plan_name = active_sub.plan.name if active_sub and active_sub.plan else ('Subscribed' if user.subscribed else 'Free')
+            
             result.append({
                 'id': user.id,
                 'email': user.email,
+                'name': f'{user.first_name} {user.last_name}'.strip() or user.username or user.email.split('@')[0],
                 'username': user.username,
                 'session_count': user.session_count,
                 'total_usage': float(user.total_usage or 0),
                 'subscribed': user.subscribed,
+                'subscription_plan': plan_name,
             })
         
         return Response(result)

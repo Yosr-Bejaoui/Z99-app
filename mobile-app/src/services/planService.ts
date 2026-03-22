@@ -1,7 +1,8 @@
 import api, { getErrorMessage } from './api';
 import { ENDPOINTS } from './config';
 
-export interface Plan {
+// Backend plan shape (different from the UI Plan type in types.ts)
+export interface BackendPlan {
   id: number;
   name: string;
   plan_code: string;
@@ -12,9 +13,12 @@ export interface Plan {
   updated_at: string;
 }
 
-export interface Subscription {
+// Alias for convenience
+export type Plan = BackendPlan;
+
+export interface BackendSubscription {
   id: number;
-  plan: Plan;
+  plan: BackendPlan;
   price: number;
   credits_words: number;
   used_words: number;
@@ -26,7 +30,7 @@ export interface Subscription {
 
 export const planService = {
   // Get all available plans
-  async getPlans(): Promise<Plan[]> {
+  async getPlans(): Promise<BackendPlan[]> {
     try {
       const response = await api.get(ENDPOINTS.PLANS);
       return response.data.results || response.data || [];
@@ -36,7 +40,7 @@ export const planService = {
   },
 
   // Get user's current subscription
-  async getCurrentSubscription(): Promise<Subscription | null> {
+  async getCurrentSubscription(): Promise<BackendSubscription | null> {
     try {
       const response = await api.get('/plan/subscription/current/');
       return response.data;

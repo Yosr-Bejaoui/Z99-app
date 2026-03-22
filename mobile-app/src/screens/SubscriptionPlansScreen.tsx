@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
@@ -23,11 +24,11 @@ const { width } = Dimensions.get('window');
 
 const SubscriptionPlansScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [isPurchasing, setIsPurchasing] = useState(false);
 
   useEffect(() => {
     fetchPlans();
@@ -44,7 +45,7 @@ const SubscriptionPlansScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to fetch plans:', error);
-      Alert.alert('Error', 'Failed to load subscription plans');
+      Alert.alert(t('subscription.purchase.error'), t('subscription.purchase.errorMessage'));
     } finally {
       setIsLoading(false);
     }
@@ -59,28 +60,15 @@ const SubscriptionPlansScreen: React.FC = () => {
   const handlePurchase = async () => {
     if (!selectedPlan) return;
 
-    setIsPurchasing(true);
-    try {
-      // In a real app, integrate with Google Pay / Apple Pay here
-      Alert.alert(
-        'Purchase',
-        `Subscribe to ${selectedPlan.name} for $${selectedPlan.amount}?`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Confirm',
-            onPress: async () => {
-              // Simulate purchase - in production, use actual payment SDK
-              Alert.alert('Success', 'Subscription activated! You now have access to premium features.');
-            },
-          },
-        ]
-      );
-    } catch (error) {
-      Alert.alert('Error', 'Failed to process purchase. Please try again.');
-    } finally {
-      setIsPurchasing(false);
-    }
+    // In-app purchases require a native payment sheet (Google Play Billing / Apple IAP).
+    // Sending a fabricated token to the checkout endpoint is a security risk — the server
+    // could award credits without real payment if validation is not strict.
+    // Show an informational message until the payment SDK is integrated.
+    Alert.alert(
+      t('subscription.comingSoon.title') || 'Coming Soon',
+      t('subscription.comingSoon.message') ||
+        'In-app purchases are not yet available in this version. Please contact support to purchase credits.',
+    );
   };
 
   const formatCredits = (credits: number): string => {
@@ -93,15 +81,15 @@ const SubscriptionPlansScreen: React.FC = () => {
   };
 
   const getPlanFeatures = (plan: Plan): string[] => {
-    const baseFeatures = ['All AI chat models', 'Priority support'];
+    const baseFeatures = [t('subscription.features.allModels'), t('subscription.features.prioritySupport')];
     const credits = plan.words_or_credits;
     
     if (credits >= 500000) {
-      return [...baseFeatures, 'Unlimited image generation', 'Video generation', 'API access', 'Custom models'];
+      return [...baseFeatures, t('subscription.features.unlimitedImage'), t('subscription.features.videoGen'), t('subscription.features.apiAccess'), t('subscription.features.customModels')];
     } else if (credits >= 100000) {
-      return [...baseFeatures, 'Advanced image generation', 'Video generation (limited)', 'Priority queue'];
+      return [...baseFeatures, t('subscription.features.advancedImage'), t('subscription.features.limitedVideo'), t('subscription.features.priorityQueue')];
     } else {
-      return [...baseFeatures, 'Basic image generation', 'Standard queue'];
+      return [...baseFeatures, t('subscription.features.basicImage'), t('subscription.features.standardQueue')];
     }
   };
 
@@ -115,7 +103,7 @@ const SubscriptionPlansScreen: React.FC = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading plans...</Text>
+          <Text style={styles.loadingText}>{t('subscription.loading')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -144,9 +132,9 @@ const SubscriptionPlansScreen: React.FC = () => {
             <Ionicons name="arrow-back" size={24} color={colors.foreground} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Choose Your Plan</Text>
+            <Text style={styles.headerTitle}>{t('subscription.header.title')}</Text>
             <Text style={styles.headerSubtitle}>
-              Unlock the full power of AI
+              {t('subscription.header.subtitle')}
             </Text>
           </View>
         </View>
@@ -179,7 +167,7 @@ const SubscriptionPlansScreen: React.FC = () => {
                       style={styles.popularBadge}
                     >
                       <Ionicons name="star" size={12} color="#fff" />
-                      <Text style={styles.popularText}>MOST POPULAR</Text>
+                      <Text style={styles.popularText}>{t('subscription.mostPopular').toUpperCase()}</Text>
                     </LinearGradient>
                   )}
 
@@ -187,13 +175,13 @@ const SubscriptionPlansScreen: React.FC = () => {
                     <View>
                       <Text style={styles.planName}>{plan.name}</Text>
                       <Text style={styles.planCredits}>
-                        {formatCredits(plan.words_or_credits)} credits
+                        {t('subscription.credits', { count: Number(plan.words_or_credits || 0) })}
                       </Text>
                     </View>
                     <View style={styles.priceContainer}>
                       <Text style={styles.currency}>$</Text>
                       <Text style={styles.price}>{plan.amount}</Text>
-                      <Text style={styles.period}>/mo</Text>
+                      <Text style={styles.period}>{t('subscription.perMonth')}</Text>
                     </View>
                   </View>
 
@@ -232,9 +220,9 @@ const SubscriptionPlansScreen: React.FC = () => {
         {plans.length === 0 && (
           <View style={styles.emptyState}>
             <Ionicons name="card-outline" size={64} color={colors.textMuted} />
-            <Text style={styles.emptyTitle}>No Plans Available</Text>
+            <Text style={styles.emptyTitle}>{t('subscription.emptyState.title')}</Text>
             <Text style={styles.emptySubtitle}>
-              Please check back later for subscription options
+              {t('subscription.emptyState.subtitle')}
             </Text>
           </View>
         )}
@@ -243,52 +231,51 @@ const SubscriptionPlansScreen: React.FC = () => {
         {selectedPlan && (
           <View style={styles.ctaContainer}>
             <View style={styles.ctaSummary}>
-              <Text style={styles.ctaLabel}>Selected Plan</Text>
+              <Text style={styles.ctaLabel}>{t('subscription.cta.selectedPlan')}</Text>
               <Text style={styles.ctaValue}>
-                {selectedPlan.name} - ${selectedPlan.amount}/month
+                {t('subscription.cta.planSummary', { name: selectedPlan.name, amount: selectedPlan.amount })}
               </Text>
             </View>
 
             <GradientButton
-              title={isPurchasing ? 'Processing...' : 'Subscribe Now'}
+              title={t('subscription.cta.subscribeNow')}
               onPress={handlePurchase}
-              disabled={isPurchasing}
               style={styles.ctaButton}
             />
 
             <Text style={styles.ctaDisclaimer}>
-              Cancel anytime. Subscription renews automatically.
+              {t('subscription.cta.disclaimer')}
             </Text>
           </View>
         )}
 
         {/* Benefits Section */}
         <View style={styles.benefitsSection}>
-          <Text style={styles.benefitsTitle}>Why Subscribe?</Text>
+          <Text style={styles.benefitsTitle}>{t('subscription.benefits.title')}</Text>
           <View style={styles.benefitsGrid}>
             <View style={styles.benefitItem}>
               <View style={styles.benefitIcon}>
                 <Ionicons name="flash" size={24} color={colors.primary} />
               </View>
-              <Text style={styles.benefitLabel}>Faster Response</Text>
+              <Text style={styles.benefitLabel}>{t('subscription.benefits.fasterResponse')}</Text>
             </View>
             <View style={styles.benefitItem}>
               <View style={styles.benefitIcon}>
                 <Ionicons name="infinite" size={24} color={colors.secondary} />
               </View>
-              <Text style={styles.benefitLabel}>More Credits</Text>
+              <Text style={styles.benefitLabel}>{t('subscription.benefits.moreCredits')}</Text>
             </View>
             <View style={styles.benefitItem}>
               <View style={styles.benefitIcon}>
                 <Ionicons name="star" size={24} color={colors.warning} />
               </View>
-              <Text style={styles.benefitLabel}>Premium Models</Text>
+              <Text style={styles.benefitLabel}>{t('subscription.benefits.premiumModels')}</Text>
             </View>
             <View style={styles.benefitItem}>
               <View style={styles.benefitIcon}>
                 <Ionicons name="headset" size={24} color={colors.success} />
               </View>
-              <Text style={styles.benefitLabel}>Priority Support</Text>
+              <Text style={styles.benefitLabel}>{t('subscription.benefits.prioritySupport')}</Text>
             </View>
           </View>
         </View>

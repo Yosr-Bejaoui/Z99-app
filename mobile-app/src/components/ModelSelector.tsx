@@ -10,27 +10,30 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius } from '../theme';
+import { getCleanModelName } from '../utils/modelUtils';
 
 interface Model {
   id: number;
   name: string;
   description?: string;
+  [key: string]: any;
 }
 
 interface ModelSelectorProps {
-  selected: number | string | null;
-  onSelect: (id: number) => void;
+  selected: number | string | { id: number } | null;
+  onSelect: (model: Model) => void;
   models?: Model[];
 }
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({ selected, onSelect, models = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  const selectedModel = models.find(m => m.id === selected);
-  const displayName = selectedModel?.name || 'Select Model';
+  const selectedId = selected && typeof selected === 'object' ? selected.id : selected;
+  const selectedModel = models.find(m => m.id === selectedId);
+  const displayName = selectedModel ? getCleanModelName(selectedModel.name) : 'Select Model';
 
-  const handleSelect = (id: number) => {
-    onSelect(id);
+  const handleSelect = (model: Model) => {
+    onSelect(model);
     setIsOpen(false);
   };
 
@@ -75,22 +78,19 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selected, onSelect, model
                 <TouchableOpacity
                   style={[
                     styles.dropdownItem,
-                    selected === item.id && styles.dropdownItemSelected,
+                    selectedId === item.id && styles.dropdownItemSelected,
                   ]}
-                  onPress={() => handleSelect(item.id)}
+                  onPress={() => handleSelect(item)}
                 >
                   <View style={styles.modelInfo}>
                     <Text style={[
                       styles.modelName,
-                      selected === item.id && styles.modelNameSelected,
+                      selectedId === item.id && styles.modelNameSelected,
                     ]}>
-                      {item.name}
+                      {getCleanModelName(item.name)}
                     </Text>
-                    {item.description && (
-                      <Text style={styles.modelDescription}>{item.description}</Text>
-                    )}
                   </View>
-                  {selected === item.id && (
+                  {selectedId === item.id && (
                     <Ionicons name="checkmark" size={20} color={colors.primary} />
                   )}
                 </TouchableOpacity>

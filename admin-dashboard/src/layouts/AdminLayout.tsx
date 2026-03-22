@@ -15,6 +15,7 @@ import {
   Search,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { Logo } from '../components/Logo';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -70,9 +71,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <Bot className="w-6 h-6 text-white" />
-            </div>
+            <Logo size={32} className="flex-shrink-0" />
             {sidebarOpen && (
               <span className="font-semibold text-lg text-white">AI Admin</span>
             )}
@@ -170,7 +169,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-3 p-2 rounded-xl hover:bg-card transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                     <span className="text-sm font-medium text-white">
                       {getInitials()}
                     </span>

@@ -1,4 +1,4 @@
-from .views import RegisterView, ActivateAccountView, LoginView,LogoutView,CreditTransactionHistoryView,GoogleLoginAPIView,ForgotPasswordView,ResetView,ProfileView,CreditAccountView,CreateAdminView,ChangePasswordView
+from .views import RegisterView, ActivateAccountView, LoginView,LogoutView,CreditTransactionHistoryView,GoogleLoginAPIView,ForgotPasswordView,ResetView,ProfileView,CreditAccountView,CreateAdminView,ChangePasswordView,ResendOTPView,DeleteAccountView
 from .admin_views import (
     AdminUserViewSet, DashboardStatsView, UsageAnalyticsView,
     RevenueAnalyticsView, UserGrowthAnalyticsView, ModelUsageStatsView, TopUsersView
@@ -8,6 +8,7 @@ from .system_views import (
 )
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenRefreshView
 
 router=DefaultRouter()
 router.register('profile',ProfileView,basename='profile')
@@ -20,6 +21,7 @@ router.register('admin/logs', SystemLogViewSet, basename='admin-logs')
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('activate/', ActivateAccountView.as_view(), name='activate'),
+    path('resend-otp/', ResendOTPView.as_view(), name='resend-otp'),
     path('login/', LoginView.as_view(), name='login'),
     path('google/login/',GoogleLoginAPIView.as_view(),name='google-login'),
     path('logout/', LogoutView.as_view(), name='logout'),
@@ -28,7 +30,10 @@ urlpatterns = [
     path('reset-password/',ResetView.as_view(),name='reset-password'),
     path('credit-account/',CreditAccountView.as_view(),name='credit-account'),
     path('change-password/',ChangePasswordView.as_view(),name='change-password'),
+    path('delete-account/',DeleteAccountView.as_view(),name='delete-account'),
     path('admin/create/', CreateAdminView.as_view(), name='create-admin'),
+    path('admin/stats/', DashboardStatsView.as_view(), name='admin-stats'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     # Analytics endpoints for admin dashboard
     path('analytics/dashboard/', DashboardStatsView.as_view(), name='dashboard-stats'),
     path('analytics/usage/', UsageAnalyticsView.as_view(), name='usage-analytics'),

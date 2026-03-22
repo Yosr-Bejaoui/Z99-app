@@ -1,0 +1,640 @@
+{
+  "common": {
+    "error": "ত্রুটি",
+    "success": "সফল",
+    "cancel": "বাতিল",
+    "delete": "মুছুন",
+    "ok": "ঠিক আছে",
+    "loading": "লোড হচ্ছে...",
+    "free": "বিনামূল্যে",
+    "user": "ব্যবহারকারী",
+    "na": "প্রযোজ্য নয়",
+    "save": "সংরক্ষণ",
+    "close": "বন্ধ",
+    "confirm": "নিশ্চিত",
+    "back": "পিছনে",
+    "next": "পরবর্তী",
+    "retry": "আবার চেষ্টা করুন",
+    "credits": "ক্রেডিট"
+  },
+  "login": {
+    "title": "স্বাগতম",
+    "subtitle": "চালিয়ে যেতে সাইন ইন করুন",
+    "emailLabel": "ইমেইল",
+    "emailPlaceholder": "আপনার ইমেইল লিখুন",
+    "passwordLabel": "পাসওয়ার্ড",
+    "passwordPlaceholder": "আপনার পাসওয়ার্ড লিখুন",
+    "forgotPassword": "পাসওয়ার্ড ভুলে গেছেন?",
+    "signInButton": "সাইন ইন",
+    "signingIn": "সাইন ইন হচ্ছে...",
+    "divider": "অথবা এর সাথে চালিয়ে যান",
+    "google": "Google দিয়ে চালিয়ে যান",
+    "noAccount": "অ্যাকাউন্ট নেই? ",
+    "signUpLink": "সাইন আপ",
+    "error": {
+      "emailRequired": "ইমেইল প্রয়োজন",
+      "emailInvalid": "একটি বৈধ ইমেইল ঠিকানা লিখুন",
+      "passwordRequired": "পাসওয়ার্ড প্রয়োজন",
+      "loginFailed": "লগইন ব্যর্থ। আপনার তথ্য পরীক্ষা করুন।"
+    },
+    "googleTitle": "Google সাইন ইন",
+    "googleMessage": "Google সাইন ইন শীঘ্রই উপলব্ধ হবে!",
+    "a11y": {
+      "email": "ইমেইল ঠিকানা",
+      "emailHint": "সাইন ইন করতে আপনার ইমেইল লিখুন",
+      "password": "পাসওয়ার্ড",
+      "passwordHint": "সাইন ইন করতে আপনার পাসওয়ার্ড লিখুন",
+      "showPassword": "পাসওয়ার্ড দেখান",
+      "hidePassword": "পাসওয়ার্ড লুকান",
+      "forgotPassword": "পাসওয়ার্ড ভুলে গেছেন",
+      "googleSignIn": "Google দিয়ে চালিয়ে যান",
+      "signUp": "নতুন অ্যাকাউন্ট তৈরি করুন"
+    }
+  },
+  "signUp": {
+    "title": "অ্যাকাউন্ট তৈরি করুন",
+    "subtitle": "আজই আপনার AI যাত্রা শুরু করুন",
+    "fullNameLabel": "পুরো নাম",
+    "fullNamePlaceholder": "আপনার পুরো নাম লিখুন",
+    "emailLabel": "ইমেইল",
+    "emailPlaceholder": "আপনার ইমেইল লিখুন",
+    "passwordLabel": "পাসওয়ার্ড",
+    "passwordPlaceholder": "একটি পাসওয়ার্ড তৈরি করুন",
+    "confirmPasswordLabel": "পাসওয়ার্ড নিশ্চিত করুন",
+    "confirmPasswordPlaceholder": "আপনার পাসওয়ার্ড নিশ্চিত করুন",
+    "termsText": "আমি সম্মত ",
+    "termsOfService": "সেবার শর্তাবলী",
+    "and": " এবং ",
+    "privacyPolicy": "গোপনীয়তা নীতি",
+    "createButton": "অ্যাকাউন্ট তৈরি করুন",
+    "creating": "অ্যাকাউন্ট তৈরি হচ্ছে...",
+    "divider": "অথবা সাইন আপ করুন",
+    "google": "Google দিয়ে চালিয়ে যান",
+    "hasAccount": "ইতিমধ্যে অ্যাকাউন্ট আছে? ",
+    "signInLink": "সাইন ইন",
+    "error": {
+      "nameRequired": "পুরো নাম প্রয়োজন",
+      "emailRequired": "ইমেইল প্রয়োজন",
+      "emailInvalid": "একটি বৈধ ইমেইল ঠিকানা লিখুন",
+      "passwordRequired": "পাসওয়ার্ড প্রয়োজন",
+      "passwordLength": "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে",
+      "passwordUppercase": "পাসওয়ার্ডে কমপক্ষে একটি বড় হাতের অক্ষর থাকতে হবে",
+      "passwordNumber": "পাসওয়ার্ডে কমপক্ষে একটি সংখ্যা থাকতে হবে",
+      "passwordMismatch": "পাসওয়ার্ড মিলছে না",
+      "termsRequired": "আপনাকে সেবার শর্তাবলীতে সম্মত হতে হবে",
+      "registrationFailed": "নিবন্ধন ব্যর্থ। আবার চেষ্টা করুন।"
+    },
+    "googleTitle": "Google সাইন আপ",
+    "googleMessage": "Google সাইন আপ শীঘ্রই উপলব্ধ হবে!"
+  },
+  "chat": {
+    "loading": "লোড হচ্ছে...",
+    "errorModels": "AI মডেল লোড করতে ব্যর্থ",
+    "errorConnection": "চ্যাট সার্ভারের সংযোগ বিচ্ছিন্ন। আবার চেষ্টা করুন।",
+    "errorConnectionTitle": "সংযোগ ত্রুটি",
+    "insufficientCredits": {
+      "title": "অপর্যাপ্ত ক্রেডিট",
+      "message": "এই মেসেজের জন্য {{cost}} ক্রেডিট প্রয়োজন, কিন্তু আপনার আছে শুধু {{balance}}। আরও ক্রেডিট কিনুন।",
+      "cancel": "বাতিল",
+      "buy": "ক্রেডিট কিনুন"
+    },
+    "switchModel": {
+      "title": "মডেল পরিবর্তন",
+      "message": "মডেল পরিবর্তন করলে নতুন কথোপকথন শুরু হবে। চালিয়ে যেতে চান?",
+      "cancel": "বাতিল",
+      "confirm": "পরিবর্তন"
+    },
+    "newChat": {
+      "title": "নতুন চ্যাট",
+      "message": "নতুন কথোপকথন শুরু করতে চান?",
+      "cancel": "বাতিল",
+      "confirm": "নতুন চ্যাট"
+    },
+    "emptyTitle": "আজ আমি কিভাবে সাহায্য করতে পারি?",
+    "emptySubtitle": "নিচে একটি মেসেজ টাইপ করে কথোপকথন শুরু করুন",
+    "suggestion": {
+      "quantum": "কোয়ান্টাম কম্পিউটিং ব্যাখ্যা করুন",
+      "poem": "প্রকৃতি নিয়ে একটি কবিতা লিখুন",
+      "code": "একটি ফাংশন কোড করতে সাহায্য করুন",
+      "summarize": "এই নিবন্ধটি সংক্ষিপ্ত করুন"
+    },
+    "inputPlaceholder": "মেসেজ",
+    "disclaimer": "AI ভুল করতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করুন।",
+    "costToast": "এই মেসেজে {{cost}} ক্রেডিট ব্যবহৃত হয়েছে",
+    "sendAction": "{{model}} দিয়ে মেসেজ পাঠান",
+    "a11y": {
+      "attachFile": "ফাইল সংযুক্ত করুন",
+      "chatMessage": "চ্যাট মেসেজ",
+      "chatHint": "AI-তে পাঠাতে আপনার মেসেজ টাইপ করুন",
+      "sendMessage": "মেসেজ পাঠান"
+    },
+    "attachFile": "ফাইল সংযুক্ত করুন",
+    "chooseSource": "উৎস নির্বাচন করুন",
+    "takePhoto": "ছবি তুলুন",
+    "chooseFromGallery": "গ্যালারি থেকে নির্বাচন করুন",
+    "imageAttached": "ছবি সংযুক্ত হয়েছে",
+    "errorAttachFile": "ফাইল সংযুক্ত করতে ব্যর্থ",
+    "permissionDenied": "মিডিয়া লাইব্রেরিতে অ্যাক্সেসের অনুমতি প্রয়োজন",
+    "latestVersion": "সর্বশেষ সংস্করণ"
+  },
+  "drawer": {
+    "newChat": "নতুন চ্যাট",
+    "menu": {
+      "chat": "চ্যাট",
+      "createImage": "ছবি তৈরি",
+      "history": "ইতিহাস",
+      "credits": "ক্রেডিট",
+      "profile": "প্রোফাইল",
+      "settings": "সেটিংস",
+      "helpFaq": "সাহায্য ও FAQ"
+    },
+    "defaultUser": "ব্যবহারকারী",
+    "credits": "ক্রেডিট",
+    "a11y": {
+      "newChat": "নতুন চ্যাট শুরু করুন",
+      "profile": "প্রোফাইল: {{name}}"
+    }
+  },
+  "profile": {
+    "title": "প্রোফাইল",
+    "editModal": {
+      "title": "প্রোফাইল সম্পাদনা",
+      "nameLabel": "নাম",
+      "namePlaceholder": "আপনার নাম লিখুন",
+      "emailLabel": "ইমেইল",
+      "emailPlaceholder": "আপনার ইমেইল লিখুন",
+      "saving": "আপডেট হচ্ছে...",
+      "saveButton": "পরিবর্তন সংরক্ষণ"
+    },
+    "signOut": {
+      "title": "সাইন আউট",
+      "message": "আপনি কি নিশ্চিত সাইন আউট করতে চান?",
+      "cancel": "বাতিল",
+      "confirm": "সাইন আউট",
+      "error": "সাইন আউট ব্যর্থ। আবার চেষ্টা করুন।",
+      "signingOut": "সাইন আউট হচ্ছে..."
+    },
+    "image": {
+      "permissionTitle": "অনুমতি প্রয়োজন",
+      "libraryPermission": "প্রোফাইল ছবি আপলোড করতে আপনার ফটো লাইব্রেরিতে অ্যাক্সেস দিন।",
+      "cameraPermission": "প্রোফাইল ছবি তুলতে আপনার ক্যামেরায় অ্যাক্সেস দিন।",
+      "changeTitle": "প্রোফাইল ছবি পরিবর্তন",
+      "chooseOption": "একটি বিকল্প বেছে নিন",
+      "takePhoto": "ছবি তুলুন",
+      "chooseFromLibrary": "লাইব্রেরি থেকে বেছে নিন",
+      "cancel": "বাতিল",
+      "success": "সফল",
+      "successMessage": "প্রোফাইল ছবি সফলভাবে আপডেট হয়েছে!"
+    },
+    "update": {
+      "nameEmpty": "নাম খালি রাখা যাবে না",
+      "success": "সফল",
+      "successMessage": "প্রোফাইল সফলভাবে আপডেট হয়েছে!"
+    },
+    "defaultName": "ব্যবহারকারী",
+    "planSuffix": "প্ল্যান",
+    "stats": {
+      "words": "শব্দ",
+      "images": "ছবি",
+      "plan": "প্ল্যান"
+    },
+    "account": {
+      "title": "অ্যাকাউন্ট",
+      "emailLabel": "ইমেইল",
+      "changePassword": "পাসওয়ার্ড পরিবর্তন",
+      "updatePassword": "আপনার পাসওয়ার্ড আপডেট করুন",
+      "planLabel": "প্ল্যান",
+      "freeTier": "বিনামূল্যে প্ল্যান",
+      "upgrade": "আপগ্রেড"
+    },
+    "settings": {
+      "title": "সেটিংস",
+      "notifications": "বিজ্ঞপ্তি",
+      "darkMode": "ডার্ক মোড",
+      "language": "ভাষা"
+    },
+    "support": {
+      "title": "সাপোর্ট ও আইনি",
+      "helpSupport": "সাহায্য ও সাপোর্ট",
+      "about": "সম্পর্কে",
+      "terms": "সেবার শর্তাবলী",
+      "privacy": "গোপনীয়তা নীতি"
+    },
+    "danger": {
+      "title": "অ্যাকাউন্ট ব্যবস্থাপনা",
+      "deleteAccount": "অ্যাকাউন্ট মুছুন"
+    },
+    "version": "সংস্করণ 1.0.0"
+  },
+  "credits": {
+    "title": "ক্রেডিট",
+    "loading": "আপনার ক্রেডিট লোড হচ্ছে...",
+    "balance": {
+      "label": "উপলব্ধ ক্রেডিট",
+      "bonus": "+ {{count}} বোনাস ক্রেডিট",
+      "progress": "{{used}} / {{total}} ক্রেডিট",
+      "viewHistory": "ইতিহাস দেখুন"
+    },
+    "promo": {
+      "title": "প্রোমো কোড আছে?",
+      "placeholder": "কোড লিখুন",
+      "redeem": "রিডিম",
+      "emptyError": "একটি প্রোমো কোড লিখুন"
+    },
+    "usage": {
+      "title": "ব্যবহারের পরিসংখ্যান",
+      "today": "আজ",
+      "thisWeek": "এই সপ্তাহ",
+      "thisMonth": "এই মাস",
+      "total": "মোট"
+    },
+    "packages": {
+      "title": "ক্রেডিট কিনুন",
+      "bestValue": "সেরা মূল্য",
+      "credits": "ক্রেডিট",
+      "bonus": "+{{count}} বোনাস"
+    },
+    "purchase": {
+      "title": "ক্রেডিট কিনুন",
+      "message": "আপনি কি {{credits}} ক্রেডিট {{price}} তে কিনতে চান?",
+      "cancel": "বাতিল",
+      "confirm": "কিনুন"
+    },
+    "viewPlans": "সাবস্ক্রিপশন প্ল্যান দেখুন",
+    "transactions": {
+      "title": "লেনদেনের ইতিহাস",
+      "empty": "এখনো কোন লেনদেন নেই"
+    },
+    "freeTier": "বিনামূল্যে প্ল্যান"
+  },
+  "history": {
+    "title": "ইতিহাস",
+    "searchPlaceholder": "ইতিহাসে খুঁজুন...",
+    "loading": "ইতিহাস লোড হচ্ছে...",
+    "filter": {
+      "all": "সব",
+      "chat": "চ্যাট",
+      "image": "ছবি",
+      "video": "ভিডিও",
+      "audio": "অডিও",
+      "threeD": "3D"
+    },
+    "deleteItem": {
+      "title": "আইটেম মুছুন",
+      "message": "আপনি কি নিশ্চিত \"{{title}}\" মুছতে চান?",
+      "cancel": "বাতিল",
+      "confirm": "মুছুন",
+      "success": "আইটেম সফলভাবে মুছে ফেলা হয়েছে"
+    },
+    "download": {
+      "noContent": "ডাউনলোডযোগ্য কন্টেন্ট নেই",
+      "notSupported": "এই ধরনের জন্য ডাউনলোড সমর্থিত নয়",
+      "success": "সফলভাবে সংরক্ষিত!",
+      "error": "সংরক্ষণ ব্যর্থ"
+    },
+    "noResults": "\"{{query}}\" এর জন্য কোন ফলাফল পাওয়া যায়নি",
+    "detail": {
+      "model": "মডেল",
+      "type": "ধরন",
+      "wordsUsed": "ব্যবহৃত শব্দ",
+      "created": "তৈরি",
+      "prompt": "প্রম্পট",
+      "unknown": "অজানা",
+      "download": "ডাউনলোড",
+      "delete": "মুছুন"
+    },
+    "date": {
+      "justNow": "এইমাত্র",
+      "hoursAgo": "{{count}} ঘন্টা আগে",
+      "daysAgo": "{{count}} দিন আগে"
+    },
+    "itemMeta": {
+      "words": "শব্দ"
+    }
+  },
+  "imageGen": {
+    "title": "তৈরি",
+    "prompt": {
+      "title": "আপনার ছবি বর্ণনা করুন",
+      "placeholder": "সোনালী ঘণ্টায় নাটকীয় মেঘের সাথে একটি শান্ত পাহাড়ের দৃশ্য..."
+    },
+    "model": {
+      "title": "AI মডেল",
+      "loading": "মডেল লোড হচ্ছে...",
+      "retry": "কোন মডেল উপলব্ধ নেই। আবার চেষ্টা করতে ট্যাপ করুন।",
+      "loadError": "AI মডেল লোড করতে ব্যর্থ। আবার চেষ্টা করুন।"
+    },
+    "style": {
+      "title": "স্টাইল",
+      "realistic": "বাস্তবসম্মত",
+      "anime": "অ্যানিমে",
+      "digital": "ডিজিটাল আর্ট",
+      "threeD": "3D রেন্ডার",
+      "painting": "পেইন্টিং",
+      "sketch": "স্কেচ"
+    },
+    "resolution": {
+      "title": "রেজোলিউশন"
+    },
+    "generateButton": "ছবি তৈরি করুন",
+    "generating": "তৈরি হচ্ছে...",
+    "progress": "তৈরি হচ্ছে... {{percent}}%",
+    "emptyPrompt": {
+      "title": "খালি প্রম্পট",
+      "message": "আপনার ছবির জন্য একটি বর্ণনা লিখুন।"
+    },
+    "noModel": {
+      "title": "কোন মডেল নির্বাচিত হয়নি",
+      "message": "প্রথমে একটি AI মডেল নির্বাচন করুন।"
+    },
+    "insufficientCredits": {
+      "title": "অপর্যাপ্ত ক্রেডিট",
+      "message": "ছবি তৈরিতে {{cost}} ক্রেডিট প্রয়োজন, কিন্তু আপনার আছে শুধু {{balance}}। আরও ক্রেডিট কিনুন।",
+      "cancel": "বাতিল",
+      "buy": "ক্রেডিট কিনুন"
+    },
+    "costToast": "ছবি তৈরি হয়েছে! {{cost}} ক্রেডিট ব্যবহৃত",
+    "imageOptions": {
+      "title": "ছবির বিকল্প",
+      "message": "আপনি কী করতে চান?",
+      "download": "ডাউনলোড",
+      "share": "শেয়ার",
+      "cancel": "বাতিল"
+    },
+    "downloadSuccess": "ছবি গ্যালারিতে সংরক্ষিত!",
+    "downloadError": "ছবি সংরক্ষণ ব্যর্থ",
+    "gallery": {
+      "title": "তৈরি করা ছবি"
+    },
+    "emptyState": {
+      "text": "এখনো কোন ছবি তৈরি হয়নি",
+      "subtext": "উপরে একটি প্রম্পট লিখুন এবং আপনার প্রথম ছবি তৈরি করতে জেনারেট এ ট্যাপ করুন"
+    },
+    "costAction": "{{model}} দিয়ে ছবি তৈরি করুন",
+    "a11y": {
+      "prompt": "ছবি তৈরির প্রম্পট",
+      "promptHint": "আপনি যে ছবি তৈরি করতে চান তা বর্ণনা করুন"
+    }
+  },
+  "settings": {
+    "title": "সেটিংস",
+    "account": {
+      "title": "অ্যাকাউন্ট",
+      "editProfile": "প্রোফাইল সম্পাদনা",
+      "subscription": "সাবস্ক্রিপশন",
+      "proPlan": "প্রো প্ল্যান",
+      "freePlan": "বিনামূল্যে প্ল্যান",
+      "changePassword": "পাসওয়ার্ড পরিবর্তন"
+    },
+    "preferences": {
+      "title": "পছন্দসমূহ",
+      "notifications": "পুশ বিজ্ঞপ্তি",
+      "notificationsSubtitle": "আপডেট এবং সতর্কতা পান",
+      "darkMode": "ডার্ক মোড",
+      "darkModeSubtitle": "বর্তমানে সর্বদা চালু",
+      "autoSave": "চ্যাট অটো-সেভ",
+      "autoSaveSubtitle": "স্বয়ংক্রিয়ভাবে কথোপকথন সংরক্ষণ"
+    },
+    "support": {
+      "title": "সাপোর্ট",
+      "helpFaq": "সাহায্য ও FAQ",
+      "contactSupport": "সাপোর্টে যোগাযোগ",
+      "rateApp": "অ্যাপ রেট করুন",
+      "shareApp": "অ্যাপ শেয়ার করুন"
+    },
+    "about": {
+      "title": "সম্পর্কে",
+      "terms": "সেবার শর্তাবলী",
+      "privacy": "গোপনীয়তা নীতি",
+      "appVersion": "অ্যাপ সংস্করণ",
+      "versionNumber": "1.0.0 (Build 1)"
+    },
+    "data": {
+      "title": "ডেটা",
+      "clearCache": "ক্যাশ মুছুন",
+      "clearCacheSubtitle": "স্টোরেজ স্পেস খালি করুন",
+      "exportData": "ডেটা এক্সপোর্ট",
+      "exportDataSubtitle": "আপনার ডেটা ডাউনলোড করুন"
+    },
+    "dangerZone": {
+      "title": "বিপদ অঞ্চল",
+      "logout": "লগআউট",
+      "deleteAccount": "অ্যাকাউন্ট মুছুন",
+      "deleteAccountSubtitle": "স্থায়ীভাবে আপনার অ্যাকাউন্ট মুছুন"
+    },
+    "logoutAlert": {
+      "title": "লগআউট",
+      "message": "আপনি কি নিশ্চিত লগআউট করতে চান?",
+      "cancel": "বাতিল",
+      "confirm": "লগআউট"
+    },
+    "deleteAlert": {
+      "title": "অ্যাকাউন্ট মুছুন",
+      "message": "এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না। আপনার সমস্ত ডেটা স্থায়ীভাবে মুছে যাবে।",
+      "cancel": "বাতিল",
+      "confirm": "মুছুন",
+      "contactTitle": "সাপোর্টে যোগাযোগ",
+      "contactMessage": "আপনার অ্যাকাউন্ট মুছতে support@z99.ai এ যোগাযোগ করুন।"
+    },
+    "clearCacheAlert": {
+      "title": "ক্যাশ মুছুন",
+      "message": "এটি ক্যাশ ডেটা মুছবে কিন্তু আপনাকে লগইন রাখবে।",
+      "cancel": "বাতিল",
+      "confirm": "মুছুন",
+      "success": "ক্যাশ সফলভাবে মুছে ফেলা হয়েছে",
+      "error": "ক্যাশ মুছতে ব্যর্থ"
+    },
+    "comingSoon": {
+      "title": "শীঘ্রই আসছে",
+      "message": "এই ফিচারটি শীঘ্রই আসছে"
+    },
+    "rateAppAlert": {
+      "title": "ধন্যবাদ!",
+      "message": "আপনার মতামতের জন্য ধন্যবাদ!"
+    },
+    "shareAlert": {
+      "title": "শেয়ার",
+      "message": "শেয়ার ফিচার শীঘ্রই আসছে"
+    },
+    "linkError": "লিংক খুলতে পারেনি",
+    "footer": {
+      "madeWith": "Z99 টিম ❤️ দিয়ে তৈরি",
+      "copyright": "© 2026 সর্বস্বত্ব সংরক্ষিত"
+    }
+  },
+  "forgotPassword": {
+    "email": {
+      "title": "পাসওয়ার্ড ভুলে গেছেন?",
+      "subtitle": "আপনার ইমেইল ঠিকানা লিখুন এবং আমরা আপনাকে পাসওয়ার্ড রিসেট করতে একটি যাচাই কোড পাঠাব।",
+      "placeholder": "ইমেইল ঠিকানা",
+      "button": "যাচাই কোড পাঠান",
+      "sending": "পাঠানো হচ্ছে...",
+      "emptyError": "আপনার ইমেইল ঠিকানা লিখুন",
+      "invalidError": "একটি বৈধ ইমেইল ঠিকানা লিখুন",
+      "sendError": "যাচাই কোড পাঠাতে ব্যর্থ",
+      "success": "আপনার ইমেইলে একটি যাচাই কোড পাঠানো হয়েছে"
+    },
+    "otp": {
+      "title": "যাচাই কোড লিখুন",
+      "subtitle": "আমরা {{email}} এ একটি ৬-সংখ্যার কোড পাঠিয়েছি",
+      "button": "কোড যাচাই করুন",
+      "incompleteError": "সম্পূর্ণ যাচাই কোড লিখুন",
+      "resendText": "কোড পাননি? ",
+      "resendLink": "পুনরায় পাঠান",
+      "resendSuccess": "একটি নতুন যাচাই কোড পাঠানো হয়েছে",
+      "resendError": "কোড পুনরায় পাঠাতে ব্যর্থ। আবার চেষ্টা করুন।"
+    },
+    "password": {
+      "title": "নতুন পাসওয়ার্ড তৈরি করুন",
+      "subtitle": "আপনার নতুন পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে",
+      "newPlaceholder": "নতুন পাসওয়ার্ড",
+      "confirmPlaceholder": "নতুন পাসওয়ার্ড নিশ্চিত করুন",
+      "button": "পাসওয়ার্ড রিসেট",
+      "resetting": "রিসেট হচ্ছে...",
+      "emptyError": "একটি নতুন পাসওয়ার্ড লিখুন",
+      "lengthError": "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে",
+      "mismatchError": "পাসওয়ার্ড মিলছে না",
+      "resetError": "পাসওয়ার্ড রিসেট করতে ব্যর্থ"
+    },
+    "successScreen": {
+      "title": "পাসওয়ার্ড রিসেট হয়েছে!",
+      "subtitle": "আপনার পাসওয়ার্ড সফলভাবে রিসেট হয়েছে। এখন আপনি নতুন পাসওয়ার্ড দিয়ে লগইন করতে পারেন।",
+      "button": "লগইনে ফিরে যান"
+    }
+  },
+  "landing": {
+    "badge": "আপনার AI সহকারী",
+    "heroLine1": "স্বাগতম",
+    "heroLine2": "Z99",
+    "description": "ChatGPT, Gemini, Claude ও Mistral এর সাথে চ্যাট করুন। DALL·E ও Stable Diffusion দিয়ে ছবি তৈরি করুন। সব এক জায়গায়।",
+    "getStarted": "বিনামূল্যে শুরু করুন",
+    "createAccount": "অ্যাকাউন্ট তৈরি করুন",
+    "features": {
+      "multiModelChat": "মাল্টি-মডেল চ্যাট",
+      "multiModelChatDesc": "AI মডেলের মধ্যে সহজে পরিবর্তন করুন",
+      "imageGeneration": "ছবি তৈরি",
+      "imageGenerationDesc": "DALL·E ও Stable Diffusion দিয়ে তৈরি করুন",
+      "creditSystem": "ক্রেডিট সিস্টেম",
+      "creditSystemDesc": "শুরু করতে ১,০০০ বিনামূল্যে শব্দ"
+    },
+    "aiModels": {
+      "title": "শীর্ষস্থানীয় AI দ্বারা চালিত",
+      "subtitle": "বিশ্বের সবচেয়ে উন্নত AI মডেলে অ্যাক্সেস পান",
+      "typeChat": "চ্যাট",
+      "typeImage": "ছবি"
+    },
+    "howItWorks": {
+      "title": "কিভাবে কাজ করে",
+      "subtitle": "তিনটি সহজ ধাপে শুরু করুন",
+      "step1": { "title": "অ্যাকাউন্ট তৈরি", "desc": "ইমেইল বা Google দিয়ে সেকেন্ডে সাইন আপ করুন" },
+      "step2": { "title": "AI মডেল বেছে নিন", "desc": "ChatGPT, Gemini, Claude ও আরও থেকে বেছে নিন" },
+      "step3": { "title": "তৈরি শুরু করুন", "desc": "চ্যাট করুন, ছবি তৈরি করুন, বা ভিডিও তৈরি করুন" }
+    },
+    "pricing": {
+      "title": "সহজ মূল্য",
+      "subtitle": "আপনার জন্য সঠিক প্ল্যান বেছে নিন",
+      "mostPopular": "সবচেয়ে জনপ্রিয়",
+      "getStarted": "শুরু করুন",
+      "subscribe": "সাবস্ক্রাইব"
+    },
+    "cta": {
+      "title": "শুরু করতে প্রস্তুত?",
+      "subtitle": "আজই AI দিয়ে সৃষ্টি করছে লক্ষ লক্ষ ব্যবহারকারীর সাথে যোগ দিন",
+      "button": "বিনামূল্যে ট্রায়াল শুরু করুন"
+    }
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "ar": "العربية",
+    "bn": "বাংলা",
+    "title": "ভাষা নির্বাচন করুন"
+  },
+  "subscription": {
+    "loading": "প্ল্যান লোড হচ্ছে...",
+    "header": {
+      "title": "আপনার প্ল্যান বেছে নিন",
+      "subtitle": "AI এর সম্পূর্ণ শক্তি আনলক করুন"
+    },
+    "credits": "{{count}} ক্রেডিট",
+    "perMonth": "/মাস",
+    "mostPopular": "সবচেয়ে জনপ্রিয়",
+    "features": {
+      "allModels": "সব AI মডেল",
+      "prioritySupport": "অগ্রাধিকার সমর্থন",
+      "unlimitedImage": "সীমাহীন ইমেজ জেনারেশন",
+      "videoGen": "ভিডিও জেনারেশন",
+      "apiAccess": "API অ্যাক্সেস",
+      "customModels": "কাস্টম মডেল",
+      "advancedImage": "উন্নত ইমেজ জেনারেশন",
+      "limitedVideo": "ভিডিও জেনারেশন (সীমিত)",
+      "priorityQueue": "অগ্রাধিকার কিউ",
+      "basicImage": "বেসিক ইমেজ জেনারেশন",
+      "standardQueue": "স্ট্যান্ডার্ড কিউ"
+    },
+    "emptyState": {
+      "title": "কোনো প্ল্যান পাওয়া যায়নি",
+      "subtitle": "অনুগ্রহ করে পরে সাবস্ক্রিপশন অপশন দেখুন"
+    },
+    "cta": {
+      "selectedPlan": "নির্বাচিত প্ল্যান",
+      "planSummary": "{{name}} - ${{amount}}/মাস",
+      "processing": "প্রক্রিয়াকরণ হচ্ছে...",
+      "subscribeNow": "এখনই সাবস্ক্রাইব করুন",
+      "disclaimer": "যেকোনো সময় বাতিল করুন। সাবস্ক্রিপশন স্বয়ংক্রিয়ভাবে নবায়ন হয়।"
+    },
+    "benefits": {
+      "title": "কেন সাবস্ক্রাইব করবেন?",
+      "fasterResponse": "দ্রুত রেসপন্স",
+      "moreCredits": "বেশি ক্রেডিট",
+      "premiumModels": "প্রিমিয়াম মডেল",
+      "prioritySupport": "অগ্রাধিকার সমর্থন"
+    },
+    "purchase": {
+      "title": "ক্রয়",
+      "confirmMessage": "{{name}} এ ${{amount}} তে সাবস্ক্রাইব করবেন?\nআপনি {{credits}} ক্রেডিট পাবেন।",
+      "cancel": "বাতিল",
+      "confirm": "নিশ্চিত",
+      "success": "সফল",
+      "successMessage": "সাবস্ক্রিপশন সক্রিয়! {{credits}} ক্রেডিট আপনার অ্যাকাউন্টে যোগ হয়েছে।",
+      "error": "ত্রুটি",
+      "errorMessage": "সাবস্ক্রিপশন প্ল্যান লোড করতে ব্যর্থ",
+      "purchaseError": "ক্রয় প্রক্রিয়া করতে ব্যর্থ। আবার চেষ্টা করুন।"
+    }
+  },
+  "help": {
+    "title": "সাহায্য এবং FAQ",
+    "searchPlaceholder": "সাহায্য খুঁজুন...",
+    "categories": {
+      "all": "সব",
+      "account": "অ্যাকাউন্ট",
+      "billing": "বিলিং",
+      "features": "বৈশিষ্ট্য",
+      "technical": "প্রযুক্তিগত"
+    },
+    "contactTitle": "এখনও সাহায্য দরকার?",
+    "contactSubtitle": "আমাদের টিম আপনাকে সাহায্য করতে এখানে আছে",
+    "contactButton": "সাপোর্টে যোগাযোগ করুন"
+  },
+  "about": {
+    "title": "সম্পর্কে",
+    "appName": "Z99",
+    "version": "সংস্করণ 1.0.0 (বিল্ড 1)",
+    "aboutTitle": "এই অ্যাপ সম্পর্কে",
+    "featuresTitle": "প্রধান বৈশিষ্ট্য",
+    "statsTitle": "প্ল্যাটফর্ম পরিসংখ্যান",
+    "developerTitle": "ডেভেলপার",
+    "linksTitle": "লিংক"
+  },
+  "terms": {
+    "title": "সেবার শর্তাবলী",
+    "lastUpdated": "সর্বশেষ আপডেট",
+    "footer": "আমাদের অ্যাপ ব্যবহার করে, আপনি এই সেবার শর্তাবলীতে সম্মত হচ্ছেন।"
+  },
+  "privacy": {
+    "title": "গোপনীয়তা নীতি",
+    "lastUpdated": "সর্বশেষ আপডেট",
+    "footer": "আমাদের অ্যাপ ব্যবহার করে, আপনি এই গোপনীয়তা নীতির শর্তাবলীতে সম্মত হচ্ছেন।"
+  }
+}

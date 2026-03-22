@@ -36,6 +36,7 @@ from django.db.models import F
 
 from .leonardo import leonardo_response
 from .openai_func  import gpt_response
+from .groq_func import call_groq_for_chat
 from .google_func import gemini_response
 from .wavespeedai import wavespeed_ai_call
 from PIL import Image
@@ -462,7 +463,9 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
         fresh_user=await database_sync_to_async(User.objects.get)(id=self.user.id)
         self.user=fresh_user
         
-        if fresh_user.api_limit<=0:
+        # Check remaining credits; fall back to api_limit for free-tier users
+        remaining_credits = await self.get_remaining_credits(fresh_user)
+        if remaining_credits <= 0 and fresh_user.api_limit <= 0:
             await self.send_json_with_credits({
                 "type": "limit exceed",
                 "message": "You have exceeded your daily limit. Please watch ads or buy a subscription for more requests."
@@ -474,6 +477,7 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
 
         message_content = data.get("message", "")
         user_images = data.get("images", [])
+        original_images_base64 = list(user_images) if user_images else []  # Save original base64 images
         # user_voice is already set from bytes or json above
 
         height=data.get('height')
@@ -552,7 +556,10 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                 if detect_image_or_video =="unknown":
                     await self.send_json_with_credits({"type": "error", "message": "Unknown media link. Please select an image or video."})
                     return
-                elif detect_image_or_video=="image":
+                
+                images = []  # Initialize images list
+                
+                if detect_image_or_video=="image":
                     images=await sync_to_async(download_and_store_webp)(image_urls=user_images)
                     # Support for passing stored links to AI if original was base64
                     processed_user_images = []
@@ -563,8 +570,9 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                             processed_user_images.append(original)
                     user_images = processed_user_images
                     data["images"] = user_images # Update the data dict for subsequent model calls
-                if detect_image_or_video =="video":
+                elif detect_image_or_video =="video":
                     images=user_images
+                    
                 images = [img for img in images if img]
                         
                 saved_message = await self.save_message(
@@ -590,16 +598,14 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
             await self.send_json_with_credits({"type": "error", "message": "Please type a message to receive assistance."})
             return
         
-        # Ensure language variables exist (default to English)
-        detected_language = locals().get('detected_language', "en")
-        detected_language_name = locals().get('detected_language_name', "English")
-
-        # Detect language from message content if not already detected from voice
-        if message_content and detected_language == "en":
-            # detect_text_language may not be present if language detection was removed; guard call
-            if 'detect_text_language' in globals():
-                detected_language, detected_language_name = await sync_to_async(detect_text_language)(message_content)
-                print(f"DEBUG: Detected language from text: {detected_language_name} ({detected_language})")
+        # Detect language from message content
+        detected_language = "en"
+        detected_language_name = "English"
+        if message_content and len(message_content.strip()) > 3:
+            # Only run detection on messages longer than 3 chars to avoid
+            # misdetections on very short inputs like "hi" or "ok"
+            detected_language, detected_language_name = detect_text_language(message_content)
+            print(f"DEBUG: Detected language: {detected_language} ({detected_language_name})")
 
         # provider is already defined above
 
@@ -614,10 +620,6 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                 base_cost = 500
             aspect_ratio=data.get("aspect_ratio",None)
             resolution=data.get("resolution",None)
-        
-            if not self.user.subscribed:
-                await self.send(json.dumps({"type":"error","message":"Only free model is available for free users. Please upgrade/buy coins to access premium models."}))
-                return
 
             if model_type=="text_to_video":
                 try:
@@ -642,18 +644,43 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                 
             else:
                 try:
-                    ai_response = await gemini_response(
-                        message=message_content,
-                        model_id=model_id, 
-                        api_key=api_key, 
-                        user_id=self.user.id,
-                        images_data_list=user_images,
-                        summary=session_data.get("summary",""),
-                        num_images=num_images,
-                        base_cost=base_cost,
-                        model_type=model_type,
-                        detected_language=detected_language_name
-                    )
+                    if model_type in ["chat", "text_generation", "code_generation", "image_understanding"]:
+                        import uuid
+                        from .google_func import google_stream_response
+                        temp_message_id = f"stream_{uuid.uuid4()}"
+                        
+                        final_ai_response = None
+                        try:
+                            async for payload in google_stream_response(message=message_content,model_id=model_id,api_key=api_key,user_id=self.user.id,images_data_list=original_images_base64 if original_images_base64 else user_images,summary=session_data.get("summary",""),num_images=num_images,base_cost=base_cost,detected_language=detected_language_name):
+                                if payload.get("type") == "chunk":
+                                    await self.send(json.dumps({
+                                        "type": "message_chunk",
+                                        "message_id": temp_message_id,
+                                        "chunk": payload.get("text")
+                                    }))
+                                elif payload.get("type") == "done":
+                                    final_ai_response = payload
+                                elif payload.get("error"):
+                                    final_ai_response = payload
+                            
+                            ai_response = final_ai_response
+                            if ai_response and not ai_response.get("error"):
+                                ai_response["_temp_message_id"] = temp_message_id 
+                        except Exception as e:
+                            raise e
+                    else:
+                        ai_response = await gemini_response(
+                            message=message_content,
+                            model_id=model_id, 
+                            api_key=api_key, 
+                            user_id=self.user.id,
+                            images_data_list=original_images_base64 if original_images_base64 else user_images,
+                            summary=session_data.get("summary",""),
+                            num_images=num_images,
+                            base_cost=base_cost,
+                            model_type=model_type,
+                            detected_language=detected_language_name
+                        )
 
                     if ai_response:
                         raw_images = ai_response.get("images", [])
@@ -670,7 +697,10 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                             images=final_images if final_images else raw_images if not any(img.startswith("data:") for img in raw_images) else []
                         )
                         if saved_ai_message:
-                            await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
+                            if ai_response.get("_temp_message_id"):
+                                await self.send_json_with_credits({"type": "message_end", "message": saved_ai_message, "temp_message_id": ai_response.get("_temp_message_id")})
+                            else:
+                                await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
                 except Exception as e:
                     await self.send_json_with_credits({"type": "error", "message": f"Error: {str(e)}"})
         elif provider=="openai":
@@ -711,7 +741,32 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                             base_cost=base_cost
                         )
                     else:
-                        ai_response = await gpt_response(message=message_content,model_id=model_id,api_key=api_key,user_id=self.user.id,images_data_list=user_images,audio_data=voice_url,summary=session_data.get("summary"),num_images=num_images,base_cost=base_cost,duration=duration,height=height,width=width,aspect_ratio=aspect_ratio,detected_language=detected_language_name)
+                        if model_type in ["chat", "completion", "image_understanding"]:
+                            import uuid
+                            from .openai_func import gpt_stream_response
+                            temp_message_id = f"stream_{uuid.uuid4()}"
+                            
+                            final_ai_response = None
+                            try:
+                                async for payload in gpt_stream_response(message=message_content,model_id=model_id,api_key=api_key,user_id=self.user.id,images_data_list=original_images_base64 if original_images_base64 else user_images,audio_data=voice_url,summary=session_data.get("summary"),num_images=num_images,base_cost=base_cost,duration=duration,height=height,width=width,aspect_ratio=aspect_ratio,detected_language=detected_language_name):
+                                    if payload.get("type") == "chunk":
+                                        await self.send(json.dumps({
+                                            "type": "message_chunk",
+                                            "message_id": temp_message_id,
+                                            "chunk": payload.get("text")
+                                        }))
+                                    elif payload.get("type") == "done":
+                                        final_ai_response = payload
+                                    elif payload.get("error"):
+                                        final_ai_response = payload
+                                
+                                ai_response = final_ai_response
+                                if ai_response and not ai_response.get("error"):
+                                    ai_response["_temp_message_id"] = temp_message_id 
+                            except Exception as e:
+                                raise e
+                        else:
+                            ai_response = await gpt_response(message=message_content,model_id=model_id,api_key=api_key,user_id=self.user.id,images_data_list=original_images_base64 if original_images_base64 else user_images,audio_data=voice_url,summary=session_data.get("summary"),num_images=num_images,base_cost=base_cost,duration=duration,height=height,width=width,aspect_ratio=aspect_ratio,detected_language=detected_language_name)
 
 
                     
@@ -750,8 +805,10 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                             voice=ai_voice_db_path
                         )
                         if saved_ai_message:
-
-                            await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
+                            if ai_response.get("_temp_message_id"):
+                                await self.send_json_with_credits({"type": "message_end", "message": saved_ai_message, "temp_message_id": ai_response.get("_temp_message_id")})
+                            else:
+                                await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
                         else:
 
                             await self.send(text_data=json.dumps({"type": "error", "message": "Failed to save or process AI response."},ensure_ascii=False))
@@ -779,10 +836,21 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                     base_cost=getattr(model,"base_cost",0)
                     if not base_cost or base_cost <= 0:
                         base_cost = 500
+                    import uuid
+                    temp_message_id = f"stream_{uuid.uuid4()}"
+                    await self.send(json.dumps({
+                        "type": "message_chunk",
+                        "message_id": temp_message_id,
+                        "chunk": "Generating image... Please wait.\n\n"
+                    }))
+
                     ai_response=await database_sync_to_async(leonardo_response)(
-                        prompt=message_content,user_id=self.user.id,model_id=model_id,api_key=api_key,num_images=num_images,width=width,height=height,summary=session_data.get("summary"),BASE_COST=base_cost
+                        prompt=message_content,user_id=self.user.id,model_id=model_id,api_key=api_key,num_images=num_images,width=width,height=height,summary=session_data.get("summary"),BASE_COST=base_cost,images_data_list=original_images_base64 if original_images_base64 else None
                     )
                     if ai_response:
+                        if not ai_response.get("error"):
+                            ai_response["_temp_message_id"] = temp_message_id
+                            
                         print("DEBUG: Leonardo Response:", ai_response)
                         # Download and store images locally
                         raw_images = ai_response.get("images", [])
@@ -799,7 +867,10 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                             images=final_images if final_images else raw_images if not any(img.startswith("data:") for img in raw_images) else []
                         )
                         if saved_ai_message:
-                            await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
+                            if ai_response.get("_temp_message_id"):
+                                await self.send_json_with_credits({"type": "message_end", "message": saved_ai_message, "temp_message_id": ai_response.get("_temp_message_id")})
+                            else:
+                                await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
                 except Exception as e:
                     await self.send_json_with_credits({"type": "error", "message": f"Error: {str(e)}"})
 
@@ -946,6 +1017,12 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                     
                         if ai_response:
                             print("AI RESPONSE FROM WEAVESPEEDAI:", ai_response)
+                            
+                            # Check if API returned an error
+                            if ai_response.get("error"):
+                                await self.send_json_with_credits({"type": "error", "message": ai_response.get("error")})
+                                return
+                            
                             raw_images = ai_response.get("images", [])
                             final_images = []
                             if raw_images:
@@ -956,7 +1033,7 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                                 self.session_id,
                                 self.user,
                                 "ai",
-                                content = ai_response.get("text") or ai_response.get("content") or ai_response.get("error") or "",
+                                content = ai_response.get("text") or ai_response.get("content") or "",
                                 images=final_images if final_images else raw_images if not any(img.startswith("data:") for img in raw_images) else []
                             )
                             if saved_ai_message:
@@ -1239,14 +1316,44 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
             if not base_cost or base_cost <= 0:
                 base_cost = 1
 
-            ai_response=await database_sync_to_async(call_deepseek_for_chat)(
-                user_id=self.user.id,
-                model_id=model_id,
-                api_key=api_key,
-                base_cost=base_cost,
-                message=message_content,
-                summary=session_data.get("summary")
-            )
+            # Use original base64 images for remote APIs (localhost URLs won't work)
+            print(f"DEBUG: Deepseek call - base64_images: {len(original_images_base64) if original_images_base64 else 0}")
+            
+            if model_type in ["chat", "completion", "image_understanding"]:
+                import uuid
+                from .deepseek import deepseek_stream_response
+                temp_message_id = f"stream_{uuid.uuid4()}"
+                
+                final_ai_response = None
+                try:
+                    async for payload in deepseek_stream_response(model_id=model_id,api_key=api_key,user_id=self.user.id,message=message_content,summary=session_data.get("summary"),images_data_list=original_images_base64 if original_images_base64 else None,base_cost=base_cost,detected_language=detected_language_name):
+                        if payload.get("type") == "chunk":
+                            await self.send(json.dumps({
+                                "type": "message_chunk",
+                                "message_id": temp_message_id,
+                                "chunk": payload.get("text")
+                            }))
+                        elif payload.get("type") == "done":
+                            final_ai_response = payload
+                        elif payload.get("error"):
+                            final_ai_response = payload
+                    
+                    ai_response = final_ai_response
+                    if ai_response and not ai_response.get("error"):
+                        ai_response["_temp_message_id"] = temp_message_id
+                except Exception as e:
+                    raise e
+            else:
+                ai_response=await database_sync_to_async(call_deepseek_for_chat)(
+                    user_id=self.user.id,
+                    model_id=model_id,
+                    api_key=api_key,
+                    base_cost=base_cost,
+                    message=message_content,
+                    summary=session_data.get("summary"),
+                    images_data_list=original_images_base64 if original_images_base64 else None,
+                    detected_language=detected_language_name
+                )
             if ai_response:
                 raw_images = ai_response.get("images", [])
                 final_images = []
@@ -1262,7 +1369,77 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                             images=final_images if final_images else raw_images if not any(img.startswith("data:") for img in raw_images) else []
                  )
                 if saved_ai_message:
-                            await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
+                            if ai_response.get("_temp_message_id"):
+                                await self.send_json_with_credits({"type": "message_end", "message": saved_ai_message, "temp_message_id": ai_response.get("_temp_message_id")})
+                            else:
+                                await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
+
+        elif provider=="groq":
+            from .groq_func import call_groq_for_chat
+            model_id=getattr(model,'model_id',None)
+            api_key=getattr(model,"api_key",None)
+            model_type=getattr(model,"model_type",None)
+            if model_type:
+                model_type = model_type.strip()
+            base_cost=getattr(model,"base_cost",0)
+            if not base_cost or base_cost <= 0:
+                base_cost = 1
+
+            # For remote APIs like Groq, use the original base64 images
+            if model_type in ["chat", "completion", "image_understanding"]:
+                import uuid
+                from .groq_func import groq_stream_response
+                temp_message_id = f"stream_{uuid.uuid4()}"
+                
+                final_ai_response = None
+                try:
+                    async for payload in groq_stream_response(model_id=model_id,api_key=api_key,user_id=self.user.id,message=message_content,summary=session_data.get("summary"),images_data_list=original_images_base64 if original_images_base64 else None,base_cost=base_cost,detected_language=detected_language_name):
+                        if payload.get("type") == "chunk":
+                            await self.send(json.dumps({
+                                "type": "message_chunk",
+                                "message_id": temp_message_id,
+                                "chunk": payload.get("text")
+                            }))
+                        elif payload.get("type") == "done":
+                            final_ai_response = payload
+                        elif payload.get("error"):
+                            final_ai_response = payload
+                    
+                    ai_response = final_ai_response
+                    if ai_response and not ai_response.get("error"):
+                        ai_response["_temp_message_id"] = temp_message_id
+                except Exception as e:
+                    raise e
+            else:
+                ai_response=await database_sync_to_async(call_groq_for_chat)(
+                    user_id=self.user.id,
+                    model_id=model_id,
+                    api_key=api_key,
+                    base_cost=base_cost,
+                    message=message_content,
+                    summary=session_data.get("summary"),
+                    images_data_list=original_images_base64 if original_images_base64 else None,
+                    detected_language=detected_language_name
+                )
+            if ai_response:
+                raw_images = ai_response.get("images", [])
+                final_images = []
+                if raw_images:
+                    downloaded = await database_sync_to_async(download_and_store_webp)(image_urls=raw_images)
+                    final_images = [img for img in downloaded if img]
+
+                saved_ai_message = await self.save_message(
+                            self.session_id,
+                            self.user,
+                            "ai",
+                            content = ai_response.get("text") or ai_response.get("content") or ai_response.get("error") or "",
+                            images=final_images if final_images else raw_images if not any(img.startswith("data:") for img in raw_images) else []
+                 )
+                if saved_ai_message:
+                            if ai_response.get("_temp_message_id"):
+                                await self.send_json_with_credits({"type": "message_end", "message": saved_ai_message, "temp_message_id": ai_response.get("_temp_message_id")})
+                            else:
+                                await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
                 
 
         
@@ -1286,10 +1463,22 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                     base_cost=getattr(model,"base_cost",0)
                     if not base_cost or base_cost <= 0:
                         base_cost = 500
+                    import uuid
+                    temp_message_id = f"stream_{uuid.uuid4()}"
+                    await self.send(json.dumps({
+                        "type": "message_chunk",
+                        "message_id": temp_message_id,
+                        "chunk": "Generating image... Please wait.\n\n"
+                    }))
+                    
                     ai_response = await database_sync_to_async(call_fal_ai)(
-                        api_key, message_content,model_id,self.user.id,num_images,base_cost,seed,steps,cfg_scale,size
+                        api_key, message_content,model_id,self.user.id,num_images,base_cost,seed,steps,cfg_scale,size,images_data_list=original_images_base64 if original_images_base64 else None
                     )
+                    
                     if ai_response:
+                        if not ai_response.get("error"):
+                            ai_response["_temp_message_id"] = temp_message_id
+                            
                         raw_images = ai_response.get("images", [])
                         final_images = []
                         if raw_images:
@@ -1304,7 +1493,10 @@ class ChatConsumer(HeartbeatMixin, RateLimitMixin, AsyncWebsocketConsumer):
                             images=final_images if final_images else raw_images if not any(img.startswith("data:") for img in raw_images) else []
                         )
                         if saved_ai_message:
-                            await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
+                            if ai_response.get("_temp_message_id"):
+                                await self.send_json_with_credits({"type": "message_end", "message": saved_ai_message, "temp_message_id": ai_response.get("_temp_message_id")})
+                            else:
+                                await self.send_json_with_credits({"type": "new_message", "message": saved_ai_message})
                 except Exception as e:
                     await self.send_json_with_credits({"type": "error", "message": f"Error: {str(e)}"})        
         else:

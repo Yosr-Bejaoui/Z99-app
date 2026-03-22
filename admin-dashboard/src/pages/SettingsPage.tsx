@@ -6,7 +6,6 @@ import {
   Bell,
   Shield,
   Globe,
-  Key,
   Save,
   Eye,
   EyeOff,
@@ -15,10 +14,11 @@ import {
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 import settingsService from '../services/settingsService';
+import { parseApiError } from '../utils/parseApiError';
 
 export default function SettingsPage() {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'api'>('profile');
+  const { user, updateUser } = useAuth();
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications'>('profile');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -43,14 +43,6 @@ export default function SettingsPage() {
     emailSystemAlerts: true,
     pushNotifications: false,
     weeklyReports: true,
-  });
-
-  const [apiSettings, setApiSettings] = useState({
-    openaiKey: '',
-    anthropicKey: '',
-    googleKey: '',
-    stripeKey: '',
-    stripeWebhook: '',
   });
 
   // Load notification settings on mount
@@ -84,10 +76,16 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       await settingsService.updateProfile(profile);
+      // Update stored user so UI reflects the changes immediately
+      updateUser({
+        name: profile.name,
+        email: profile.email,
+        username: profile.username,
+      });
       toast.success('Profile updated successfully');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to update profile:', error);
-      toast.error('Failed to update profile');
+      toast.error(parseApiError(error, 'Failed to update profile'));
     } finally {
       setSaving(false);
     }
@@ -95,12 +93,12 @@ export default function SettingsPage() {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast.error('New passwords do not match');
       return;
     }
-    
+
     if (passwordForm.newPassword.length < 8) {
       toast.error('Password must be at least 8 characters');
       return;
@@ -115,8 +113,7 @@ export default function SettingsPage() {
       toast.success('Password changed successfully');
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { error?: string } } };
-      toast.error(err.response?.data?.error || 'Failed to change password');
+      toast.error(parseApiError(error, 'Failed to change password'));
     } finally {
       setSaving(false);
     }
@@ -135,34 +132,10 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSaveApiKeys = async () => {
-    setSaving(true);
-    try {
-      // Save API keys as API provider configurations
-      const providers = [
-        { name: 'OpenAI', api_key: apiSettings.openaiKey },
-        { name: 'Anthropic', api_key: apiSettings.anthropicKey },
-        { name: 'Google', api_key: apiSettings.googleKey },
-        { name: 'Stripe', api_key: apiSettings.stripeKey },
-      ].filter(p => p.api_key);
-
-      for (const provider of providers) {
-        await settingsService.createAPIProvider(provider);
-      }
-      toast.success('API keys updated successfully');
-    } catch (error) {
-      console.error('Failed to save API keys:', error);
-      toast.error('Failed to update API keys');
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'api', label: 'API Keys', icon: Key },
   ];
 
   if (loading) {
@@ -191,11 +164,10 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-colors ${
-                    activeTab === tab.id
+                  className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-colors ${activeTab === tab.id
                       ? 'bg-primary/10 text-primary'
                       : 'text-foreground-muted hover:bg-card hover:text-white'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="font-medium">{tab.label}</span>
@@ -211,7 +183,7 @@ export default function SettingsPage() {
           {activeTab === 'profile' && (
             <div className="bg-surface border border-border rounded-2xl p-6">
               <h2 className="text-lg font-semibold text-white mb-6">Profile Settings</h2>
-              
+
               {/* Avatar */}
               <div className="flex items-center gap-6 mb-8 pb-8 border-b border-border">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-bold">
@@ -236,7 +208,7 @@ export default function SettingsPage() {
                       type="text"
                       value={profile.name}
                       onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                      className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
@@ -249,7 +221,7 @@ export default function SettingsPage() {
                       type="email"
                       value={profile.email}
                       onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                      className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
@@ -262,7 +234,7 @@ export default function SettingsPage() {
                       type="text"
                       value={profile.username}
                       onChange={(e) => setProfile({ ...profile, username: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                      className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
@@ -374,7 +346,7 @@ export default function SettingsPage() {
           {activeTab === 'notifications' && (
             <div className="bg-surface border border-border rounded-2xl p-6">
               <h2 className="text-lg font-semibold text-white mb-6">Notification Preferences</h2>
-              
+
               <div className="space-y-6">
                 <div className="pb-6 border-b border-border">
                   <h3 className="text-white font-medium mb-4">Email Notifications</h3>
@@ -445,53 +417,6 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* API Keys tab */}
-          {activeTab === 'api' && (
-            <div className="bg-surface border border-border rounded-2xl p-6">
-              <h2 className="text-lg font-semibold text-white mb-2">API Keys</h2>
-              <p className="text-foreground-muted text-sm mb-6">
-                Configure external service API keys for platform integrations
-              </p>
-
-              <div className="space-y-6">
-                {[
-                  { id: 'openaiKey', label: 'OpenAI API Key', placeholder: 'sk-...' },
-                  { id: 'anthropicKey', label: 'Anthropic API Key', placeholder: 'sk-ant-...' },
-                  { id: 'googleKey', label: 'Google AI API Key', placeholder: 'AIza...' },
-                  { id: 'stripeKey', label: 'Stripe Secret Key', placeholder: 'sk_live_...' },
-                  { id: 'stripeWebhook', label: 'Stripe Webhook Secret', placeholder: 'whsec_...' },
-                ].map((item) => (
-                  <div key={item.id}>
-                    <label className="block text-sm font-medium text-white mb-2">{item.label}</label>
-                    <div className="relative">
-                      <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
-                      <input
-                        type="password"
-                        value={apiSettings[item.id as keyof typeof apiSettings]}
-                        onChange={(e) => setApiSettings({ ...apiSettings, [item.id]: e.target.value })}
-                        placeholder={item.placeholder}
-                        className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                <div className="flex items-center gap-4 pt-4">
-                  <button
-                    onClick={handleSaveApiKeys}
-                    disabled={saving}
-                    className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50"
-                  >
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    Save API Keys
-                  </button>
-                  <p className="text-foreground-muted text-sm">
-                    API keys are encrypted and stored securely
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

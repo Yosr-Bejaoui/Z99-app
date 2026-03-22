@@ -11,6 +11,7 @@ class AIModelInfo(models.Model):
         # ('anthropic', 'Anthropic'),
         ('google', 'Google'),
         ('deepseek','deepseek'),
+        ('groq', 'Groq'),
         # ('falai', 'FAL AI'),
         # ('mistral', 'Mistral AI'),
         # ('meta', 'Meta AI'),

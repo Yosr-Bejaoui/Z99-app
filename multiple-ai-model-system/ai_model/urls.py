@@ -8,6 +8,5 @@ router.register('list',views.AImodelView,basename='ai-model')
 router.register('chat/session/list',views.ChatSessionView,basename='chat-session-view')
 urlpatterns = [
     path('',include(router.urls)),
-
-
+    path('extract-document-text/', views.extract_document_text, name='extract-document-text'),
 ]

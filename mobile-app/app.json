@@ -1,32 +1,45 @@
 {
-  "expo": {
-    "name": "AI Model Platform",
-    "slug": "aimodel-mobile",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0f1115"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.aimodel.mobile"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0f1115"
-      },
-      "package": "com.aimodel.mobile"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
-  }
+    "expo":  {
+                 "name":  "Z99",
+                 "slug":  "aimodel-mobile",
+                 "version":  "1.0.0",
+                 "orientation":  "portrait",
+                 "icon":  "./assets/icon.png",
+                 "userInterfaceStyle":  "dark",
+                 "splash":  {
+                                "image":  "./assets/splash.png",
+                                "resizeMode":  "contain",
+                                "backgroundColor":  "#0f1115"
+                            },
+                 "assetBundlePatterns":  [
+                                             "**/*"
+                                         ],
+                 "ios":  {
+                             "supportsTablet":  true,
+                             "bundleIdentifier":  "com.aimodel.mobile"
+                         },
+                 "android":  {
+                                 "adaptiveIcon":  {
+                                                      "foregroundImage":  "./assets/adaptive-icon.png",
+                                                      "backgroundColor":  "#0f1115"
+                                                  },
+                                 "package":  "com.aimodel.mobile",
+                                 "softwareKeyboardLayoutMode":  "resize"
+                             },
+                 "web":  {
+                             "favicon":  "./assets/favicon.png"
+                         },
+                 "scheme":  "z99-mobile",
+                 "plugins":  [
+                                 "expo-localization",
+                                 "expo-web-browser",
+                                 "expo-font"
+                             ],
+                 "extra":  {
+                               "eas":  {
+                                           "projectId":  "6cc0dbfa-b164-4c11-b32a-377526852591"
+                                       }
+                           },
+                 "owner":  "yosr_bj"
+             }
 }

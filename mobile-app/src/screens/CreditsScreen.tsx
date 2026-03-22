@@ -12,9 +12,10 @@ import {
   Modal,
   StatusBar,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDrawer } from '../context';
 import { colors, spacing, borderRadius } from '../theme';
@@ -31,6 +32,7 @@ interface UsageStat {
 }
 
 const CreditsScreen: React.FC = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { openDrawer } = useDrawer();
@@ -50,29 +52,36 @@ const CreditsScreen: React.FC = () => {
     fetchData();
   }, []);
 
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
       setError(null);
 
       const [balance, txResponse, pkgs, usage, subscription] = await Promise.all([
-        creditsService.getCreditBalance(),
-        creditsService.getTransactions(1, 10),
+        creditsService.getCreditBalance().catch(() => ({ credits: 0, total_credits: 0, bonus_credits: 0, usedWords: 0, isPro: false })),
+        creditsService.getTransactions(1, 10).catch(() => ({ count: 0, next: null, previous: null, results: [] })),
         creditsService.getCreditPackages().catch(() => []),
         creditsService.getUsageStats().catch(() => ({ today_used: 0, week_used: 0, month_used: 0, total_used: 0 })),
         planService.getCurrentSubscription().catch(() => null),
       ]);
 
       setCreditAccount(balance);
-      setTransactions(txResponse.results);
-      setPackages(pkgs);
+      setTransactions(txResponse?.results || []);
+      setPackages(pkgs || []);
       setCurrentPlan(subscription);
 
       setUsageStats([
-        { icon: 'chatbubble', label: 'Today', value: usage.today_used.toString(), color: '#10b981' },
-        { icon: 'calendar', label: 'This Week', value: usage.week_used.toString(), color: '#8b5cf6' },
-        { icon: 'document-text', label: 'This Month', value: formatNumber(usage.month_used), color: '#3b82f6' },
-        { icon: 'time', label: 'Total', value: formatNumber(usage.total_used), color: '#f59e0b' },
+        { icon: 'chatbubble', label: t('credits.usage.today'), value: usage.today_used.toString(), color: '#10b981' },
+        { icon: 'calendar', label: t('credits.usage.thisWeek'), value: usage.week_used.toString(), color: '#8b5cf6' },
+        { icon: 'document-text', label: t('credits.usage.thisMonth'), value: formatNumber(usage.month_used), color: '#3b82f6' },
+        { icon: 'time', label: t('credits.usage.total'), value: formatNumber(usage.total_used), color: '#f59e0b' },
       ]);
     } catch (err) {
       setError(getErrorMessage(err));
@@ -90,7 +99,7 @@ const CreditsScreen: React.FC = () => {
 
   const handleRedeemCode = async () => {
     if (!promoCode.trim()) {
-      Alert.alert('Error', 'Please enter a promo code');
+      Alert.alert(t('common.error'), t('credits.promo.emptyError'));
       return;
     }
 
@@ -101,7 +110,7 @@ const CreditsScreen: React.FC = () => {
       setPromoCode('');
       fetchData(); // Refresh balance
     } catch (err) {
-      Alert.alert('Error', getErrorMessage(err));
+      Alert.alert(t('common.error'), getErrorMessage(err));
     } finally {
       setIsRedeemingCode(false);
     }
@@ -109,12 +118,12 @@ const CreditsScreen: React.FC = () => {
 
   const handlePurchase = (pkg: CreditPackage) => {
     Alert.alert(
-      'Purchase Credits',
-      `Would you like to purchase ${pkg.credits} credits for ${pkg.currency === 'USD' ? '$' : ''}${pkg.price}?`,
+      t('credits.purchase.title'),
+      t('credits.purchase.message', { credits: pkg.credits, price: `${pkg.currency === 'USD' ? '$' : ''}${pkg.price}` }),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('credits.purchase.cancel'), style: 'cancel' },
         {
-          text: 'Purchase',
+          text: t('credits.purchase.confirm'),
           onPress: () => {
             // Navigate to payment flow or trigger in-app purchase
             navigation.navigate('SubscriptionPlans', { packageId: pkg.id });
@@ -154,17 +163,17 @@ const CreditsScreen: React.FC = () => {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading your credits...</Text>
+          <Text style={styles.loadingText}>{t('credits.loading')}</Text>
         </View>
       </View>
     );
   }
 
   const currentCredits = creditAccount?.credits || creditAccount?.total_credits || 0;
-  const planName = currentPlan?.plan?.name || 'Free Tier';
+  const planName = currentPlan?.plan?.name || t('credits.freeTier');
   const planCredits = (currentPlan as any)?.total_credits || 1000;
 
-  const progress = Math.min(currentCredits / planCredits, 1);
+  const progress = planCredits > 0 ? Math.min(currentCredits / planCredits, 1) : 0;
 
   const renderTransactionsModal = () => (
     <Modal
@@ -176,14 +185,14 @@ const CreditsScreen: React.FC = () => {
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Transaction History</Text>
+            <Text style={styles.modalTitle}>{t('credits.transactions.title')}</Text>
             <TouchableOpacity onPress={() => setShowTransactions(false)}>
               <Ionicons name="close" size={24} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.transactionsList}>
             {transactions.length === 0 ? (
-              <Text style={styles.noTransactions}>No transactions yet</Text>
+              <Text style={styles.noTransactions}>{t('credits.transactions.empty')}</Text>
             ) : (
               transactions.map((tx) => (
                 <View key={tx.id} style={styles.transactionItem}>
@@ -220,7 +229,7 @@ const CreditsScreen: React.FC = () => {
         >
           <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
-        <Text style={styles.topHeaderTitle}>Credits</Text>
+        <Text style={styles.topHeaderTitle}>{t('credits.title')}</Text>
         <View style={styles.headerMenuButton} />
       </View>
       
@@ -249,14 +258,14 @@ const CreditsScreen: React.FC = () => {
             <View style={styles.balanceIcon}>
               <Ionicons name="wallet" size={24} color={colors.primary} />
             </View>
-            <Text style={styles.balanceLabel}>Available Credits</Text>
+            <Text style={styles.balanceLabel}>{t('credits.balance.label')}</Text>
           </View>
           <Text style={styles.balanceValue}>{currentCredits.toLocaleString()}</Text>
-          {creditAccount?.bonus_credits && creditAccount.bonus_credits > 0 && (
+          {creditAccount?.bonus_credits != null && creditAccount.bonus_credits > 0 ? (
             <Text style={styles.bonusCredits}>
-              + {creditAccount.bonus_credits.toLocaleString()} bonus credits
+              {t('credits.balance.bonus', { count: creditAccount.bonus_credits })}
             </Text>
-          )}
+          ) : null}
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
               <LinearGradient
@@ -267,7 +276,7 @@ const CreditsScreen: React.FC = () => {
               />
             </View>
             <Text style={styles.progressText}>
-              {currentCredits.toLocaleString()} / {planCredits.toLocaleString()} credits
+              {t('credits.balance.progress', { used: currentCredits.toLocaleString(), total: planCredits.toLocaleString() })}
             </Text>
           </View>
           <View style={styles.balanceFooter}>
@@ -275,18 +284,18 @@ const CreditsScreen: React.FC = () => {
               <Text style={styles.planBadgeText}>{planName}</Text>
             </View>
             <TouchableOpacity onPress={() => setShowTransactions(true)}>
-              <Text style={styles.viewHistoryText}>View History</Text>
+              <Text style={styles.viewHistoryText}>{t('credits.balance.viewHistory')}</Text>
             </TouchableOpacity>
           </View>
         </GlassCard>
 
         {/* Promo Code Section */}
         <GlassCard style={styles.promoCard}>
-          <Text style={styles.promoTitle}>Have a promo code?</Text>
+          <Text style={styles.promoTitle}>{t('credits.promo.title')}</Text>
           <View style={styles.promoRow}>
             <TextInput
               style={styles.promoInput}
-              placeholder="Enter code"
+              placeholder={t('credits.promo.placeholder')}
               placeholderTextColor={colors.textMuted}
               value={promoCode}
               onChangeText={setPromoCode}
@@ -300,7 +309,7 @@ const CreditsScreen: React.FC = () => {
               {isRedeemingCode ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text style={styles.promoButtonText}>Redeem</Text>
+                <Text style={styles.promoButtonText}>{t('credits.promo.redeem')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -308,7 +317,7 @@ const CreditsScreen: React.FC = () => {
 
         {/* Usage Stats */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Usage Statistics</Text>
+          <Text style={styles.sectionTitle}>{t('credits.usage.title')}</Text>
           <View style={styles.statsGrid}>
             {usageStats.map((stat, index) => (
               <View key={index} style={styles.statCard}>
@@ -325,7 +334,7 @@ const CreditsScreen: React.FC = () => {
         {/* Credit Packages */}
         {packages.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Buy Credits</Text>
+            <Text style={styles.sectionTitle}>{t('credits.packages.title')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.packagesScroll}>
               {packages.map((pkg) => (
                 <TouchableOpacity
@@ -335,14 +344,14 @@ const CreditsScreen: React.FC = () => {
                 >
                   {pkg.best_value && (
                     <View style={styles.bestValueBadge}>
-                      <Text style={styles.bestValueText}>Best Value</Text>
+                      <Text style={styles.bestValueText}>{t('credits.packages.bestValue')}</Text>
                     </View>
                   )}
                   <Text style={styles.packageCredits}>{pkg.credits.toLocaleString()}</Text>
-                  <Text style={styles.packageCreditsLabel}>credits</Text>
-                  {pkg.bonus_credits && pkg.bonus_credits > 0 && (
-                    <Text style={styles.packageBonus}>+{pkg.bonus_credits} bonus</Text>
-                  )}
+                  <Text style={styles.packageCreditsLabel}>{t('credits.packages.credits')}</Text>
+                  {pkg.bonus_credits != null && pkg.bonus_credits > 0 ? (
+                    <Text style={styles.packageBonus}>{t('credits.packages.bonus', { count: pkg.bonus_credits })}</Text>
+                  ) : null}
                   <Text style={styles.packagePrice}>
                     {pkg.currency === 'USD' ? '$' : ''}{pkg.price}
                   </Text>
@@ -357,7 +366,7 @@ const CreditsScreen: React.FC = () => {
           style={styles.viewAllPlansButton}
           onPress={() => navigation.navigate('SubscriptionPlans')}
         >
-          <Text style={styles.viewAllPlansText}>View Subscription Plans</Text>
+          <Text style={styles.viewAllPlansText}>{t('credits.viewPlans')}</Text>
           <Ionicons name="arrow-forward" size={18} color={colors.primary} />
         </TouchableOpacity>
       </ScrollView>
@@ -415,16 +424,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 20,
     paddingTop: 8,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: colors.textMuted,
   },
   notificationButton: {
     width: 44,

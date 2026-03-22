@@ -49,6 +49,7 @@ interface AIModel {
 
 const ImageTo3DScreen: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
   const [selectedFormat, setSelectedFormat] = useState('glb');
   const [selectedQuality, setSelectedQuality] = useState('standard');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -90,6 +91,9 @@ const ImageTo3DScreen: React.FC = () => {
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
+      if (result.assets[0].base64) {
+        setSelectedImageBase64(`data:image/jpeg;base64,${result.assets[0].base64}`);
+      }
     }
   };
 
@@ -109,6 +113,9 @@ const ImageTo3DScreen: React.FC = () => {
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
+      if (result.assets[0].base64) {
+        setSelectedImageBase64(`data:image/jpeg;base64,${result.assets[0].base64}`);
+      }
     }
   };
 
@@ -125,38 +132,45 @@ const ImageTo3DScreen: React.FC = () => {
       console.log('WebSocket connected');
       ws.send(JSON.stringify({
         message: 'Convert to 3D model',
-        images: [selectedImage],
+        images: [selectedImageBase64 || selectedImage],
         format: selectedFormat,
         quality: selectedQuality,
       }));
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      
-      if (data.model_url || data.url) {
-        const modelUrl = data.model_url || data.url;
-        setGeneratedModels(prev => [
-          {
-            id: Date.now().toString(),
-            modelUrl: modelUrl,
-            previewUrl: data.preview_url,
-            sourceImage: selectedImage!,
-            format: selectedFormat,
-            status: 'completed',
-          },
-          ...prev.filter(m => m.status !== 'generating'),
-        ]);
-        setIsGenerating(false);
-      } else if (data.error) {
-        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
-        Alert.alert('Error', errorMsg);
-        setGeneratedModels(prev => prev.filter(m => m.status !== 'generating'));
-        setIsGenerating(false);
+      try {
+        const data = JSON.parse(event.data);
+        
+        if (data.model_url || data.url) {
+          const modelUrl = data.model_url || data.url;
+          setGeneratedModels(prev => [
+            {
+              id: Date.now().toString(),
+              modelUrl: modelUrl,
+              previewUrl: data.preview_url,
+              sourceImage: selectedImage!,
+              format: selectedFormat,
+              status: 'completed',
+            },
+            ...prev.filter(m => m.status !== 'generating'),
+          ]);
+          setIsGenerating(false);
+          ws.close();
+        } else if (data.error) {
+          const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+          Alert.alert('Error', errorMsg);
+          setGeneratedModels(prev => prev.filter(m => m.status !== 'generating'));
+          setIsGenerating(false);
+          ws.close();
+        }
+      } catch (e) {
+        console.error('Error parsing WebSocket message:', e);
       }
     };
 
     ws.onerror = () => {
+      Alert.alert('Connection Error', 'Failed to connect to the server. Please try again.');
       setIsGenerating(false);
     };
 

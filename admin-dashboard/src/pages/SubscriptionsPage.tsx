@@ -15,9 +15,11 @@ import {
   Loader2,
   Calendar,
   Clock,
+  Save,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { subscriptionsService, Plan, Subscription } from '../services/subscriptionsService';
+import { parseApiError } from '../utils/parseApiError';
 
 export default function SubscriptionsPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -29,6 +31,23 @@ export default function SubscriptionsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showEditPlanModal, setShowEditPlanModal] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
+  const [editPlanData, setEditPlanData] = useState({
+    name: '',
+    amount: '',
+    plan_code: '',
+    words_or_credits: '',
+    description: '',
+  });
+  const [savingPlan, setSavingPlan] = useState(false);
+  const [newPlan, setNewPlan] = useState({
+    name: '',
+    amount: '',
+    plan_code: '',
+    words_or_credits: '',
+    description: '',
+  });
   const [stats, setStats] = useState({
     totalRevenue: 0,
     activeSubscriptions: 0,
@@ -57,7 +76,7 @@ export default function SubscriptionsPage() {
       setStats({
         totalRevenue: statsData.revenue_this_month || 0,
         activeSubscriptions: statsData.active_subscriptions || 0,
-        churnRate: statsData.cancelled_subscriptions > 0 
+        churnRate: statsData.cancelled_subscriptions > 0
           ? ((statsData.cancelled_subscriptions / (statsData.total_subscriptions || 1)) * 100).toFixed(1)
           : '0',
         totalSubscribers: statsData.total_subscriptions || 0,
@@ -78,8 +97,8 @@ export default function SubscriptionsPage() {
 
   // Filter subscriptions
   const filteredSubscriptions = subscriptions.filter((sub) => {
-    const userEmail = sub.user?.email || '';
-    const userName = sub.user?.name || '';
+    const userEmail = sub.user_details?.email || '';
+    const userName = sub.user_details?.username || '';
     const matchesSearch =
       userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       userEmail.toLowerCase().includes(searchQuery.toLowerCase());
@@ -92,7 +111,7 @@ export default function SubscriptionsPage() {
     if (confirm('Are you sure you want to cancel this subscription?')) {
       try {
         await subscriptionsService.cancelSubscription(subId);
-        setSubscriptions(subscriptions.map(s => 
+        setSubscriptions(subscriptions.map(s =>
           s.id === subId ? { ...s, status: 'cancelled' } : s
         ));
         toast.success('Subscription cancelled');
@@ -106,7 +125,7 @@ export default function SubscriptionsPage() {
   const handleExtendSubscription = async (subId: number, days: number = 30) => {
     try {
       const updated = await subscriptionsService.extendSubscription(subId, days);
-      setSubscriptions(subscriptions.map(s => 
+      setSubscriptions(subscriptions.map(s =>
         s.id === subId ? updated : s
       ));
       toast.success(`Subscription extended by ${days} days`);
@@ -115,9 +134,52 @@ export default function SubscriptionsPage() {
     }
   };
 
+  const openEditPlan = (plan: Plan) => {
+    setEditingPlan(plan);
+    setEditPlanData({
+      name: plan.name || '',
+      amount: String(plan.amount || ''),
+      plan_code: plan.plan_code || '',
+      words_or_credits: String(plan.words_or_credits || ''),
+      description: plan.description || '',
+    });
+    setShowEditPlanModal(true);
+    setActiveDropdown(null);
+  };
+
+  const handleEditPlan = async () => {
+    if (!editingPlan) return;
+    if (!editPlanData.name || !editPlanData.plan_code || !editPlanData.amount || !editPlanData.words_or_credits) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+    setSavingPlan(true);
+    try {
+      const updated = await subscriptionsService.updatePlan(editingPlan.id, {
+        name: editPlanData.name,
+        plan_code: editPlanData.plan_code,
+        amount: parseFloat(editPlanData.amount),
+        words_or_credits: parseInt(editPlanData.words_or_credits),
+        description: editPlanData.description || undefined,
+      });
+      setPlans(plans.map(p => p.id === editingPlan.id ? { ...updated, is_active: updated.is_active ?? p.is_active } : p));
+      toast.success('Plan updated successfully');
+      setShowEditPlanModal(false);
+      setEditingPlan(null);
+    } catch (error: unknown) {
+      toast.error(parseApiError(error, 'Failed to update plan'));
+    } finally {
+      setSavingPlan(false);
+    }
+  };
+
   const togglePlanStatus = async (planId: number) => {
     try {
-      setPlans(plans.map((p) => (p.id === planId ? { ...p, is_active: !p.is_active } : p)));
+      const plan = plans.find(p => p.id === planId);
+      if (!plan) return;
+      const newStatus = !plan.is_active;
+      await subscriptionsService.updatePlan(planId, { is_active: newStatus });
+      setPlans(plans.map((p) => (p.id === planId ? { ...p, is_active: newStatus } : p)));
       toast.success('Plan status updated');
     } catch (error) {
       toast.error('Failed to update plan status');
@@ -212,7 +274,7 @@ export default function SubscriptionsPage() {
               <Users className="w-5 h-5 text-secondary" />
             </div>
             <div>
-              <p className="text-foreground-muted text-sm">Total Users</p>
+              <p className="text-foreground-muted text-sm">Total Subscribers</p>
               <p className="text-xl font-bold text-white">{stats.totalSubscribers.toLocaleString()}</p>
             </div>
           </div>
@@ -234,9 +296,8 @@ export default function SubscriptionsPage() {
       <div className="flex gap-2 border-b border-border">
         <button
           onClick={() => setActiveTab('plans')}
-          className={`px-4 py-3 font-medium transition-colors relative ${
-            activeTab === 'plans' ? 'text-primary' : 'text-foreground-muted hover:text-white'
-          }`}
+          className={`px-4 py-3 font-medium transition-colors relative ${activeTab === 'plans' ? 'text-primary' : 'text-foreground-muted hover:text-white'
+            }`}
         >
           Plans
           {activeTab === 'plans' && (
@@ -245,9 +306,8 @@ export default function SubscriptionsPage() {
         </button>
         <button
           onClick={() => setActiveTab('subscriptions')}
-          className={`px-4 py-3 font-medium transition-colors relative ${
-            activeTab === 'subscriptions' ? 'text-primary' : 'text-foreground-muted hover:text-white'
-          }`}
+          className={`px-4 py-3 font-medium transition-colors relative ${activeTab === 'subscriptions' ? 'text-primary' : 'text-foreground-muted hover:text-white'
+            }`}
         >
           Subscriptions
           {activeTab === 'subscriptions' && (
@@ -262,9 +322,8 @@ export default function SubscriptionsPage() {
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className={`bg-surface border rounded-2xl p-6 transition-all relative ${
-                plan.is_active ? 'border-border hover:border-primary/50' : 'border-border opacity-60'
-              }`}
+              className={`bg-surface border rounded-2xl p-6 transition-all relative ${plan.is_active ? 'border-border hover:border-primary/50' : 'border-border opacity-60'
+                }`}
             >
               {/* Menu button */}
               <div className="absolute top-4 right-4">
@@ -283,10 +342,7 @@ export default function SubscriptionsPage() {
                     />
                     <div className="absolute right-0 mt-2 w-40 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-fade-in">
                       <button
-                        onClick={() => {
-                          toast.success('Edit plan modal would open');
-                          setActiveDropdown(null);
-                        }}
+                        onClick={() => openEditPlan(plan)}
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-foreground-muted hover:bg-surface hover:text-white transition-colors"
                       >
                         <Edit className="w-4 h-4" />
@@ -294,9 +350,8 @@ export default function SubscriptionsPage() {
                       </button>
                       <button
                         onClick={() => togglePlanStatus(plan.id)}
-                        className={`flex items-center gap-2 w-full px-4 py-2 text-sm transition-colors ${
-                          plan.is_active ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
-                        }`}
+                        className={`flex items-center gap-2 w-full px-4 py-2 text-sm transition-colors ${plan.is_active ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
+                          }`}
                       >
                         {plan.is_active ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                         {plan.is_active ? 'Disable' : 'Enable'}
@@ -397,13 +452,13 @@ export default function SubscriptionsPage() {
                     <tr key={sub.id} className="border-b border-border hover:bg-card/50 transition-colors">
                       <td className="p-4">
                         <div>
-                          <p className="text-white font-medium">{sub.user?.name || sub.user?.email?.split('@')[0] || 'Unknown'}</p>
-                          <p className="text-sm text-foreground-muted">{sub.user?.email || 'N/A'}</p>
+                          <p className="text-white font-medium">{sub.user_details?.username || sub.user_details?.email?.split('@')[0] || 'Unknown'}</p>
+                          <p className="text-sm text-foreground-muted">{sub.user_details?.email || 'N/A'}</p>
                         </div>
                       </td>
                       <td className="p-4">
                         <span className="px-3 py-1 rounded-lg text-sm font-medium bg-primary/10 text-primary">
-                          {sub.plan?.name || 'Unknown Plan'}
+                          {sub.plan_details?.name || 'Unknown Plan'}
                         </span>
                       </td>
                       <td className="p-4">
@@ -417,7 +472,7 @@ export default function SubscriptionsPage() {
                       <td className="p-4">
                         <div className="flex items-center gap-2 text-foreground-muted text-sm">
                           <Calendar className="w-4 h-4" />
-                          {new Date(sub.start_date).toLocaleDateString()} - {new Date(sub.end_date).toLocaleDateString()}
+                          {new Date(sub.start_date).toLocaleDateString()} - {new Date(sub.expire_date).toLocaleDateString()}
                         </div>
                       </td>
                       <td className="p-4">
@@ -468,6 +523,90 @@ export default function SubscriptionsPage() {
         </div>
       )}
 
+      {/* Edit Plan Modal */}
+      {showEditPlanModal && editingPlan && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-border rounded-2xl p-6 w-full max-w-lg animate-fade-in">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white">Edit Plan — {editingPlan.name}</h2>
+              <button onClick={() => { setShowEditPlanModal(false); setEditingPlan(null); }} className="p-1 rounded-lg hover:bg-card transition-colors">
+                <X className="w-5 h-5 text-foreground-muted" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Plan Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Business"
+                  value={editPlanData.name}
+                  onChange={(e) => setEditPlanData({ ...editPlanData, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Plan Code</label>
+                <input
+                  type="text"
+                  placeholder="e.g., business_monthly"
+                  value={editPlanData.plan_code}
+                  onChange={(e) => setEditPlanData({ ...editPlanData, plan_code: e.target.value })}
+                  className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">Price</label>
+                  <input
+                    type="number"
+                    placeholder="49.99"
+                    value={editPlanData.amount}
+                    onChange={(e) => setEditPlanData({ ...editPlanData, amount: e.target.value })}
+                    className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">Credits/Words</label>
+                  <input
+                    type="number"
+                    placeholder="50000"
+                    value={editPlanData.words_or_credits}
+                    onChange={(e) => setEditPlanData({ ...editPlanData, words_or_credits: e.target.value })}
+                    className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Description (optional)</label>
+                <input
+                  type="text"
+                  placeholder="Plan description..."
+                  value={editPlanData.description}
+                  onChange={(e) => setEditPlanData({ ...editPlanData, description: e.target.value })}
+                  className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-border">
+              <button
+                onClick={() => { setShowEditPlanModal(false); setEditingPlan(null); }}
+                className="px-4 py-2 text-foreground-muted hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditPlan}
+                disabled={savingPlan}
+                className="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors disabled:opacity-50"
+              >
+                {savingPlan ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {savingPlan ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Create Plan Modal */}
       {showPlanModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -479,6 +618,18 @@ export default function SubscriptionsPage() {
                 <input
                   type="text"
                   placeholder="e.g., Business"
+                  value={newPlan.name}
+                  onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Plan Code</label>
+                <input
+                  type="text"
+                  placeholder="e.g., business_monthly"
+                  value={newPlan.plan_code}
+                  onChange={(e) => setNewPlan({ ...newPlan, plan_code: e.target.value })}
                   className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
                 />
               </div>
@@ -488,34 +639,31 @@ export default function SubscriptionsPage() {
                   <input
                     type="number"
                     placeholder="49.99"
+                    value={newPlan.amount}
+                    onChange={(e) => setNewPlan({ ...newPlan, amount: e.target.value })}
                     className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Duration</label>
-                  <select className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white focus:border-primary transition-colors">
-                    <option>Monthly</option>
-                    <option>Yearly</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-white mb-2">Word Limit</label>
+                  <label className="block text-sm font-medium text-white mb-2">Credits/Words</label>
                   <input
                     type="number"
                     placeholder="50000"
+                    value={newPlan.words_or_credits}
+                    onChange={(e) => setNewPlan({ ...newPlan, words_or_credits: e.target.value })}
                     className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-white mb-2">Image Limit</label>
-                  <input
-                    type="number"
-                    placeholder="200"
-                    className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
-                  />
-                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Description (optional)</label>
+                <input
+                  type="text"
+                  placeholder="Plan description..."
+                  value={newPlan.description}
+                  onChange={(e) => setNewPlan({ ...newPlan, description: e.target.value })}
+                  className="w-full px-4 py-3 bg-card border border-border rounded-xl text-white placeholder:text-foreground-muted focus:border-primary transition-colors"
+                />
               </div>
             </div>
             <div className="flex items-center justify-end gap-3 mt-6">
@@ -526,9 +674,26 @@ export default function SubscriptionsPage() {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  toast.success('Plan would be created');
-                  setShowPlanModal(false);
+                onClick={async () => {
+                  if (!newPlan.name || !newPlan.plan_code || !newPlan.amount || !newPlan.words_or_credits) {
+                    toast.error('Please fill in all required fields');
+                    return;
+                  }
+                  try {
+                    const created = await subscriptionsService.createPlan({
+                      name: newPlan.name,
+                      plan_code: newPlan.plan_code,
+                      amount: parseFloat(newPlan.amount),
+                      words_or_credits: parseInt(newPlan.words_or_credits),
+                      description: newPlan.description || undefined,
+                    });
+                    setPlans([...plans, { ...created, is_active: created.is_active ?? true }]);
+                    setShowPlanModal(false);
+                    setNewPlan({ name: '', amount: '', plan_code: '', words_or_credits: '', description: '' });
+                    toast.success('Plan created successfully');
+                  } catch (error: unknown) {
+                    toast.error(parseApiError(error, 'Failed to create plan'));
+                  }
                 }}
                 className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors"
               >

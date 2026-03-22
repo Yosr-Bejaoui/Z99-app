@@ -23,6 +23,8 @@ import { useTranslation } from 'react-i18next';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 
+WebBrowser.maybeCompleteAuthSession();
+
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../types/navigation';
 
@@ -46,12 +48,22 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
+  const googleAndroidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
+  const googleIosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+  const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+
+  const isGoogleConfigured =
+    (Platform.OS === 'android' && !!googleAndroidClientId) ||
+    (Platform.OS === 'ios' && !!googleIosClientId) ||
+    (Platform.OS === 'web' && !!googleWebClientId);
+
   // Google OAuth setup
-  // TODO: Replace with your actual Google Client IDs from console.cloud.google.com
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    androidClientId: 'YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com',
-    iosClientId: 'YOUR_IOS_CLIENT_ID.apps.googleusercontent.com',
-    webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+    // Expo's Google provider requires platform client IDs to be defined.
+    // Use harmless placeholders so missing env vars don't crash the app at startup.
+    androidClientId: googleAndroidClientId || 'placeholder-android.apps.googleusercontent.com',
+    iosClientId: googleIosClientId || 'placeholder-ios.apps.googleusercontent.com',
+    webClientId: googleWebClientId || 'placeholder-web.apps.googleusercontent.com',
   });
 
   useEffect(() => {
@@ -158,7 +170,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   };
 
   const handleGoogleSignUp = () => {
-    if (request) {
+    if (request && isGoogleConfigured) {
       promptAsync();
     } else {
       Alert.alert(

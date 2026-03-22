@@ -21,28 +21,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing auth on mount
-    checkAuth();
-  }, []);
+    let isMounted = true;
 
-  const checkAuth = async () => {
-    try {
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-      if (token) {
-        const profile = await authService.getProfile();
-        setUser(profile);
+    const checkAuth = async () => {
+      try {
+        const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+        if (token && isMounted) {
+          const profile = await authService.getProfile();
+          if (isMounted) setUser(profile);
+        }
+      } catch (error) {
+        // Token is invalid or expired
+        if (isMounted) {
+          await AsyncStorage.multiRemove([
+            STORAGE_KEYS.ACCESS_TOKEN,
+            STORAGE_KEYS.REFRESH_TOKEN,
+            STORAGE_KEYS.USER,
+          ]);
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
-    } catch (error) {
-      // Token is invalid or expired
-      await AsyncStorage.multiRemove([
-        STORAGE_KEYS.ACCESS_TOKEN,
-        STORAGE_KEYS.REFRESH_TOKEN,
-        STORAGE_KEYS.USER,
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+
+    checkAuth();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const login = async (credentials: LoginCredentials) => {
     const response = await authService.login(credentials);

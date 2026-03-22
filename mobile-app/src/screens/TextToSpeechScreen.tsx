@@ -105,33 +105,41 @@ const TextToSpeechScreen: React.FC = () => {
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('WS message:', data);
-      
-      if (data.audio_url || data.url) {
-        const audioUrl = data.audio_url || data.url;
-        setGeneratedAudios(prev => [
-          {
-            id: Date.now().toString(),
-            url: audioUrl,
-            text: text,
-            voice: `${selectedGender} - ${selectedStyle}`,
-            status: 'completed',
-          },
-          ...prev.filter(a => a.status !== 'generating'),
-        ]);
-        setIsGenerating(false);
-        setText('');
-      } else if (data.error) {
-        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
-        Alert.alert('Error', errorMsg);
-        setGeneratedAudios(prev => prev.filter(a => a.status !== 'generating'));
-        setIsGenerating(false);
+      try {
+        const data = JSON.parse(event.data);
+        console.log('WS message:', data);
+        
+        if (data.audio_url || data.url) {
+          const audioUrl = data.audio_url || data.url;
+          setGeneratedAudios(prev => [
+            {
+              id: Date.now().toString(),
+              url: audioUrl,
+              text: text,
+              voice: `${selectedGender} - ${selectedStyle}`,
+              status: 'completed',
+            },
+            ...prev.filter(a => a.status !== 'generating'),
+          ]);
+          setIsGenerating(false);
+          setText('');
+          ws.close();
+        } else if (data.error) {
+          const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+          Alert.alert('Error', errorMsg);
+          setGeneratedAudios(prev => prev.filter(a => a.status !== 'generating'));
+          setIsGenerating(false);
+          ws.close();
+        }
+      } catch (e) {
+        console.error('Error parsing WebSocket message:', e);
       }
     };
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
+      Alert.alert('Connection Error', 'Failed to connect to the server. Please try again.');
+      setGeneratedAudios(prev => prev.filter(a => a.status !== 'generating'));
       setIsGenerating(false);
     };
 

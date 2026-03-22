@@ -1,0 +1,640 @@
+{
+  "common": {
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "ok": "OK",
+    "loading": "Cargando...",
+    "free": "Gratis",
+    "user": "Usuario",
+    "na": "N/D",
+    "save": "Guardar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "retry": "Reintentar",
+    "credits": "créditos"
+  },
+  "login": {
+    "title": "Bienvenido de nuevo",
+    "subtitle": "Inicia sesión para continuar",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "Ingresa tu correo",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "signInButton": "Iniciar sesión",
+    "signingIn": "Iniciando sesión...",
+    "divider": "o continuar con",
+    "google": "Continuar con Google",
+    "noAccount": "¿No tienes una cuenta? ",
+    "signUpLink": "Registrarse",
+    "error": {
+      "emailRequired": "El correo es requerido",
+      "emailInvalid": "Ingresa un correo válido",
+      "passwordRequired": "La contraseña es requerida",
+      "loginFailed": "Error de inicio de sesión. Verifica tus credenciales."
+    },
+    "googleTitle": "Iniciar con Google",
+    "googleMessage": "¡El inicio con Google estará disponible pronto!",
+    "a11y": {
+      "email": "Correo electrónico",
+      "emailHint": "Ingresa tu correo para iniciar sesión",
+      "password": "Contraseña",
+      "passwordHint": "Ingresa tu contraseña para iniciar sesión",
+      "showPassword": "Mostrar contraseña",
+      "hidePassword": "Ocultar contraseña",
+      "forgotPassword": "Olvidé mi contraseña",
+      "googleSignIn": "Continuar con Google",
+      "signUp": "Crear una nueva cuenta"
+    }
+  },
+  "signUp": {
+    "title": "Crear cuenta",
+    "subtitle": "Comienza tu viaje con IA hoy",
+    "fullNameLabel": "Nombre completo",
+    "fullNamePlaceholder": "Ingresa tu nombre completo",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "Ingresa tu correo",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Crea una contraseña",
+    "confirmPasswordLabel": "Confirmar contraseña",
+    "confirmPasswordPlaceholder": "Confirma tu contraseña",
+    "termsText": "Acepto los ",
+    "termsOfService": "Términos de servicio",
+    "and": " y ",
+    "privacyPolicy": "Política de privacidad",
+    "createButton": "Crear cuenta",
+    "creating": "Creando cuenta...",
+    "divider": "o registrarse con",
+    "google": "Continuar con Google",
+    "hasAccount": "¿Ya tienes una cuenta? ",
+    "signInLink": "Iniciar sesión",
+    "error": {
+      "nameRequired": "El nombre completo es requerido",
+      "emailRequired": "El correo es requerido",
+      "emailInvalid": "Ingresa un correo válido",
+      "passwordRequired": "La contraseña es requerida",
+      "passwordLength": "La contraseña debe tener al menos 8 caracteres",
+      "passwordUppercase": "La contraseña debe contener al menos una mayúscula",
+      "passwordNumber": "La contraseña debe contener al menos un número",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "termsRequired": "Debes aceptar los Términos de servicio",
+      "registrationFailed": "Error en el registro. Inténtalo de nuevo."
+    },
+    "googleTitle": "Registro con Google",
+    "googleMessage": "¡El registro con Google estará disponible pronto!"
+  },
+  "chat": {
+    "loading": "Cargando...",
+    "errorModels": "Error al cargar modelos de IA",
+    "errorConnection": "Se perdió la conexión con el servidor. Inténtalo de nuevo.",
+    "errorConnectionTitle": "Error de conexión",
+    "insufficientCredits": {
+      "title": "Créditos insuficientes",
+      "message": "Este mensaje requiere {{cost}} crédito(s), pero solo tienes {{balance}}. Compra más créditos.",
+      "cancel": "Cancelar",
+      "buy": "Comprar créditos"
+    },
+    "switchModel": {
+      "title": "Cambiar modelo",
+      "message": "Cambiar de modelo iniciará una nueva conversación. ¿Continuar?",
+      "cancel": "Cancelar",
+      "confirm": "Cambiar"
+    },
+    "newChat": {
+      "title": "Nuevo chat",
+      "message": "¿Iniciar una nueva conversación?",
+      "cancel": "Cancelar",
+      "confirm": "Nuevo chat"
+    },
+    "emptyTitle": "¿En qué puedo ayudarte hoy?",
+    "emptySubtitle": "Inicia una conversación escribiendo un mensaje abajo",
+    "suggestion": {
+      "quantum": "Explica la computación cuántica",
+      "poem": "Escribe un poema sobre la naturaleza",
+      "code": "Ayúdame a programar una función",
+      "summarize": "Resume este artículo"
+    },
+    "inputPlaceholder": "Mensaje",
+    "disclaimer": "La IA puede cometer errores. Considera verificar la información importante.",
+    "costToast": "Este mensaje usó {{cost}} crédito(s)",
+    "sendAction": "Enviar mensaje con {{model}}",
+    "a11y": {
+      "attachFile": "Adjuntar archivo",
+      "chatMessage": "Mensaje de chat",
+      "chatHint": "Escribe tu mensaje para enviar a la IA",
+      "sendMessage": "Enviar mensaje"
+    },
+    "attachFile": "Adjuntar Archivo",
+    "chooseSource": "Elegir fuente",
+    "takePhoto": "Tomar Foto",
+    "chooseFromGallery": "Elegir de la Galería",
+    "imageAttached": "Imagen adjuntada",
+    "errorAttachFile": "Error al adjuntar archivo",
+    "permissionDenied": "Se requiere permiso para acceder a la biblioteca de medios",
+    "latestVersion": "Última Versión"
+  },
+  "drawer": {
+    "newChat": "Nuevo chat",
+    "menu": {
+      "chat": "Chat",
+      "createImage": "Crear imagen",
+      "history": "Historial",
+      "credits": "Créditos",
+      "profile": "Perfil",
+      "settings": "Configuración",
+      "helpFaq": "Ayuda y FAQ"
+    },
+    "defaultUser": "Usuario",
+    "credits": "créditos",
+    "a11y": {
+      "newChat": "Iniciar nuevo chat",
+      "profile": "Perfil: {{name}}"
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "editModal": {
+      "title": "Editar perfil",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Ingresa tu nombre",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "Ingresa tu correo",
+      "saving": "Actualizando...",
+      "saveButton": "Guardar cambios"
+    },
+    "signOut": {
+      "title": "Cerrar sesión",
+      "message": "¿Estás seguro de que quieres cerrar sesión?",
+      "cancel": "Cancelar",
+      "confirm": "Cerrar sesión",
+      "error": "Error al cerrar sesión. Inténtalo de nuevo.",
+      "signingOut": "Cerrando sesión..."
+    },
+    "image": {
+      "permissionTitle": "Permiso requerido",
+      "libraryPermission": "Permite el acceso a tu galería para subir una foto de perfil.",
+      "cameraPermission": "Permite el acceso a tu cámara para tomar una foto de perfil.",
+      "changeTitle": "Cambiar foto de perfil",
+      "chooseOption": "Elige una opción",
+      "takePhoto": "Tomar foto",
+      "chooseFromLibrary": "Elegir de la galería",
+      "cancel": "Cancelar",
+      "success": "Éxito",
+      "successMessage": "¡Foto de perfil actualizada!"
+    },
+    "update": {
+      "nameEmpty": "El nombre no puede estar vacío",
+      "success": "Éxito",
+      "successMessage": "¡Perfil actualizado correctamente!"
+    },
+    "defaultName": "Usuario",
+    "planSuffix": "Plan",
+    "stats": {
+      "words": "Palabras",
+      "images": "Imágenes",
+      "plan": "Plan"
+    },
+    "account": {
+      "title": "Cuenta",
+      "emailLabel": "Correo",
+      "changePassword": "Cambiar contraseña",
+      "updatePassword": "Actualiza tu contraseña",
+      "planLabel": "Plan",
+      "freeTier": "Plan gratuito",
+      "upgrade": "Mejorar"
+    },
+    "settings": {
+      "title": "Configuración",
+      "notifications": "Notificaciones",
+      "darkMode": "Modo oscuro",
+      "language": "Idioma"
+    },
+    "support": {
+      "title": "Soporte y legal",
+      "helpSupport": "Ayuda y soporte",
+      "about": "Acerca de",
+      "terms": "Términos de servicio",
+      "privacy": "Política de privacidad"
+    },
+    "danger": {
+      "title": "Gestión de cuenta",
+      "deleteAccount": "Eliminar cuenta"
+    },
+    "version": "Versión 1.0.0"
+  },
+  "credits": {
+    "title": "Créditos",
+    "loading": "Cargando tus créditos...",
+    "balance": {
+      "label": "Créditos disponibles",
+      "bonus": "+ {{count}} créditos de bonificación",
+      "progress": "{{used}} / {{total}} créditos",
+      "viewHistory": "Ver historial"
+    },
+    "promo": {
+      "title": "¿Tienes un código promocional?",
+      "placeholder": "Ingresa el código",
+      "redeem": "Canjear",
+      "emptyError": "Ingresa un código promocional"
+    },
+    "usage": {
+      "title": "Estadísticas de uso",
+      "today": "Hoy",
+      "thisWeek": "Esta semana",
+      "thisMonth": "Este mes",
+      "total": "Total"
+    },
+    "packages": {
+      "title": "Comprar créditos",
+      "bestValue": "Mejor valor",
+      "credits": "créditos",
+      "bonus": "+{{count}} bonificación"
+    },
+    "purchase": {
+      "title": "Comprar créditos",
+      "message": "¿Deseas comprar {{credits}} créditos por {{price}}?",
+      "cancel": "Cancelar",
+      "confirm": "Comprar"
+    },
+    "viewPlans": "Ver planes de suscripción",
+    "transactions": {
+      "title": "Historial de transacciones",
+      "empty": "Sin transacciones aún"
+    },
+    "freeTier": "Plan gratuito"
+  },
+  "history": {
+    "title": "Historial",
+    "searchPlaceholder": "Buscar en historial...",
+    "loading": "Cargando historial...",
+    "filter": {
+      "all": "Todo",
+      "chat": "Chat",
+      "image": "Imagen",
+      "video": "Video",
+      "audio": "Audio",
+      "threeD": "3D"
+    },
+    "deleteItem": {
+      "title": "Eliminar elemento",
+      "message": "¿Estás seguro de que quieres eliminar \"{{title}}\"?",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar",
+      "success": "Elemento eliminado correctamente"
+    },
+    "download": {
+      "noContent": "No hay contenido descargable disponible",
+      "notSupported": "Descarga no soportada para este tipo",
+      "success": "¡Guardado correctamente!",
+      "error": "Error al guardar"
+    },
+    "noResults": "No se encontraron resultados para \"{{query}}\"",
+    "detail": {
+      "model": "Modelo",
+      "type": "Tipo",
+      "wordsUsed": "Palabras usadas",
+      "created": "Creado",
+      "prompt": "Indicación",
+      "unknown": "Desconocido",
+      "download": "Descargar",
+      "delete": "Eliminar"
+    },
+    "date": {
+      "justNow": "Ahora mismo",
+      "hoursAgo": "Hace {{count}} hora(s)",
+      "daysAgo": "Hace {{count}} día(s)"
+    },
+    "itemMeta": {
+      "words": "palabras"
+    }
+  },
+  "imageGen": {
+    "title": "Crear",
+    "prompt": {
+      "title": "Describe tu imagen",
+      "placeholder": "Un paisaje de montaña sereno al atardecer con nubes dramáticas..."
+    },
+    "model": {
+      "title": "Modelo de IA",
+      "loading": "Cargando modelos...",
+      "retry": "No hay modelos disponibles. Toca para reintentar.",
+      "loadError": "Error al cargar modelos de IA. Inténtalo de nuevo."
+    },
+    "style": {
+      "title": "Estilo",
+      "realistic": "Realista",
+      "anime": "Anime",
+      "digital": "Arte digital",
+      "threeD": "Render 3D",
+      "painting": "Pintura",
+      "sketch": "Boceto"
+    },
+    "resolution": {
+      "title": "Resolución"
+    },
+    "generateButton": "Generar imagen",
+    "generating": "Generando...",
+    "progress": "Generando... {{percent}}%",
+    "emptyPrompt": {
+      "title": "Indicación vacía",
+      "message": "Ingresa una descripción para tu imagen."
+    },
+    "noModel": {
+      "title": "Sin modelo seleccionado",
+      "message": "Selecciona un modelo de IA primero."
+    },
+    "insufficientCredits": {
+      "title": "Créditos insuficientes",
+      "message": "La generación de imagen requiere {{cost}} crédito(s), pero solo tienes {{balance}}. Compra más créditos.",
+      "cancel": "Cancelar",
+      "buy": "Comprar créditos"
+    },
+    "costToast": "¡Imagen generada! Usó {{cost}} crédito(s)",
+    "imageOptions": {
+      "title": "Opciones de imagen",
+      "message": "¿Qué te gustaría hacer?",
+      "download": "Descargar",
+      "share": "Compartir",
+      "cancel": "Cancelar"
+    },
+    "downloadSuccess": "¡Imagen guardada en la galería!",
+    "downloadError": "Error al guardar la imagen",
+    "gallery": {
+      "title": "Imágenes generadas"
+    },
+    "emptyState": {
+      "text": "Sin imágenes generadas aún",
+      "subtext": "Ingresa una indicación arriba y toca Generar para crear tu primera imagen"
+    },
+    "costAction": "Generar imagen con {{model}}",
+    "a11y": {
+      "prompt": "Indicación de generación de imagen",
+      "promptHint": "Describe la imagen que quieres generar"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "account": {
+      "title": "Cuenta",
+      "editProfile": "Editar perfil",
+      "subscription": "Suscripción",
+      "proPlan": "Plan Pro",
+      "freePlan": "Plan gratuito",
+      "changePassword": "Cambiar contraseña"
+    },
+    "preferences": {
+      "title": "Preferencias",
+      "notifications": "Notificaciones push",
+      "notificationsSubtitle": "Recibe actualizaciones y alertas",
+      "darkMode": "Modo oscuro",
+      "darkModeSubtitle": "Actualmente siempre activado",
+      "autoSave": "Guardar chats automáticamente",
+      "autoSaveSubtitle": "Guardar conversaciones automáticamente"
+    },
+    "support": {
+      "title": "Soporte",
+      "helpFaq": "Ayuda y FAQ",
+      "contactSupport": "Contactar soporte",
+      "rateApp": "Calificar app",
+      "shareApp": "Compartir app"
+    },
+    "about": {
+      "title": "Acerca de",
+      "terms": "Términos de servicio",
+      "privacy": "Política de privacidad",
+      "appVersion": "Versión de la app",
+      "versionNumber": "1.0.0 (Build 1)"
+    },
+    "data": {
+      "title": "Datos",
+      "clearCache": "Limpiar caché",
+      "clearCacheSubtitle": "Liberar espacio de almacenamiento",
+      "exportData": "Exportar datos",
+      "exportDataSubtitle": "Descargar tus datos"
+    },
+    "dangerZone": {
+      "title": "Zona de peligro",
+      "logout": "Cerrar sesión",
+      "deleteAccount": "Eliminar cuenta",
+      "deleteAccountSubtitle": "Eliminar tu cuenta permanentemente"
+    },
+    "logoutAlert": {
+      "title": "Cerrar sesión",
+      "message": "¿Estás seguro de que quieres cerrar sesión?",
+      "cancel": "Cancelar",
+      "confirm": "Cerrar sesión"
+    },
+    "deleteAlert": {
+      "title": "Eliminar cuenta",
+      "message": "Esta acción no se puede deshacer. Todos tus datos serán eliminados permanentemente.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar",
+      "contactTitle": "Contactar soporte",
+      "contactMessage": "Contacta a support@z99.ai para eliminar tu cuenta."
+    },
+    "clearCacheAlert": {
+      "title": "Limpiar caché",
+      "message": "Esto limpiará los datos en caché pero mantendrá tu sesión.",
+      "cancel": "Cancelar",
+      "confirm": "Limpiar",
+      "success": "Caché limpiado correctamente",
+      "error": "Error al limpiar caché"
+    },
+    "comingSoon": {
+      "title": "Próximamente",
+      "message": "Esta función estará disponible pronto"
+    },
+    "rateAppAlert": {
+      "title": "¡Gracias!",
+      "message": "¡Agradecemos tus comentarios!"
+    },
+    "shareAlert": {
+      "title": "Compartir",
+      "message": "La función de compartir estará disponible pronto"
+    },
+    "linkError": "No se pudo abrir el enlace",
+    "footer": {
+      "madeWith": "Hecho con ❤️ por el equipo Z99",
+      "copyright": "© 2026 Todos los derechos reservados"
+    }
+  },
+  "forgotPassword": {
+    "email": {
+      "title": "¿Olvidaste tu contraseña?",
+      "subtitle": "Ingresa tu correo y te enviaremos un código de verificación para restablecer tu contraseña.",
+      "placeholder": "Correo electrónico",
+      "button": "Enviar código de verificación",
+      "sending": "Enviando...",
+      "emptyError": "Ingresa tu correo electrónico",
+      "invalidError": "Ingresa un correo válido",
+      "sendError": "Error al enviar el código de verificación",
+      "success": "Se ha enviado un código de verificación a tu correo"
+    },
+    "otp": {
+      "title": "Ingresa el código de verificación",
+      "subtitle": "Hemos enviado un código de 6 dígitos a {{email}}",
+      "button": "Verificar código",
+      "incompleteError": "Ingresa el código de verificación completo",
+      "resendText": "¿No recibiste el código? ",
+      "resendLink": "Reenviar",
+      "resendSuccess": "Se ha enviado un nuevo código de verificación",
+      "resendError": "Error al reenviar el código. Inténtalo de nuevo."
+    },
+    "password": {
+      "title": "Crear nueva contraseña",
+      "subtitle": "Tu nueva contraseña debe tener al menos 8 caracteres",
+      "newPlaceholder": "Nueva contraseña",
+      "confirmPlaceholder": "Confirmar nueva contraseña",
+      "button": "Restablecer contraseña",
+      "resetting": "Restableciendo...",
+      "emptyError": "Ingresa una nueva contraseña",
+      "lengthError": "La contraseña debe tener al menos 8 caracteres",
+      "mismatchError": "Las contraseñas no coinciden",
+      "resetError": "Error al restablecer la contraseña"
+    },
+    "successScreen": {
+      "title": "¡Contraseña restablecida!",
+      "subtitle": "Tu contraseña ha sido restablecida correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.",
+      "button": "Volver al inicio de sesión"
+    }
+  },
+  "landing": {
+    "badge": "Tu asistente de IA",
+    "heroLine1": "Bienvenido a",
+    "heroLine2": "Z99",
+    "description": "Chatea con ChatGPT, Gemini, Claude y Mistral. Genera imágenes con DALL·E y Stable Diffusion. Todo en un solo lugar.",
+    "getStarted": "Empieza gratis",
+    "createAccount": "Crear cuenta",
+    "features": {
+      "multiModelChat": "Chat multimodelo",
+      "multiModelChatDesc": "Cambia entre modelos de IA fácilmente",
+      "imageGeneration": "Generación de imágenes",
+      "imageGenerationDesc": "Crea con DALL·E y Stable Diffusion",
+      "creditSystem": "Sistema de créditos",
+      "creditSystemDesc": "1,000 palabras gratis para empezar"
+    },
+    "aiModels": {
+      "title": "Impulsado por IA líder",
+      "subtitle": "Accede a los modelos de IA más avanzados del mundo",
+      "typeChat": "Chat",
+      "typeImage": "Imagen"
+    },
+    "howItWorks": {
+      "title": "Cómo funciona",
+      "subtitle": "Empieza en tres simples pasos",
+      "step1": { "title": "Crear cuenta", "desc": "Regístrate en segundos con correo o Google" },
+      "step2": { "title": "Elegir modelo de IA", "desc": "Selecciona entre ChatGPT, Gemini, Claude y más" },
+      "step3": { "title": "Empezar a crear", "desc": "Chatea, genera imágenes o crea videos" }
+    },
+    "pricing": {
+      "title": "Precios simples",
+      "subtitle": "Elige el plan adecuado para ti",
+      "mostPopular": "Más popular",
+      "getStarted": "Empezar",
+      "subscribe": "Suscribirse"
+    },
+    "cta": {
+      "title": "¿Listo para empezar?",
+      "subtitle": "Únete a millones de usuarios creando con IA hoy",
+      "button": "Prueba gratuita"
+    }
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "ar": "العربية",
+    "bn": "বাংলা",
+    "title": "Seleccionar idioma"
+  },
+  "subscription": {
+    "loading": "Cargando planes...",
+    "header": {
+      "title": "Elige tu plan",
+      "subtitle": "Desbloquea todo el poder de la IA"
+    },
+    "credits": "{{count}} créditos",
+    "perMonth": "/mes",
+    "mostPopular": "MÁS POPULAR",
+    "features": {
+      "allModels": "Todos los modelos de IA",
+      "prioritySupport": "Soporte prioritario",
+      "unlimitedImage": "Generación de imágenes ilimitada",
+      "videoGen": "Generación de video",
+      "apiAccess": "Acceso a API",
+      "customModels": "Modelos personalizados",
+      "advancedImage": "Generación de imágenes avanzada",
+      "limitedVideo": "Generación de video (limitada)",
+      "priorityQueue": "Cola prioritaria",
+      "basicImage": "Generación de imágenes básica",
+      "standardQueue": "Cola estándar"
+    },
+    "emptyState": {
+      "title": "No hay planes disponibles",
+      "subtitle": "Por favor, vuelve más tarde para ver opciones de suscripción"
+    },
+    "cta": {
+      "selectedPlan": "Plan seleccionado",
+      "planSummary": "{{name}} - ${{amount}}/mes",
+      "processing": "Procesando...",
+      "subscribeNow": "Suscribirse ahora",
+      "disclaimer": "Cancela cuando quieras. La suscripción se renueva automáticamente."
+    },
+    "benefits": {
+      "title": "¿Por qué suscribirse?",
+      "fasterResponse": "Respuesta más rápida",
+      "moreCredits": "Más créditos",
+      "premiumModels": "Modelos premium",
+      "prioritySupport": "Soporte prioritario"
+    },
+    "purchase": {
+      "title": "Compra",
+      "confirmMessage": "¿Suscribirse a {{name}} por ${{amount}}?\nRecibirás {{credits}} créditos.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "success": "Éxito",
+      "successMessage": "¡Suscripción activada! {{credits}} créditos añadidos a tu cuenta.",
+      "error": "Error",
+      "errorMessage": "Error al cargar los planes de suscripción",
+      "purchaseError": "Error al procesar la compra. Por favor, inténtalo de nuevo."
+    }
+  },
+  "help": {
+    "title": "Ayuda y FAQ",
+    "searchPlaceholder": "Buscar ayuda...",
+    "categories": {
+      "all": "Todo",
+      "account": "Cuenta",
+      "billing": "Facturación",
+      "features": "Funciones",
+      "technical": "Técnico"
+    },
+    "contactTitle": "¿Necesitas ayuda?",
+    "contactSubtitle": "Nuestro equipo está aquí para ayudarte",
+    "contactButton": "Contactar soporte"
+  },
+  "about": {
+    "title": "Acerca de",
+    "appName": "Z99",
+    "version": "Versión 1.0.0 (Build 1)",
+    "aboutTitle": "Acerca de esta aplicación",
+    "featuresTitle": "Funciones principales",
+    "statsTitle": "Estadísticas",
+    "developerTitle": "Desarrollador",
+    "linksTitle": "Enlaces"
+  },
+  "terms": {
+    "title": "Términos de servicio",
+    "lastUpdated": "Última actualización",
+    "footer": "Al usar nuestra aplicación, aceptas estos términos de servicio."
+  },
+  "privacy": {
+    "title": "Política de privacidad",
+    "lastUpdated": "Última actualización",
+    "footer": "Al usar nuestra aplicación, aceptas los términos de esta política de privacidad."
+  }
+}

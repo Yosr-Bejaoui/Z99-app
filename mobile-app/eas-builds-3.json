@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1f568712-3caa-4696-8cea-616f51070ece",
+    "status": "IN_QUEUE",
+    "platform": "ANDROID",
+    "artifacts": {},
+    "fingerprint": {
+      "id": "019d0628-f471-7be7-bfbf-0ee324bd1735",
+      "hash": "fb780514efab91e9d10b84293e787d19e58170ed"
+    },
+    "initiatingActor": {
+      "id": "b81f03bc-ad43-4d9c-972c-c8cc860c2ede",
+      "displayName": "yosr_bj"
+    },
+    "logFiles": [
+      "https://job-logs.eascdn.net/production/1f568712-3caa-4696-8cea-616f51070ece/1773924840821-a5982119-ddc3-4414-a03e-2bc9a6af3541.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260319%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260319T125453Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=0bdd7fad96ddf0a10cd14bc54723e534b64c47f68fb57558477c57a874cbacb3606c39deed8fcdb66610f028557ddcc574e552cb87decf64a7ce7bb3bafe989b863c799cd483049a062f01d45d36a4af9a8cee2126e23ed2fea301895b501d5dd60e3bc4b7dde25cb04cb7b00246474b710cfee587f58f646a423a9b6c4a46eca375fd82247c7163cedd7102ee273d64ef2c9caa58a654143ffad9b2dc19fa60da85e143ba91cdd7f387d89ee017e0d44ad464c594160f1e219b2d27fe76854ce2340b9b51057776f603e6eb78dec856bfb8fce86d528b62134a98bf62369b13e0b51cdbd15058da14fd1c87f610fb720f1c1ccf5f085c1ce771761d47005989",
+      "https://job-logs.eascdn.net/production/1f568712-3caa-4696-8cea-616f51070ece/1773925063171-8ff3bc55-a143-47af-8927-6c74a1e4d743.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260319%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260319T130041Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=2fafb9f201f3864bcfc1cf64562350888ff59e743705a53e9800e14fc899991f48dff2aa62968154cca05e03c2d8ecc3532bb867ad57181fe8d0071ba262b2c4c81e9cdf8de3ee57b1f104ff98fb95a4987c03bce2b1ad60c16cf14f080335264748b753e7b12edac26a5bd500801217cce7a9f445bc53e22835736fe71360992225aedb907b09b10482dc4872e975aaa220c9097fdc24b581f824960441e04d951a7a9b251ec78a3f52d2d301c183b8ad7195deb87647d12adb4b4e568bea1dd3a0d551bc040398548ec2c6019848dab269858a0cda07c1128f93b2f259e434667184bcb653bc01a3d0e08adf88f4239e6235dd2f15c1874454a4607edaf881"
+    ],
+    "project": {
+      "id": "6cc0dbfa-b164-4c11-b32a-377526852591",
+      "name": "aimodel-mobile",
+      "slug": "aimodel-mobile",
+      "ownerAccount": {
+        "id": "7cb987ef-c839-4a2b-9650-3e55995a7767",
+        "name": "yosr_bj"
+      }
+    },
+    "distribution": "INTERNAL",
+    "buildProfile": "preview",
+    "sdkVersion": "54.0.0",
+    "appVersion": "1.0.0",
+    "appBuildVersion": "1",
+    "gitCommitHash": "2139b849f6a4f9d1701a803bda9dc7bbd9264abd",
+    "gitCommitMessage": "Fix mobile auth config and network defaults",
+    "initialQueuePosition": 141,
+    "queuePosition": 88,
+    "estimatedWaitTimeLeftSeconds": 323,
+    "priority": "NORMAL",
+    "createdAt": "2026-03-19T12:54:00.459Z",
+    "updatedAt": "2026-03-19T12:57:52.358Z",
+    "expirationDate": "2026-04-02T12:54:00.537Z",
+    "isForIosSimulator": false
+  }
+]

@@ -183,6 +183,7 @@ function transformToHistoryItem(data: any): HistoryItem {
     date: data.created_at || new Date().toISOString(),
     created_at: data.created_at,
     updated_at: data.updated_at,
+    session_id: data.id, // Include session_id for conversation continuation
   };
 }
 

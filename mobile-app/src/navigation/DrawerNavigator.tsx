@@ -8,12 +8,12 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   Platform,
-  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { colors, spacing, borderRadius } from '../theme';
-import { useAuth, DrawerContext } from '../context';
+import { useAuth, DrawerContext, NavigationParams, useCredits } from '../context';
 
 // Screens
 import ChatScreen from '../screens/ChatScreen';
@@ -42,6 +42,9 @@ const DrawerMenuItem: React.FC<DrawerMenuItemProps> = ({
     style={[styles.menuItem, isActive && styles.menuItemActive]}
     onPress={onPress}
     activeOpacity={0.7}
+    accessibilityRole="button"
+    accessibilityLabel={label}
+    accessibilityState={{ selected: isActive }}
   >
     <Ionicons
       name={icon}
@@ -66,7 +69,9 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
   onClose,
 }) => {
   const { user, logout } = useAuth();
+  const { credits } = useCredits();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const getInitials = () => {
     if (user?.name) {
@@ -83,11 +88,11 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
   };
 
   const menuItems = [
-    { icon: 'chatbubble-outline' as const, label: 'Chat', route: 'ChatScreen' },
-    { icon: 'image-outline' as const, label: 'Create Image', route: 'ImageGenScreen' },
-    { icon: 'time-outline' as const, label: 'History', route: 'HistoryScreen' },
-    { icon: 'wallet-outline' as const, label: 'Credits', route: 'CreditsScreen' },
-    { icon: 'person-outline' as const, label: 'Profile', route: 'ProfileScreen' },
+    { icon: 'chatbubble-outline' as const, label: t('drawer.menu.chat'), route: 'ChatScreen' },
+    { icon: 'image-outline' as const, label: t('drawer.menu.createImage'), route: 'ImageGenScreen' },
+    { icon: 'time-outline' as const, label: t('drawer.menu.history'), route: 'HistoryScreen' },
+    { icon: 'wallet-outline' as const, label: t('drawer.menu.credits'), route: 'CreditsScreen' },
+    { icon: 'person-outline' as const, label: t('drawer.menu.profile'), route: 'ProfileScreen' },
   ];
 
   const handleNavigate = (route: string) => {
@@ -97,13 +102,21 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
 
   return (
     <View style={[styles.drawerContainer, { paddingTop: insets.top }]}>
+      {/* Z99 Brand Header */}
+      <View style={styles.brandHeader}>
+        <Ionicons name="sparkles" size={24} color={colors.primary} />
+        <Text style={styles.brandName}>Z99</Text>
+      </View>
+
       {/* New Chat Button */}
       <TouchableOpacity
         style={styles.newChatButton}
         onPress={() => handleNavigate('ChatScreen')}
+        accessibilityRole="button"
+        accessibilityLabel={t('drawer.a11y.newChat')}
       >
         <Ionicons name="add" size={20} color={colors.white} />
-        <Text style={styles.newChatText}>New chat</Text>
+        <Text style={styles.newChatText}>{t('drawer.newChat')}</Text>
       </TouchableOpacity>
 
       {/* Main Menu */}
@@ -126,12 +139,12 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
       <View style={styles.menuSection}>
         <DrawerMenuItem
           icon="settings-outline"
-          label="Settings"
+          label={t('drawer.menu.settings')}
           onPress={() => handleNavigate('Settings')}
         />
         <DrawerMenuItem
           icon="help-circle-outline"
-          label="Help & FAQ"
+          label={t('drawer.menu.helpFaq')}
           onPress={() => handleNavigate('Help')}
         />
       </View>
@@ -144,32 +157,38 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
         <TouchableOpacity
           style={styles.userInfo}
           onPress={() => handleNavigate('ProfileScreen')}
+          accessibilityRole="button"
+          accessibilityLabel={`Profile: ${user?.name || user?.email || t('drawer.defaultUser')}`}
         >
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{getInitials()}</Text>
           </View>
           <View style={styles.userDetails}>
             <Text style={styles.userName} numberOfLines={1}>
-              {user?.name || user?.email || 'User'}
+              {user?.name || user?.email || t('drawer.defaultUser')}
             </Text>
             <Text style={styles.userCredits}>
-              {user?.credits?.toLocaleString() || 0} credits
+              {(credits?.credits ?? 0).toLocaleString()} {t('drawer.credits')}
             </Text>
           </View>
-          <Ionicons name="ellipsis-horizontal" size={20} color={colors.textMuted} />
+          <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../types/navigation';
+
 interface DrawerNavigatorProps {
-  navigation: any;
+  navigation: NativeStackNavigationProp<RootStackParamList>;
 }
 
 const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentRoute, setCurrentRoute] = useState('ChatScreen');
+  const [currentParams, setCurrentParams] = useState<NavigationParams | null>(null);
   const translateX = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
 
@@ -206,33 +225,38 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
     });
   }, [translateX, overlayOpacity]);
 
-  const handleNavigate = (route: string) => {
+  const navigateTo = useCallback((route: string, params?: NavigationParams) => {
     if (route === 'Settings' || route === 'Help') {
       navigation.navigate(route);
     } else {
+      setCurrentParams(params || null);
       setCurrentRoute(route);
     }
+  }, [navigation]);
+
+  const handleNavigate = (route: string) => {
+    navigateTo(route);
   };
 
   const renderScreen = () => {
     switch (currentRoute) {
       case 'ChatScreen':
-        return <ChatScreen />;
+        return <ChatScreen navigation={navigation} sessionId={currentParams?.sessionId} />;
       case 'ImageGenScreen':
         return <ImageGenScreen />;
       case 'HistoryScreen':
-        return <HistoryScreen />;
+        return <HistoryScreen navigation={navigation} />;
       case 'CreditsScreen':
         return <CreditsScreen />;
       case 'ProfileScreen':
         return <ProfileScreen navigation={navigation} />;
       default:
-        return <ChatScreen />;
+        return <ChatScreen navigation={navigation} sessionId={currentParams?.sessionId} />;
     }
   };
 
   return (
-    <DrawerContext.Provider value={{ openDrawer, closeDrawer, isOpen }}>
+    <DrawerContext.Provider value={{ openDrawer, closeDrawer, isOpen, navigateTo, currentParams }}>
       <View style={styles.container}>
         {/* Main Content */}
         <View style={styles.mainContent}>
@@ -305,6 +329,20 @@ const styles = StyleSheet.create({
   drawerContainer: {
     flex: 1,
     backgroundColor: colors.sidebar,
+  },
+  brandHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
+    gap: spacing.sm,
+  },
+  brandName: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    letterSpacing: 0.5,
   },
   newChatButton: {
     flexDirection: 'row',

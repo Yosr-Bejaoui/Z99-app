@@ -79,11 +79,38 @@ class ChatSessionView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user=self.request.user
+        queryset = self.queryset
 
         if not user.is_staff:
-            return self.queryset.filter(user=user).order_by('-created_at')
+            queryset = queryset.filter(user=user)
         
-        return self.queryset.all().order_by('-created_at')
+        # Filter by session_type if provided
+        session_type = self.request.query_params.get('session_type', None)
+        if session_type and session_type != 'all':
+            # Map simplified filter types to backend session_type values
+            type_mapping = {
+                'chat': ['chat'],
+                'image': ['text_to_image', 'image_editor', 'image_tool'],
+                'video': ['image_to_video', 'text_to_video', 'text_or_image_to_video', 'video_upscaler', 'video_effect'],
+                'audio': ['text_to_speech'],
+                '3d': ['image_to_3d'],
+            }
+            
+            if session_type in type_mapping:
+                queryset = queryset.filter(session_type__in=type_mapping[session_type])
+            else:
+                # Direct match for specific types
+                queryset = queryset.filter(session_type=session_type)
+        
+        # Filter by search query
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) | 
+                Q(messages__content__icontains=search)
+            ).distinct()
+        
+        return queryset.order_by('-created_at')
     
     def validate_session_type(self,attrs):
         session_type=attrs.get('session_type',None)
@@ -133,5 +160,45 @@ class ChatSessionView(viewsets.ModelViewSet):
     #     serializer.save(model=model,user=self.request.user)
 
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def extract_document_text(request):
+    """
+    Extract text from an uploaded document (PDF, DOCX, etc.).
+    
+    Accepts:
+        - file: uploaded file (multipart)
+        OR
+        - data: base64-encoded document (JSON body)
+        - filename: original filename for format detection (JSON body)
+    
+    Returns:
+        {"text": "...", "error": null, "pages": N}
+    """
+    from .document_extract import extract_text_from_base64, extract_text_from_bytes
 
+    # Handle multipart file upload
+    if request.FILES:
+        uploaded_file = request.FILES.get('file')
+        if not uploaded_file:
+            return Response({"text": "", "error": "No file provided", "pages": 0}, status=400)
+        
+        raw_bytes = uploaded_file.read()
+        mime_type = uploaded_file.content_type or ""
+        filename = uploaded_file.name or ""
+        
+        result = extract_text_from_bytes(raw_bytes, mime_type, filename)
+        return Response(result)
+
+    # Handle base64 string in JSON body
+    data_uri = request.data.get('data', '')
+    filename = request.data.get('filename', '')
+    
+    if not data_uri:
+        return Response({"text": "", "error": "No document data provided", "pages": 0}, status=400)
+    
+    result = extract_text_from_base64(data_uri, filename)
+    return Response(result)

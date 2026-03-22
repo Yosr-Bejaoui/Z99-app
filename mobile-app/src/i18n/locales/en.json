@@ -1,0 +1,641 @@
+{
+  "common": {
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "ok": "OK",
+    "loading": "Loading...",
+    "free": "Free",
+    "user": "User",
+    "na": "N/A",
+    "save": "Save",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "retry": "Retry",
+    "credits": "credits"
+  },
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Sign in to continue",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "forgotPassword": "Forgot Password?",
+    "signInButton": "Sign In",
+    "signingIn": "Signing in...",
+    "divider": "or continue with",
+    "google": "Continue with Google",
+    "noAccount": "Don't have an account? ",
+    "signUpLink": "Sign Up",
+    "error": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "loginFailed": "Login failed. Please check your credentials."
+    },
+    "googleTitle": "Google Sign In",
+    "googleMessage": "Google Sign In will be available soon!",
+    "a11y": {
+      "email": "Email address",
+      "emailHint": "Enter your email address to sign in",
+      "password": "Password",
+      "passwordHint": "Enter your password to sign in",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "forgotPassword": "Forgot password",
+      "googleSignIn": "Continue with Google",
+      "signUp": "Sign up for a new account"
+    }
+  },
+  "signUp": {
+    "title": "Create Account",
+    "subtitle": "Start your AI journey today",
+    "fullNameLabel": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Create a password",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "termsText": "I agree to the ",
+    "termsOfService": "Terms of Service",
+    "and": " and ",
+    "privacyPolicy": "Privacy Policy",
+    "createButton": "Create Account",
+    "creating": "Creating account...",
+    "divider": "or sign up with",
+    "google": "Continue with Google",
+    "hasAccount": "Already have an account? ",
+    "signInLink": "Sign In",
+    "error": {
+      "nameRequired": "Full name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordLength": "Password must be at least 8 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "passwordMismatch": "Passwords do not match",
+      "termsRequired": "You must agree to the Terms of Service",
+      "registrationFailed": "Registration failed. Please try again."
+    },
+    "googleTitle": "Google Sign Up",
+    "googleMessage": "Google Sign Up will be available soon!"
+  },
+  "chat": {
+    "loading": "Loading...",
+    "errorModels": "Failed to load AI models",
+    "errorConnection": "Lost connection to chat server. Please try again.",
+    "errorConnectionTitle": "Connection Error",
+    "insufficientCredits": {
+      "title": "Insufficient Credits",
+      "message": "This message requires {{cost}} credit(s), but you only have {{balance}}. Please buy more credits.",
+      "cancel": "Cancel",
+      "buy": "Buy Credits"
+    },
+    "switchModel": {
+      "title": "Switch Model",
+      "message": "Switching models will start a new conversation. Continue?",
+      "cancel": "Cancel",
+      "confirm": "Switch"
+    },
+    "newChat": {
+      "title": "New Chat",
+      "message": "Start a new conversation?",
+      "cancel": "Cancel",
+      "confirm": "New Chat"
+    },
+    "emptyTitle": "How can I help you today?",
+    "emptySubtitle": "Start a conversation by typing a message below",
+    "suggestion": {
+      "quantum": "Explain quantum computing",
+      "poem": "Write a poem about nature",
+      "code": "Help me code a function",
+      "summarize": "Summarize this article"
+    },
+    "inputPlaceholder": "Message",
+    "disclaimer": "AI can make mistakes. Consider checking important information.",
+    "costToast": "This message used {{cost}} credit(s)",
+    "sendAction": "Send Message with {{model}}",
+    "a11y": {
+      "attachFile": "Attach file",
+      "chatMessage": "Chat message",
+      "chatHint": "Type your message to send to the AI",
+      "sendMessage": "Send message"
+    },
+    "attachFile": "Attach File",
+    "chooseSource": "Choose source",
+    "takePhoto": "Take Photo",
+    "chooseFromGallery": "Choose from Gallery",
+    "imageAttached": "Image attached",
+    "errorAttachFile": "Failed to attach file",
+    "permissionDenied": "Permission to access media library is required",
+    "latestVersion": "Latest Version"
+  },
+  "drawer": {
+    "newChat": "New chat",
+    "menu": {
+      "chat": "Chat",
+      "createImage": "Create Image",
+      "history": "History",
+      "credits": "Credits",
+      "profile": "Profile",
+      "settings": "Settings",
+      "helpFaq": "Help & FAQ"
+    },
+    "defaultUser": "User",
+    "credits": "credits",
+    "a11y": {
+      "newChat": "Start new chat",
+      "profile": "Profile: {{name}}"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "editModal": {
+      "title": "Edit Profile",
+      "nameLabel": "Name",
+      "namePlaceholder": "Enter your name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email",
+      "saving": "Updating...",
+      "saveButton": "Save Changes"
+    },
+    "signOut": {
+      "title": "Sign Out",
+      "message": "Are you sure you want to sign out?",
+      "cancel": "Cancel",
+      "confirm": "Sign Out",
+      "error": "Failed to sign out. Please try again.",
+      "signingOut": "Signing Out..."
+    },
+    "image": {
+      "permissionTitle": "Permission Required",
+      "libraryPermission": "Please allow access to your photo library to upload a profile picture.",
+      "cameraPermission": "Please allow access to your camera to take a profile picture.",
+      "changeTitle": "Change Profile Picture",
+      "chooseOption": "Choose an option",
+      "takePhoto": "Take Photo",
+      "chooseFromLibrary": "Choose from Library",
+      "cancel": "Cancel",
+      "success": "Success",
+      "successMessage": "Profile picture updated successfully!"
+    },
+    "update": {
+      "nameEmpty": "Name cannot be empty",
+      "success": "Success",
+      "successMessage": "Profile updated successfully!"
+    },
+    "defaultName": "User",
+    "planSuffix": "Plan",
+    "stats": {
+      "words": "Words",
+      "images": "Images",
+      "plan": "Plan"
+    },
+    "account": {
+      "title": "Account",
+      "emailLabel": "Email",
+      "changePassword": "Change Password",
+      "updatePassword": "Update your password",
+      "planLabel": "Plan",
+      "freeTier": "Free Tier",
+      "upgrade": "Upgrade"
+    },
+    "settings": {
+      "title": "Settings",
+      "notifications": "Notifications",
+      "darkMode": "Dark Mode",
+      "language": "Language"
+    },
+    "support": {
+      "title": "Support & Legal",
+      "helpSupport": "Help & Support",
+      "about": "About",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
+    },
+    "danger": {
+      "title": "Account Management",
+      "deleteAccount": "Delete Account"
+    },
+    "version": "Version 1.0.0"
+  },
+  "credits": {
+    "title": "Credits",
+    "loading": "Loading your credits...",
+    "balance": {
+      "label": "Available Credits",
+      "bonus": "+ {{count}} bonus credits",
+      "progress": "{{used}} / {{total}} credits",
+      "viewHistory": "View History"
+    },
+    "promo": {
+      "title": "Have a promo code?",
+      "placeholder": "Enter code",
+      "redeem": "Redeem",
+      "emptyError": "Please enter a promo code"
+    },
+    "usage": {
+      "title": "Usage Statistics",
+      "today": "Today",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "total": "Total"
+    },
+    "packages": {
+      "title": "Buy Credits",
+      "bestValue": "Best Value",
+      "credits": "credits",
+      "bonus": "+{{count}} bonus"
+    },
+    "purchase": {
+      "title": "Purchase Credits",
+      "message": "Would you like to purchase {{credits}} credits for {{price}}?",
+      "cancel": "Cancel",
+      "confirm": "Purchase"
+    },
+    "viewPlans": "View Subscription Plans",
+    "transactions": {
+      "title": "Transaction History",
+      "empty": "No transactions yet"
+    },
+    "freeTier": "Free Tier"
+  },
+  "history": {
+    "title": "History",
+    "searchPlaceholder": "Search history...",
+    "loading": "Loading history...",
+    "filter": {
+      "all": "All",
+      "chat": "Chat",
+      "image": "Image",
+      "video": "Video",
+      "audio": "Audio",
+      "threeD": "3D"
+    },
+    "deleteItem": {
+      "title": "Delete Item",
+      "message": "Are you sure you want to delete \"{{title}}\"?",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "success": "Item deleted successfully"
+    },
+    "download": {
+      "noContent": "No downloadable content available",
+      "notSupported": "Download not supported for this type",
+      "success": "Saved successfully!",
+      "error": "Failed to save"
+    },
+    "noResults": "No results found for \"{{query}}\"",
+    "detail": {
+      "model": "Model",
+      "type": "Type",
+      "wordsUsed": "Words Used",
+      "created": "Created",
+      "prompt": "Prompt",
+      "unknown": "Unknown",
+      "download": "Download",
+      "delete": "Delete",
+      "continue": "Continue"
+    },
+    "date": {
+      "justNow": "Just now",
+      "hoursAgo": "{{count}} hour(s) ago",
+      "daysAgo": "{{count}} day(s) ago"
+    },
+    "itemMeta": {
+      "words": "words"
+    }
+  },
+  "imageGen": {
+    "title": "Create",
+    "prompt": {
+      "title": "Describe your image",
+      "placeholder": "A serene mountain landscape at golden hour with dramatic clouds..."
+    },
+    "model": {
+      "title": "AI Model",
+      "loading": "Loading models...",
+      "retry": "No models available. Tap to retry.",
+      "loadError": "Failed to load AI models. Please try again."
+    },
+    "style": {
+      "title": "Style",
+      "realistic": "Realistic",
+      "anime": "Anime",
+      "digital": "Digital Art",
+      "threeD": "3D Render",
+      "painting": "Painting",
+      "sketch": "Sketch"
+    },
+    "resolution": {
+      "title": "Resolution"
+    },
+    "generateButton": "Generate Image",
+    "generating": "Generating...",
+    "progress": "Generating... {{percent}}%",
+    "emptyPrompt": {
+      "title": "Empty Prompt",
+      "message": "Please enter a description for your image."
+    },
+    "noModel": {
+      "title": "No Model Selected",
+      "message": "Please select an AI model first."
+    },
+    "insufficientCredits": {
+      "title": "Insufficient Credits",
+      "message": "Image generation requires {{cost}} credit(s), but you only have {{balance}}. Please buy more credits.",
+      "cancel": "Cancel",
+      "buy": "Buy Credits"
+    },
+    "costToast": "Image generated! Used {{cost}} credit(s)",
+    "imageOptions": {
+      "title": "Image Options",
+      "message": "What would you like to do?",
+      "download": "Download",
+      "share": "Share",
+      "cancel": "Cancel"
+    },
+    "downloadSuccess": "Image saved to gallery!",
+    "downloadError": "Failed to save image",
+    "gallery": {
+      "title": "Generated Images"
+    },
+    "emptyState": {
+      "text": "No images generated yet",
+      "subtext": "Enter a prompt above and tap Generate to create your first image"
+    },
+    "costAction": "Generate Image with {{model}}",
+    "a11y": {
+      "prompt": "Image generation prompt",
+      "promptHint": "Describe the image you want to generate"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "account": {
+      "title": "Account",
+      "editProfile": "Edit Profile",
+      "subscription": "Subscription",
+      "proPlan": "Pro Plan",
+      "freePlan": "Free Plan",
+      "changePassword": "Change Password"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "notifications": "Push Notifications",
+      "notificationsSubtitle": "Receive updates and alerts",
+      "darkMode": "Dark Mode",
+      "darkModeSubtitle": "Currently always on",
+      "autoSave": "Auto-save Chats",
+      "autoSaveSubtitle": "Automatically save conversations"
+    },
+    "support": {
+      "title": "Support",
+      "helpFaq": "Help & FAQ",
+      "contactSupport": "Contact Support",
+      "rateApp": "Rate App",
+      "shareApp": "Share App"
+    },
+    "about": {
+      "title": "About",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "appVersion": "App Version",
+      "versionNumber": "1.0.0 (Build 1)"
+    },
+    "data": {
+      "title": "Data",
+      "clearCache": "Clear Cache",
+      "clearCacheSubtitle": "Free up storage space",
+      "exportData": "Export Data",
+      "exportDataSubtitle": "Download your data"
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "logout": "Logout",
+      "deleteAccount": "Delete Account",
+      "deleteAccountSubtitle": "Permanently delete your account"
+    },
+    "logoutAlert": {
+      "title": "Logout",
+      "message": "Are you sure you want to logout?",
+      "cancel": "Cancel",
+      "confirm": "Logout"
+    },
+    "deleteAlert": {
+      "title": "Delete Account",
+      "message": "This action cannot be undone. All your data will be permanently deleted.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "contactTitle": "Contact Support",
+      "contactMessage": "Please contact support@z99.ai to delete your account."
+    },
+    "clearCacheAlert": {
+      "title": "Clear Cache",
+      "message": "This will clear cached data but keep you logged in.",
+      "cancel": "Cancel",
+      "confirm": "Clear",
+      "success": "Cache cleared successfully",
+      "error": "Failed to clear cache"
+    },
+    "comingSoon": {
+      "title": "Coming Soon",
+      "message": "This feature is coming soon"
+    },
+    "rateAppAlert": {
+      "title": "Thank You!",
+      "message": "We appreciate your feedback!"
+    },
+    "shareAlert": {
+      "title": "Share",
+      "message": "Share functionality coming soon"
+    },
+    "linkError": "Could not open link",
+    "footer": {
+      "madeWith": "Made with ❤️ by Z99 Team",
+      "copyright": "© 2026 All rights reserved"
+    }
+  },
+  "forgotPassword": {
+    "email": {
+      "title": "Forgot Password?",
+      "subtitle": "Enter your email address and we'll send you a verification code to reset your password.",
+      "placeholder": "Email address",
+      "button": "Send Verification Code",
+      "sending": "Sending...",
+      "emptyError": "Please enter your email address",
+      "invalidError": "Please enter a valid email address",
+      "sendError": "Failed to send verification code",
+      "success": "A verification code has been sent to your email"
+    },
+    "otp": {
+      "title": "Enter Verification Code",
+      "subtitle": "We've sent a 6-digit code to {{email}}",
+      "button": "Verify Code",
+      "incompleteError": "Please enter the complete verification code",
+      "resendText": "Didn't receive the code? ",
+      "resendLink": "Resend",
+      "resendSuccess": "A new verification code has been sent",
+      "resendError": "Failed to resend code. Please try again."
+    },
+    "password": {
+      "title": "Create New Password",
+      "subtitle": "Your new password must be at least 8 characters long",
+      "newPlaceholder": "New password",
+      "confirmPlaceholder": "Confirm new password",
+      "button": "Reset Password",
+      "resetting": "Resetting...",
+      "emptyError": "Please enter a new password",
+      "lengthError": "Password must be at least 8 characters",
+      "mismatchError": "Passwords do not match",
+      "resetError": "Failed to reset password"
+    },
+    "successScreen": {
+      "title": "Password Reset!",
+      "subtitle": "Your password has been successfully reset. You can now log in with your new password.",
+      "button": "Back to Login"
+    }
+  },
+  "landing": {
+    "badge": "Your AI Assistant",
+    "heroLine1": "Welcome to",
+    "heroLine2": "Z99",
+    "description": "Chat with ChatGPT, Gemini, Claude & Mistral. Generate images with DALL·E & Stable Diffusion. All in one place.",
+    "getStarted": "Get Started Free",
+    "createAccount": "Create Account",
+    "features": {
+      "multiModelChat": "Multi-Model Chat",
+      "multiModelChatDesc": "Switch between AI models seamlessly",
+      "imageGeneration": "Image Generation",
+      "imageGenerationDesc": "Create with DALL·E & Stable Diffusion",
+      "creditSystem": "Credit System",
+      "creditSystemDesc": "1,000 free words to get started"
+    },
+    "aiModels": {
+      "title": "Powered by Leading AI",
+      "subtitle": "Access the world's most advanced AI models",
+      "typeChat": "Chat",
+      "typeImage": "Image"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Get started in three simple steps",
+      "step1": { "title": "Create Account", "desc": "Sign up in seconds with email or Google" },
+      "step2": { "title": "Choose AI Model", "desc": "Select from ChatGPT, Gemini, Claude & more" },
+      "step3": { "title": "Start Creating", "desc": "Chat, generate images, or create videos" }
+    },
+    "pricing": {
+      "title": "Simple Pricing",
+      "subtitle": "Choose the plan that's right for you",
+      "mostPopular": "Most Popular",
+      "getStarted": "Get Started",
+      "subscribe": "Subscribe"
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Join millions of users creating with AI today",
+      "button": "Start Free Trial"
+    }
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "ar": "العربية",
+    "bn": "বাংলা",
+    "title": "Select Language"
+  },
+  "subscription": {
+    "loading": "Loading plans...",
+    "header": {
+      "title": "Choose Your Plan",
+      "subtitle": "Unlock the full power of AI"
+    },
+    "credits": "{{count}} credits",
+    "perMonth": "/mo",
+    "mostPopular": "MOST POPULAR",
+    "features": {
+      "allModels": "All AI chat models",
+      "prioritySupport": "Priority support",
+      "unlimitedImage": "Unlimited image generation",
+      "videoGen": "Video generation",
+      "apiAccess": "API access",
+      "customModels": "Custom models",
+      "advancedImage": "Advanced image generation",
+      "limitedVideo": "Video generation (limited)",
+      "priorityQueue": "Priority queue",
+      "basicImage": "Basic image generation",
+      "standardQueue": "Standard queue"
+    },
+    "emptyState": {
+      "title": "No Plans Available",
+      "subtitle": "Please check back later for subscription options"
+    },
+    "cta": {
+      "selectedPlan": "Selected Plan",
+      "planSummary": "{{name}} - ${{amount}}/month",
+      "processing": "Processing...",
+      "subscribeNow": "Subscribe Now",
+      "disclaimer": "Cancel anytime. Subscription renews automatically."
+    },
+    "benefits": {
+      "title": "Why Subscribe?",
+      "fasterResponse": "Faster Response",
+      "moreCredits": "More Credits",
+      "premiumModels": "Premium Models",
+      "prioritySupport": "Priority Support"
+    },
+    "purchase": {
+      "title": "Purchase",
+      "confirmMessage": "Subscribe to {{name}} for ${{amount}}?\nYou will receive {{credits}} credits.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "success": "Success",
+      "successMessage": "Subscription activated! {{credits}} credits added to your account.",
+      "error": "Error",
+      "errorMessage": "Failed to load subscription plans",
+      "purchaseError": "Failed to process purchase. Please try again."
+    }
+  },
+  "help": {
+    "title": "Help & FAQ",
+    "searchPlaceholder": "Search for help...",
+    "categories": {
+      "all": "All",
+      "account": "Account",
+      "billing": "Billing",
+      "features": "Features",
+      "technical": "Technical"
+    },
+    "contactTitle": "Still Need Help?",
+    "contactSubtitle": "Our support team is here to help",
+    "contactButton": "Contact Support"
+  },
+  "about": {
+    "title": "About",
+    "appName": "Z99",
+    "version": "Version 1.0.0 (Build 1)",
+    "aboutTitle": "About This App",
+    "featuresTitle": "Key Features",
+    "statsTitle": "Platform Stats",
+    "developerTitle": "Developer",
+    "linksTitle": "Links"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last Updated",
+    "footer": "By using our app, you agree to these Terms of Service."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated",
+    "footer": "By using our app, you agree to the terms of this Privacy Policy."
+  }
+}

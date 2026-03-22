@@ -70,7 +70,7 @@ export type ModelType =
   | 'video_effect'
   | 'text_to_speech';
 
-export type ModelProvider = 'openai' | 'google' | 'wavespeedai' | 'deepseek' | 'anthropic';
+export type ModelProvider = 'openai' | 'google' | 'wavespeedai' | 'deepseek' | 'anthropic' | 'groq' | 'falai';
 
 export interface AIModel {
   id: number;
@@ -174,6 +174,7 @@ export interface HistoryItem {
   model_id?: number;
   prompt?: string;
   words_used?: number;
+  session_id?: number;
 }
 
 // Credit Account Types

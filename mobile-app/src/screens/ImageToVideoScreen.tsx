@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Dimensions,
   ActivityIndicator,
   Alert,
 } from 'react-native';
@@ -21,8 +20,6 @@ import GradientButton from '../components/GradientButton';
 import { chatService, mediaService } from '../services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS, WS_BASE_URL } from '../services/config';
-
-const { width } = Dimensions.get('window');
 
 const motionOptions = [
   { id: 'subtle', label: 'Subtle', description: 'Gentle movements' },
@@ -46,6 +43,7 @@ interface AIModel {
 
 const ImageToVideoScreen: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [selectedMotion, setSelectedMotion] = useState('moderate');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -88,6 +86,9 @@ const ImageToVideoScreen: React.FC = () => {
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
+      if (result.assets[0].base64) {
+        setSelectedImageBase64(`data:image/jpeg;base64,${result.assets[0].base64}`);
+      }
     }
   };
 
@@ -106,6 +107,9 @@ const ImageToVideoScreen: React.FC = () => {
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
+      if (result.assets[0].base64) {
+        setSelectedImageBase64(`data:image/jpeg;base64,${result.assets[0].base64}`);
+      }
     }
   };
 
@@ -122,38 +126,46 @@ const ImageToVideoScreen: React.FC = () => {
       console.log('WebSocket connected');
       ws.send(JSON.stringify({
         message: prompt || 'Animate this image',
-        images: [selectedImage],
+        images: [selectedImageBase64 || selectedImage],
         motion_intensity: selectedMotion,
       }));
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('WS message:', data);
-      
-      if (data.video_url || data.url) {
-        const videoUrl = data.video_url || data.url;
-        setGeneratedVideos(prev => [
-          {
-            id: Date.now().toString(),
-            url: videoUrl,
-            sourceImage: selectedImage!,
-            prompt: prompt,
-            status: 'completed',
-          },
-          ...prev.filter(v => v.status !== 'generating'),
-        ]);
-        setIsGenerating(false);
-      } else if (data.error) {
-        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
-        Alert.alert('Error', errorMsg);
-        setGeneratedVideos(prev => prev.filter(v => v.status !== 'generating'));
-        setIsGenerating(false);
+      try {
+        const data = JSON.parse(event.data);
+        console.log('WS message:', data);
+        
+        if (data.video_url || data.url) {
+          const videoUrl = data.video_url || data.url;
+          setGeneratedVideos(prev => [
+            {
+              id: Date.now().toString(),
+              url: videoUrl,
+              sourceImage: selectedImage!,
+              prompt: prompt,
+              status: 'completed',
+            },
+            ...prev.filter(v => v.status !== 'generating'),
+          ]);
+          setIsGenerating(false);
+          ws.close();
+        } else if (data.error) {
+          const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+          Alert.alert('Error', errorMsg);
+          setGeneratedVideos(prev => prev.filter(v => v.status !== 'generating'));
+          setIsGenerating(false);
+          ws.close();
+        }
+      } catch (e) {
+        console.error('Error parsing WebSocket message:', e);
       }
     };
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
+      Alert.alert('Connection Error', 'Failed to connect to the server. Please try again.');
+      setGeneratedVideos(prev => prev.filter(v => v.status !== 'generating'));
       setIsGenerating(false);
     };
 

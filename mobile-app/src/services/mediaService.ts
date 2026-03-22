@@ -1,4 +1,4 @@
-import { Paths, File, Directory } from 'expo-file-system';
+import { Paths } from 'expo-file-system';
 import * as LegacyFS from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';

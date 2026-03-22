@@ -1,0 +1,81 @@
+[
+  {
+    "id": "1f568712-3caa-4696-8cea-616f51070ece",
+    "status": "NEW",
+    "platform": "ANDROID",
+    "artifacts": {},
+    "fingerprint": {
+      "id": "019d0628-f471-7be7-bfbf-0ee324bd1735",
+      "hash": "fb780514efab91e9d10b84293e787d19e58170ed"
+    },
+    "initiatingActor": {
+      "id": "b81f03bc-ad43-4d9c-972c-c8cc860c2ede",
+      "displayName": "yosr_bj"
+    },
+    "logFiles": [
+      "https://job-logs.eascdn.net/production/1f568712-3caa-4696-8cea-616f51070ece/1773924840821-a5982119-ddc3-4414-a03e-2bc9a6af3541.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260319%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260319T125652Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=295c750185290882fd81b8a504acde5b61548d1e986464d28a0a776c419c5939c9043d892c414c59da8df2d6d46357fc10c7b50f30ec02cef4d6e38877a96e7073c0c31585022075f253890c89fbad7f5616931a09ac70d8386aa66d4ab51c2f3076c2ff94f8d4a46054e78422b453d80d895ecead5143b9a9d0685204f1b1e548546b3ddbdeffc5ea0f0ec47e7067b7d528b1f75e092129ef65e416abc9b98ddaf100a1025cfa0930f85a151de5a9992566cc4cf6076cb5da8c7c5c14fe640cedab36d5103be480c4b60324d4098832c1a1ae50e35804dbce2c2453386b41be063188de8518ba7db126fc76417472c9b99f7d672536e7aa2802df70a04a0359"
+    ],
+    "project": {
+      "id": "6cc0dbfa-b164-4c11-b32a-377526852591",
+      "name": "aimodel-mobile",
+      "slug": "aimodel-mobile",
+      "ownerAccount": {
+        "id": "7cb987ef-c839-4a2b-9650-3e55995a7767",
+        "name": "yosr_bj"
+      }
+    },
+    "distribution": "INTERNAL",
+    "buildProfile": "preview",
+    "sdkVersion": "54.0.0",
+    "appVersion": "1.0.0",
+    "appBuildVersion": "1",
+    "gitCommitHash": "2139b849f6a4f9d1701a803bda9dc7bbd9264abd",
+    "gitCommitMessage": "Fix mobile auth config and network defaults",
+    "priority": "NORMAL",
+    "createdAt": "2026-03-19T12:54:00.459Z",
+    "updatedAt": "2026-03-19T12:54:01.012Z",
+    "expirationDate": "2026-04-02T12:54:00.537Z",
+    "isForIosSimulator": false
+  },
+  {
+    "id": "3f1eca50-2703-4484-a0a6-c80adf1baa10",
+    "status": "IN_PROGRESS",
+    "platform": "ANDROID",
+    "artifacts": {},
+    "fingerprint": {
+      "id": "019cfbc2-4cb2-7002-8995-f274316bdd2d",
+      "hash": "1ef98ffbdec1e77ed6639e3d0fc37d75e7229100"
+    },
+    "initiatingActor": {
+      "id": "b81f03bc-ad43-4d9c-972c-c8cc860c2ede",
+      "displayName": "yosr_bj"
+    },
+    "logFiles": [
+      "https://job-logs.eascdn.net/production/3f1eca50-2703-4484-a0a6-c80adf1baa10/1773923835090-7d746ebe-3081-4465-866c-3e932d81eb7b.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260319%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260319T125256Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=bfcd602b5f50998fb40ab4f8c5e49427d5d0f96ea5fbcf6f0738cb31895f49153bcb4682337745835a18b82ca938631e747073ea3cb770b56ef9be3fe9ec2bc1892ddcce50bf64c0d26e13bb23caf638e8683273111dee615c0e5681d1d67bd32cee3dbdf090c3d1ee2e1dc9f515a78b5c8d52f94d8a17a44c798129f17933b8cf37d61cd29fa273ebee1cf6a45adcab94983e18c8a28520dad0e5b5ebfd05bffda5f17266b19c1c03209ca08c29d1d19f37db0ef4ab5b90ee30f390c341093a734276a03da6ec29070c2560615f33faf5c0d01ea99a59a866c05eed8c8e8ef971db38a071410d8cb3654ed106ab70ccca0c92edb26b31922c62f772d7e3ef3d",
+      "https://job-logs.eascdn.net/production/3f1eca50-2703-4484-a0a6-c80adf1baa10/1773924239599-55f41daa-dd47-45c0-9f6c-ff6d51751e84.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260319%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260319T124654Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=e02b74a5162f662f2e2dff0d2dbf525f267798053ae149b689adac40284171d09b75ec17fd8159c8dda83d54d8cd01fec9d6836452f5f178e2464ba6d06b59ceb997d1eedc03ab0177f78a46d3ef0c689208699de952e88d22a88119edcdb47fd099e0b0a34984f37fcc432288c324ffc4cc93670ca071b04de912281112d75dcd0b490c5ec511d399c409d11fd7117b0eaa7ce144070bdf5480af9d401ca4b2b4ac068201112b12b1e35d321ed711d9b3ec16338d5c5d70e7b8146df324f96ae08a649136ddac4064c8431696103e18d7aa23c8fdf1ccd7213b306f899f64ebab80431f02c55cce6628494c04e3a7a53bd3d748c39d113409681bcde7033bfe",
+      "https://job-logs.eascdn.net/production/3f1eca50-2703-4484-a0a6-c80adf1baa10/1773924239832-ea8de7dd-29c5-49f7-ae6f-b33bb0d37cf5.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260319%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260319T124654Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=bf4446446a19864e12fe6cba2574ea86d0f231c51a29388a643b781b483cd64cf5d93f2a2cb691f92ce3769cffbe15548e199e27b2cbd31099ac280375dd2bac5f8a599f3fa782b2775ac076fe21f274b4a225f71ca2daeea5f696bdb7cb33b618c0f5ccb9eec8555cc44b9f8d01917d241133d46caa2d7a26a92402eb5134f97ade34dda5f9798b3b1baf9ad752fdc7154032938d1e86d547f679cc4fe7e0ede70122d3abf87e4cfbb5ce36e13d1362b097d7528a408a4471f41a7abb6e265fd2f86409665bb8ec56f1e6177b7541e7bd85468b4d099f88b62e9cd6e6a6af841deb617ec4eb2b3efd6a1a193e4bc66a74e107c0b27c92f0f9edda0a55cab919",
+      "https://job-logs.eascdn.net/production/3f1eca50-2703-4484-a0a6-c80adf1baa10/1773924239996-d8aad773-fd90-44a9-bc03-5332b72f2899.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260319%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260319T124654Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=beb2d50b3261f2cf020b9802c6782db443e365ff3e978a6b7a0df25b2b41b5574c8dd1751f4903224ff180392c566d0371fccf93b417e78e9f3d28603c291f7de27af10f0cca12117bbec572816c02e6e3e119991955682838e2af0f1c985c6b09aea7c23bed10dd11ef64a2455b175f6964bcb396e5642736e4b06c8362b85d111aa0fa7a0d5c0aab4ace85cfbdd198ce89f0b851742d235a3b4fbd81d2e797933b3226a72294b4bc12d235cdfe9fdc65f3ea8ccc96f33cb3f134b86f07e370da127ca95168bb2327b0a1881d465036660aa095d99ac192a2d1835f023daa77fa6fd8e8417aa410e1f5fd39273bddd4662a1f70bf60ace61a239012956c7747"
+    ],
+    "project": {
+      "id": "6cc0dbfa-b164-4c11-b32a-377526852591",
+      "name": "aimodel-mobile",
+      "slug": "aimodel-mobile",
+      "ownerAccount": {
+        "id": "7cb987ef-c839-4a2b-9650-3e55995a7767",
+        "name": "yosr_bj"
+      }
+    },
+    "distribution": "INTERNAL",
+    "buildProfile": "preview",
+    "sdkVersion": "54.0.0",
+    "appVersion": "1.0.0",
+    "appBuildVersion": "1",
+    "gitCommitHash": "2139b849f6a4f9d1701a803bda9dc7bbd9264abd",
+    "gitCommitMessage": "Fix mobile auth config and network defaults",
+    "priority": "NORMAL",
+    "createdAt": "2026-03-19T12:37:14.578Z",
+    "updatedAt": "2026-03-19T12:44:50.112Z",
+    "expirationDate": "2026-04-02T12:37:14.880Z",
+    "isForIosSimulator": false
+  }
+]

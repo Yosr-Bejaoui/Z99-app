@@ -6,7 +6,7 @@ from accounts.models import CreditAccount
 User = get_user_model()
 
 # call_fal_ai(api_key, prompt,model,user_id,base_cost=None,seed=6252023, steps=50, cfg_scale=7.0, size="512x512"):
-def call_fal_ai(api_key, prompt,model,user_id,num_images=1,base_cost=None,seed=6252023, steps=50, cfg_scale=7.0, size="512x512"):
+def call_fal_ai(api_key, prompt,model,user_id,num_images=1,base_cost=None,seed=6252023, steps=50, cfg_scale=7.0, size="512x512", images_data_list=None):
     try:
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:

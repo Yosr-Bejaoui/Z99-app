@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -8,12 +9,15 @@ import {
   Switch,
   Alert,
   Linking,
+  Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GlassCard } from '../components';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context';
+import { SUPPORTED_LANGUAGES, changeLanguage } from '../i18n';
+import type { LanguageCode } from '../i18n';
 import {
   colors,
   spacing,
@@ -21,8 +25,11 @@ import {
   typography,
 } from '../theme';
 
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../types/navigation';
+
 interface SettingsScreenProps {
-  navigation: any;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 }
 
 interface SettingItemProps {
@@ -64,21 +71,29 @@ const SettingItem: React.FC<SettingItemProps> = ({
 );
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
+  const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
-  const [autoSave, setAutoSave] = useState(true);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const currentLangCode = (i18n.language || 'en') as LanguageCode;
+  const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === currentLangCode) || SUPPORTED_LANGUAGES[0];
 
   const handleLogout = () => {
     Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
+      t('settings.logoutAlert.title'),
+      t('settings.logoutAlert.message'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('settings.logoutAlert.cancel'), style: 'cancel' },
         { 
-          text: 'Logout', 
+          text: t('settings.logoutAlert.confirm'), 
           style: 'destructive',
-          onPress: logout,
+          onPress: async () => {
+            await logout();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Landing' }],
+            });
+          },
         },
       ]
     );
@@ -86,15 +101,15 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'Delete Account',
-      'This action cannot be undone. All your data will be permanently deleted.',
+      t('settings.deleteAlert.title'),
+      t('settings.deleteAlert.message'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('settings.deleteAlert.cancel'), style: 'cancel' },
         { 
-          text: 'Delete', 
+          text: t('settings.deleteAlert.confirm'), 
           style: 'destructive',
           onPress: () => {
-            Alert.alert('Contact Support', 'Please contact support@aiplatform.com to delete your account.');
+            Alert.alert(t('settings.deleteAlert.contactTitle'), t('settings.deleteAlert.contactMessage'));
           },
         },
       ]
@@ -103,18 +118,36 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
 
   const handleClearCache = () => {
     Alert.alert(
-      'Clear Cache',
-      'This will clear all cached data. You may need to re-login.',
+      t('settings.clearCacheAlert.title'),
+      t('settings.clearCacheAlert.message'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('settings.clearCacheAlert.cancel'), style: 'cancel' },
         { 
-          text: 'Clear', 
+          text: t('settings.clearCacheAlert.confirm'), 
           onPress: async () => {
             try {
+              // Get auth keys before clearing
+              const authKeys = [
+                '@auth_access_token',
+                '@auth_refresh_token',
+                '@auth_user',
+              ];
+              const authData = await Promise.all(
+                authKeys.map(async (key) => [key, await AsyncStorage.getItem(key)] as [string, string | null])
+              );
+
+              // Clear everything
               await AsyncStorage.clear();
-              Alert.alert('Success', 'Cache cleared successfully');
+
+              // Restore auth keys
+              const validAuthData = authData.filter(([, value]) => value !== null) as [string, string][];
+              if (validAuthData.length > 0) {
+                await AsyncStorage.multiSet(validAuthData);
+              }
+
+              Alert.alert(t('common.success'), t('settings.clearCacheAlert.success'));
             } catch (error) {
-              Alert.alert('Error', 'Failed to clear cache');
+              Alert.alert(t('common.error'), t('settings.clearCacheAlert.error'));
             }
           },
         },
@@ -124,7 +157,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
 
   const openLink = (url: string) => {
     Linking.openURL(url).catch(() => {
-      Alert.alert('Error', 'Could not open link');
+      Alert.alert(t('common.error'), t('settings.linkError'));
     });
   };
 
@@ -143,7 +176,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
         >
           <Ionicons name="arrow-back" size={24} color={colors.foreground} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
+        <Text style={styles.headerTitle}>{t('settings.title')}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -152,38 +185,38 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         {/* Account Section */}
-        <Text style={styles.sectionTitle}>Account</Text>
+        <Text style={styles.sectionTitle}>{t('settings.account.title')}</Text>
         <GlassCard style={styles.section}>
           <SettingItem
             icon="person-outline"
-            title="Edit Profile"
+            title={t('settings.account.editProfile')}
             subtitle={user?.email}
             onPress={() => navigation.navigate('Profile')}
           />
           <View style={styles.divider} />
           <SettingItem
             icon="card-outline"
-            title="Subscription"
-            subtitle={user?.subscribed ? 'Pro Plan' : 'Free Plan'}
+            title={t('settings.account.subscription')}
+            subtitle={user?.subscribed ? t('settings.account.proPlan') : t('settings.account.freePlan')}
             iconColor="#10b981"
             onPress={() => navigation.navigate('Credits')}
           />
           <View style={styles.divider} />
           <SettingItem
             icon="key-outline"
-            title="Change Password"
+            title={t('settings.account.changePassword')}
             iconColor="#f59e0b"
-            onPress={() => Alert.alert('Coming Soon', 'This feature is coming soon')}
+            onPress={() => navigation.navigate('ChangePassword')}
           />
         </GlassCard>
 
         {/* Preferences Section */}
-        <Text style={styles.sectionTitle}>Preferences</Text>
+        <Text style={styles.sectionTitle}>{t('settings.preferences.title')}</Text>
         <GlassCard style={styles.section}>
           <SettingItem
             icon="notifications-outline"
-            title="Push Notifications"
-            subtitle="Receive updates and alerts"
+            title={t('settings.preferences.notifications')}
+            subtitle={t('settings.preferences.notificationsSubtitle')}
             showChevron={false}
             rightElement={
               <Switch
@@ -194,142 +227,131 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
               />
             }
           />
-          <View style={styles.divider} />
+        </GlassCard>
+
+        {/* Language Section */}
+        <Text style={styles.sectionTitle}>{t('profile.settings.language')}</Text>
+        <GlassCard style={styles.section}>
           <SettingItem
-            icon="moon-outline"
-            title="Dark Mode"
-            subtitle="Currently always on"
-            iconColor="#8b5cf6"
-            showChevron={false}
-            rightElement={
-              <Switch
-                value={darkMode}
-                onValueChange={setDarkMode}
-                trackColor={{ false: colors.border, true: colors.primary + '50' }}
-                thumbColor={darkMode ? colors.primary : colors.foregroundMuted}
-                disabled
-              />
-            }
-          />
-          <View style={styles.divider} />
-          <SettingItem
-            icon="save-outline"
-            title="Auto-save Chats"
-            subtitle="Automatically save conversations"
-            iconColor="#06b6d4"
-            showChevron={false}
-            rightElement={
-              <Switch
-                value={autoSave}
-                onValueChange={setAutoSave}
-                trackColor={{ false: colors.border, true: colors.primary + '50' }}
-                thumbColor={autoSave ? colors.primary : colors.foregroundMuted}
-              />
-            }
+            icon="language-outline"
+            title={t('profile.settings.language')}
+            subtitle={`${currentLang.flag} ${currentLang.nativeName}`}
+            iconColor="#0ea5e9"
+            onPress={() => setShowLanguageModal(true)}
           />
         </GlassCard>
 
         {/* Support Section */}
-        <Text style={styles.sectionTitle}>Support</Text>
+        <Text style={styles.sectionTitle}>{t('settings.support.title')}</Text>
         <GlassCard style={styles.section}>
           <SettingItem
             icon="help-circle-outline"
-            title="Help & FAQ"
+            title={t('settings.support.helpFaq')}
             iconColor="#0ea5e9"
             onPress={() => navigation.navigate('Help')}
           />
           <View style={styles.divider} />
           <SettingItem
             icon="chatbubble-ellipses-outline"
-            title="Contact Support"
+            title={t('settings.support.contactSupport')}
             iconColor="#10b981"
-            onPress={() => openLink('mailto:support@aiplatform.com')}
-          />
-          <View style={styles.divider} />
-          <SettingItem
-            icon="star-outline"
-            title="Rate App"
-            iconColor="#f59e0b"
-            onPress={() => Alert.alert('Thank You!', 'We appreciate your feedback!')}
-          />
-          <View style={styles.divider} />
-          <SettingItem
-            icon="share-social-outline"
-            title="Share App"
-            iconColor="#8b5cf6"
-            onPress={() => Alert.alert('Share', 'Share functionality coming soon')}
+            onPress={() => openLink('mailto:support@z99.ai')}
           />
         </GlassCard>
 
         {/* About Section */}
-        <Text style={styles.sectionTitle}>About</Text>
+        <Text style={styles.sectionTitle}>{t('settings.about.title')}</Text>
         <GlassCard style={styles.section}>
           <SettingItem
             icon="document-text-outline"
-            title="Terms of Service"
-            onPress={() => openLink('https://aiplatform.com/terms')}
+            title={t('settings.about.terms')}
+            onPress={() => navigation.navigate('TermsOfService')}
           />
           <View style={styles.divider} />
           <SettingItem
             icon="shield-checkmark-outline"
-            title="Privacy Policy"
+            title={t('settings.about.privacy')}
             iconColor="#10b981"
-            onPress={() => openLink('https://aiplatform.com/privacy')}
+            onPress={() => navigation.navigate('PrivacyPolicy')}
           />
           <View style={styles.divider} />
           <SettingItem
             icon="information-circle-outline"
-            title="App Version"
-            subtitle="1.0.0 (Build 1)"
+            title={t('settings.about.appVersion')}
+            subtitle={t('settings.about.versionNumber')}
             iconColor="#6b7280"
             showChevron={false}
           />
         </GlassCard>
 
-        {/* Data Section */}
-        <Text style={styles.sectionTitle}>Data</Text>
-        <GlassCard style={styles.section}>
-          <SettingItem
-            icon="trash-outline"
-            title="Clear Cache"
-            subtitle="Free up storage space"
-            iconColor="#f59e0b"
-            onPress={handleClearCache}
-          />
-          <View style={styles.divider} />
-          <SettingItem
-            icon="download-outline"
-            title="Export Data"
-            subtitle="Download your data"
-            iconColor="#0ea5e9"
-            onPress={() => Alert.alert('Coming Soon', 'This feature is coming soon')}
-          />
-        </GlassCard>
-
         {/* Danger Zone */}
-        <Text style={[styles.sectionTitle, { color: '#ef4444' }]}>Danger Zone</Text>
+        <Text style={[styles.sectionTitle, { color: '#ef4444' }]}>{t('settings.dangerZone.title')}</Text>
         <GlassCard style={[styles.section, { borderColor: '#ef444430' }]}>
           <SettingItem
             icon="log-out-outline"
-            title="Logout"
+            title={t('settings.dangerZone.logout')}
             iconColor="#ef4444"
             onPress={handleLogout}
           />
           <View style={styles.divider} />
           <SettingItem
             icon="warning-outline"
-            title="Delete Account"
-            subtitle="Permanently delete your account"
+            title={t('settings.dangerZone.deleteAccount')}
+            subtitle={t('settings.dangerZone.deleteAccountSubtitle')}
             iconColor="#ef4444"
             onPress={handleDeleteAccount}
           />
         </GlassCard>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Made with ❤️ by AI Platform Team</Text>
-          <Text style={styles.footerSubtext}>© 2024 All rights reserved</Text>
+          <Text style={styles.footerText}>{t('settings.footer.madeWith')}</Text>
+          <Text style={styles.footerSubtext}>{t('settings.footer.copyright')}</Text>
         </View>
       </ScrollView>
+
+      {/* Language Picker Modal */}
+      <Modal
+        visible={showLanguageModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowLanguageModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('profile.selectLanguage')}</Text>
+              <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
+                <Ionicons name="close" size={24} color={colors.foregroundMuted} />
+              </TouchableOpacity>
+            </View>
+            {SUPPORTED_LANGUAGES.map((lang) => (
+              <TouchableOpacity
+                key={lang.code}
+                style={[
+                  styles.languageOption,
+                  currentLangCode === lang.code && styles.languageOptionActive,
+                ]}
+                onPress={async () => {
+                  await changeLanguage(lang.code);
+                  setShowLanguageModal(false);
+                }}
+              >
+                <Text style={styles.languageFlag}>{lang.flag}</Text>
+                <View style={styles.languageTextContainer}>
+                  <Text style={[
+                    styles.languageNativeName,
+                    currentLangCode === lang.code && styles.languageTextActive,
+                  ]}>{lang.nativeName}</Text>
+                  <Text style={styles.languageEnglishName}>{lang.name}</Text>
+                </View>
+                {currentLangCode === lang.code && (
+                  <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -426,6 +448,62 @@ const styles = StyleSheet.create({
     color: colors.foregroundMuted,
     marginTop: spacing.xs,
     opacity: 0.7,
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderRadius: 20,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.foreground,
+  },
+  languageOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 4,
+  },
+  languageOptionActive: {
+    backgroundColor: `${colors.primary}15`,
+  },
+  languageFlag: {
+    fontSize: 24,
+    marginRight: 14,
+  },
+  languageTextContainer: {
+    flex: 1,
+  },
+  languageNativeName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.foreground,
+  },
+  languageEnglishName: {
+    fontSize: 13,
+    color: colors.foregroundMuted,
+    marginTop: 2,
+  },
+  languageTextActive: {
+    color: colors.primary,
   },
 });
 

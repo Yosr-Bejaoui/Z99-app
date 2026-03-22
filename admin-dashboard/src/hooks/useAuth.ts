@@ -66,12 +66,22 @@ export function useAuth() {
     }
   }, [navigate]);
 
+  const updateUser = useCallback((updates: Partial<AdminUser>) => {
+    const current = authService.getCurrentUser();
+    if (current) {
+      const updated = { ...current, ...updates };
+      localStorage.setItem('admin_user', JSON.stringify(updated));
+      setUser(updated);
+    }
+  }, []);
+
   return {
     user,
     isLoading,
     isAuthenticated,
     login,
     logout,
+    updateUser,
   };
 }
 

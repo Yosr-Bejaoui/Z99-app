@@ -3,14 +3,54 @@
  * Update BASE_URL to your backend server address
  */
 
+import { NativeModules, Platform } from 'react-native';
+
+const getBundleHost = (): string | null => {
+  const scriptUrl = NativeModules.SourceCode?.scriptURL;
+
+  if (typeof scriptUrl !== 'string' || scriptUrl.length === 0) {
+    return null;
+  }
+
+  const hostMatch = scriptUrl.match(/^[a-z]+:\/\/([^/:]+)/i);
+  if (!hostMatch) {
+    return null;
+  }
+
+  const host = hostMatch[1];
+  if (Platform.OS === 'android' && (host === 'localhost' || host === '127.0.0.1')) {
+    return '10.0.2.2';
+  }
+
+  return host;
+};
+
+const getHostFromUrl = (url?: string): string | null => {
+  if (!url) return null;
+  const match = url.match(/^[a-z]+:\/\/([^/:]+)/i);
+  return match ? match[1] : null;
+};
+
 // For development - use your computer's IP address when testing on phone
-// Example: 'http://192.168.1.100:8000'
-// For production: 'https://your-api-domain.com'
-export const BASE_URL = 'http://10.133.245.121:8082';
+// Example: EXPO_PUBLIC_API_BASE_URL=http://192.168.1.100:8000/api/v1
+// For production: EXPO_PUBLIC_API_BASE_URL=https://your-api-domain.com/api/v1
+const bundleHost = getBundleHost();
+const defaultApiHost = bundleHost || (Platform.OS === 'android' ? '10.0.2.2' : 'localhost');
+const defaultApiBaseUrl = `http://${defaultApiHost}:8000/api/v1`;
+const envApiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+const envApiHost = getHostFromUrl(envApiBaseUrl);
+
+// If running on Android emulator, prefer emulator loopback even when env points to LAN IP.
+const isAndroidEmulator = Platform.OS === 'android' && defaultApiHost === '10.0.2.2';
+const envForcesDifferentHost = !!envApiHost && !['10.0.2.2', 'localhost', '127.0.0.1'].includes(envApiHost);
+const configuredApiBaseUrl = isAndroidEmulator && envForcesDifferentHost
+  ? defaultApiBaseUrl
+  : (envApiBaseUrl || defaultApiBaseUrl);
+export const BASE_URL = configuredApiBaseUrl.replace(/\/+$/, '').replace(/\/api\/v1$/, '');
 
 export const API_URL = `${BASE_URL}/api/v1`;
 
-export const WS_URL = BASE_URL.replace('http', 'ws');
+export const WS_URL = BASE_URL.replace('https', 'wss');
 
 export const ENDPOINTS = {
   // Auth

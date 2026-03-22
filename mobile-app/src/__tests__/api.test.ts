@@ -1,71 +1,99 @@
-import api from '../services/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS } from '../services/config';
-
-// Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  __esModule: true,
+  default: {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    multiRemove: jest.fn(),
+  },
 }));
 
-// Mock axios
-jest.mock('axios', () => ({
-  create: jest.fn(() => ({
-    interceptors: {
-      request: { use: jest.fn() },
-      response: { use: jest.fn() },
-    },
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
-  })),
-}));
+import { getErrorMessage } from '../services/api';
 
-describe('API Service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+describe('API error formatting', () => {
+  it('returns a string payload directly when the backend sends a plain-text error', () => {
+    const error = {
+      isAxiosError: true,
+      response: {
+        data: 'Plain backend error',
+      },
+    };
+
+    expect(getErrorMessage(error)).toBe('Plain backend error');
   });
 
-  describe('Authentication', () => {
-    it('should store tokens after successful login', async () => {
-      const mockSetItem = AsyncStorage.setItem as jest.Mock;
-      
-      // Simulate token storage
-      await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, 'test-access-token');
-      await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'test-refresh-token');
-      
-      expect(mockSetItem).toHaveBeenCalledWith(STORAGE_KEYS.ACCESS_TOKEN, 'test-access-token');
-      expect(mockSetItem).toHaveBeenCalledWith(STORAGE_KEYS.REFRESH_TOKEN, 'test-refresh-token');
-    });
+  it('prefers the message field when the backend provides one', () => {
+    const error = {
+      isAxiosError: true,
+      response: {
+        data: { message: 'Readable message' },
+      },
+    };
 
-    it('should retrieve stored tokens', async () => {
-      const mockGetItem = AsyncStorage.getItem as jest.Mock;
-      mockGetItem.mockResolvedValueOnce('test-access-token');
-      
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-      
-      expect(token).toBe('test-access-token');
-      expect(mockGetItem).toHaveBeenCalledWith(STORAGE_KEYS.ACCESS_TOKEN);
-    });
-
-    it('should clear tokens on logout', async () => {
-      const mockRemoveItem = AsyncStorage.removeItem as jest.Mock;
-      
-      await AsyncStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-      await AsyncStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-      await AsyncStorage.removeItem(STORAGE_KEYS.USER);
-      
-      expect(mockRemoveItem).toHaveBeenCalledTimes(3);
-    });
+    expect(getErrorMessage(error)).toBe('Readable message');
   });
 
-  describe('API Configuration', () => {
-    it('should have correct base URL configured', () => {
-      // This would test that the API client is configured correctly
-      expect(true).toBe(true); // Placeholder for actual implementation
-    });
+  it('falls back to the detail field for DRF-style errors', () => {
+    const error = {
+      isAxiosError: true,
+      response: {
+        data: { detail: 'Authentication failed' },
+      },
+    };
+
+    expect(getErrorMessage(error)).toBe('Authentication failed');
+  });
+
+  it('stringifies nested error objects when error is not a string', () => {
+    const error = {
+      isAxiosError: true,
+      response: {
+        data: { error: { code: 'invalid_purchase', detail: 'Purchase token rejected' } },
+      },
+    };
+
+    expect(getErrorMessage(error)).toBe(JSON.stringify({ code: 'invalid_purchase', detail: 'Purchase token rejected' }));
+  });
+
+  it('joins field validation messages into a readable multiline string', () => {
+    const error = {
+      isAxiosError: true,
+      response: {
+        data: {
+          email: ['This field is required.'],
+          non_field_errors: ['Invalid credentials.'],
+          code: 'ignored',
+          status: 400,
+        },
+      },
+    };
+
+    expect(getErrorMessage(error)).toBe('email: This field is required.\nInvalid credentials.');
+  });
+
+  it('returns a connectivity message for network errors', () => {
+    const error = {
+      isAxiosError: true,
+      message: 'Network Error',
+    };
+
+    expect(getErrorMessage(error)).toBe('Unable to connect to server. Please check your internet connection.');
+  });
+
+  it('returns a timeout-specific message for aborted requests', () => {
+    const error = {
+      isAxiosError: true,
+      code: 'ECONNABORTED',
+      message: 'timeout exceeded',
+    };
+
+    expect(getErrorMessage(error)).toBe('Request timed out. Please try again.');
+  });
+
+  it('returns the native error message for non-axios errors', () => {
+    expect(getErrorMessage(new Error('Unexpected failure'))).toBe('Unexpected failure');
+  });
+
+  it('returns a generic message for unknown thrown values', () => {
+    expect(getErrorMessage(undefined)).toBe('An unexpected error occurred');
   });
 });

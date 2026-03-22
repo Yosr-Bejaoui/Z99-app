@@ -1,0 +1,640 @@
+{
+  "common": {
+    "error": "خطأ",
+    "success": "نجاح",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "ok": "حسناً",
+    "loading": "جاري التحميل...",
+    "free": "مجاني",
+    "user": "مستخدم",
+    "na": "غير متوفر",
+    "save": "حفظ",
+    "close": "إغلاق",
+    "confirm": "تأكيد",
+    "back": "رجوع",
+    "next": "التالي",
+    "retry": "إعادة المحاولة",
+    "credits": "رصيد"
+  },
+  "login": {
+    "title": "مرحباً بعودتك",
+    "subtitle": "سجل الدخول للمتابعة",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "signInButton": "تسجيل الدخول",
+    "signingIn": "جاري تسجيل الدخول...",
+    "divider": "أو المتابعة باستخدام",
+    "google": "المتابعة مع Google",
+    "noAccount": "ليس لديك حساب؟ ",
+    "signUpLink": "إنشاء حساب",
+    "error": {
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "emailInvalid": "أدخل بريد إلكتروني صالح",
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "loginFailed": "فشل تسجيل الدخول. تحقق من بياناتك."
+    },
+    "googleTitle": "تسجيل الدخول بـ Google",
+    "googleMessage": "تسجيل الدخول بـ Google سيكون متاحاً قريباً!",
+    "a11y": {
+      "email": "البريد الإلكتروني",
+      "emailHint": "أدخل بريدك الإلكتروني لتسجيل الدخول",
+      "password": "كلمة المرور",
+      "passwordHint": "أدخل كلمة المرور لتسجيل الدخول",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور",
+      "forgotPassword": "نسيت كلمة المرور",
+      "googleSignIn": "المتابعة مع Google",
+      "signUp": "إنشاء حساب جديد"
+    }
+  },
+  "signUp": {
+    "title": "إنشاء حساب",
+    "subtitle": "ابدأ رحلتك مع الذكاء الاصطناعي اليوم",
+    "fullNameLabel": "الاسم الكامل",
+    "fullNamePlaceholder": "أدخل اسمك الكامل",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "أنشئ كلمة مرور",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "confirmPasswordPlaceholder": "أكد كلمة المرور",
+    "termsText": "أوافق على ",
+    "termsOfService": "شروط الخدمة",
+    "and": " و ",
+    "privacyPolicy": "سياسة الخصوصية",
+    "createButton": "إنشاء حساب",
+    "creating": "جاري إنشاء الحساب...",
+    "divider": "أو التسجيل باستخدام",
+    "google": "المتابعة مع Google",
+    "hasAccount": "لديك حساب بالفعل؟ ",
+    "signInLink": "تسجيل الدخول",
+    "error": {
+      "nameRequired": "الاسم الكامل مطلوب",
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "emailInvalid": "أدخل بريد إلكتروني صالح",
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "passwordLength": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل",
+      "passwordUppercase": "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل",
+      "passwordNumber": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
+      "passwordMismatch": "كلمات المرور غير متطابقة",
+      "termsRequired": "يجب الموافقة على شروط الخدمة",
+      "registrationFailed": "فشل التسجيل. حاول مرة أخرى."
+    },
+    "googleTitle": "التسجيل بـ Google",
+    "googleMessage": "التسجيل بـ Google سيكون متاحاً قريباً!"
+  },
+  "chat": {
+    "loading": "جاري التحميل...",
+    "errorModels": "فشل تحميل نماذج الذكاء الاصطناعي",
+    "errorConnection": "فقد الاتصال بالخادم. حاول مرة أخرى.",
+    "errorConnectionTitle": "خطأ في الاتصال",
+    "insufficientCredits": {
+      "title": "رصيد غير كافٍ",
+      "message": "تتطلب هذه الرسالة {{cost}} رصيد، لكن لديك فقط {{balance}}. اشترِ المزيد من الرصيد.",
+      "cancel": "إلغاء",
+      "buy": "شراء رصيد"
+    },
+    "switchModel": {
+      "title": "تغيير النموذج",
+      "message": "تغيير النموذج سيبدأ محادثة جديدة. هل تريد المتابعة؟",
+      "cancel": "إلغاء",
+      "confirm": "تغيير"
+    },
+    "newChat": {
+      "title": "محادثة جديدة",
+      "message": "بدء محادثة جديدة؟",
+      "cancel": "إلغاء",
+      "confirm": "محادثة جديدة"
+    },
+    "emptyTitle": "كيف يمكنني مساعدتك اليوم؟",
+    "emptySubtitle": "ابدأ محادثة بكتابة رسالة أدناه",
+    "suggestion": {
+      "quantum": "اشرح الحوسبة الكمومية",
+      "poem": "اكتب قصيدة عن الطبيعة",
+      "code": "ساعدني في برمجة دالة",
+      "summarize": "لخص هذا المقال"
+    },
+    "inputPlaceholder": "رسالة",
+    "disclaimer": "قد يرتكب الذكاء الاصطناعي أخطاء. يُرجى التحقق من المعلومات المهمة.",
+    "costToast": "استخدمت هذه الرسالة {{cost}} رصيد",
+    "sendAction": "إرسال رسالة باستخدام {{model}}",
+    "a11y": {
+      "attachFile": "إرفاق ملف",
+      "chatMessage": "رسالة المحادثة",
+      "chatHint": "اكتب رسالتك لإرسالها إلى الذكاء الاصطناعي",
+      "sendMessage": "إرسال الرسالة"
+    },
+    "attachFile": "إرفاق ملف",
+    "chooseSource": "اختر المصدر",
+    "takePhoto": "التقط صورة",
+    "chooseFromGallery": "اختر من المعرض",
+    "imageAttached": "تم إرفاق الصورة",
+    "errorAttachFile": "فشل في إرفاق الملف",
+    "permissionDenied": "يجب السماح بالوصول إلى مكتبة الوسائط",
+    "latestVersion": "آخر إصدار"
+  },
+  "drawer": {
+    "newChat": "محادثة جديدة",
+    "menu": {
+      "chat": "المحادثة",
+      "createImage": "إنشاء صورة",
+      "history": "السجل",
+      "credits": "الرصيد",
+      "profile": "الملف الشخصي",
+      "settings": "الإعدادات",
+      "helpFaq": "المساعدة والأسئلة الشائعة"
+    },
+    "defaultUser": "مستخدم",
+    "credits": "رصيد",
+    "a11y": {
+      "newChat": "بدء محادثة جديدة",
+      "profile": "الملف الشخصي: {{name}}"
+    }
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "editModal": {
+      "title": "تعديل الملف الشخصي",
+      "nameLabel": "الاسم",
+      "namePlaceholder": "أدخل اسمك",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "saving": "جاري التحديث...",
+      "saveButton": "حفظ التغييرات"
+    },
+    "signOut": {
+      "title": "تسجيل الخروج",
+      "message": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+      "cancel": "إلغاء",
+      "confirm": "تسجيل الخروج",
+      "error": "فشل تسجيل الخروج. حاول مرة أخرى.",
+      "signingOut": "جاري تسجيل الخروج..."
+    },
+    "image": {
+      "permissionTitle": "إذن مطلوب",
+      "libraryPermission": "يرجى السماح بالوصول إلى مكتبة الصور لرفع صورة الملف الشخصي.",
+      "cameraPermission": "يرجى السماح بالوصول إلى الكاميرا لالتقاط صورة الملف الشخصي.",
+      "changeTitle": "تغيير صورة الملف الشخصي",
+      "chooseOption": "اختر خياراً",
+      "takePhoto": "التقاط صورة",
+      "chooseFromLibrary": "اختيار من المكتبة",
+      "cancel": "إلغاء",
+      "success": "نجاح",
+      "successMessage": "تم تحديث صورة الملف الشخصي بنجاح!"
+    },
+    "update": {
+      "nameEmpty": "لا يمكن أن يكون الاسم فارغاً",
+      "success": "نجاح",
+      "successMessage": "تم تحديث الملف الشخصي بنجاح!"
+    },
+    "defaultName": "مستخدم",
+    "planSuffix": "خطة",
+    "stats": {
+      "words": "كلمات",
+      "images": "صور",
+      "plan": "الخطة"
+    },
+    "account": {
+      "title": "الحساب",
+      "emailLabel": "البريد الإلكتروني",
+      "changePassword": "تغيير كلمة المرور",
+      "updatePassword": "حدّث كلمة المرور",
+      "planLabel": "الخطة",
+      "freeTier": "الخطة المجانية",
+      "upgrade": "ترقية"
+    },
+    "settings": {
+      "title": "الإعدادات",
+      "notifications": "الإشعارات",
+      "darkMode": "الوضع الداكن",
+      "language": "اللغة"
+    },
+    "support": {
+      "title": "الدعم والقانونية",
+      "helpSupport": "المساعدة والدعم",
+      "about": "حول",
+      "terms": "شروط الخدمة",
+      "privacy": "سياسة الخصوصية"
+    },
+    "danger": {
+      "title": "إدارة الحساب",
+      "deleteAccount": "حذف الحساب"
+    },
+    "version": "الإصدار 1.0.0"
+  },
+  "credits": {
+    "title": "الرصيد",
+    "loading": "جاري تحميل رصيدك...",
+    "balance": {
+      "label": "الرصيد المتاح",
+      "bonus": "+ {{count}} رصيد إضافي",
+      "progress": "{{used}} / {{total}} رصيد",
+      "viewHistory": "عرض السجل"
+    },
+    "promo": {
+      "title": "لديك رمز ترويجي؟",
+      "placeholder": "أدخل الرمز",
+      "redeem": "استرداد",
+      "emptyError": "أدخل رمزاً ترويجياً"
+    },
+    "usage": {
+      "title": "إحصائيات الاستخدام",
+      "today": "اليوم",
+      "thisWeek": "هذا الأسبوع",
+      "thisMonth": "هذا الشهر",
+      "total": "الإجمالي"
+    },
+    "packages": {
+      "title": "شراء رصيد",
+      "bestValue": "أفضل قيمة",
+      "credits": "رصيد",
+      "bonus": "+{{count}} إضافي"
+    },
+    "purchase": {
+      "title": "شراء رصيد",
+      "message": "هل ترغب في شراء {{credits}} رصيد مقابل {{price}}؟",
+      "cancel": "إلغاء",
+      "confirm": "شراء"
+    },
+    "viewPlans": "عرض خطط الاشتراك",
+    "transactions": {
+      "title": "سجل المعاملات",
+      "empty": "لا توجد معاملات بعد"
+    },
+    "freeTier": "الخطة المجانية"
+  },
+  "history": {
+    "title": "السجل",
+    "searchPlaceholder": "البحث في السجل...",
+    "loading": "جاري تحميل السجل...",
+    "filter": {
+      "all": "الكل",
+      "chat": "محادثة",
+      "image": "صورة",
+      "video": "فيديو",
+      "audio": "صوت",
+      "threeD": "ثلاثي الأبعاد"
+    },
+    "deleteItem": {
+      "title": "حذف العنصر",
+      "message": "هل أنت متأكد أنك تريد حذف \"{{title}}\"؟",
+      "cancel": "إلغاء",
+      "confirm": "حذف",
+      "success": "تم حذف العنصر بنجاح"
+    },
+    "download": {
+      "noContent": "لا يوجد محتوى قابل للتنزيل",
+      "notSupported": "التنزيل غير مدعوم لهذا النوع",
+      "success": "تم الحفظ بنجاح!",
+      "error": "فشل الحفظ"
+    },
+    "noResults": "لم يتم العثور على نتائج لـ \"{{query}}\"",
+    "detail": {
+      "model": "النموذج",
+      "type": "النوع",
+      "wordsUsed": "الكلمات المستخدمة",
+      "created": "تاريخ الإنشاء",
+      "prompt": "الطلب",
+      "unknown": "غير معروف",
+      "download": "تنزيل",
+      "delete": "حذف"
+    },
+    "date": {
+      "justNow": "الآن",
+      "hoursAgo": "منذ {{count}} ساعة",
+      "daysAgo": "منذ {{count}} يوم"
+    },
+    "itemMeta": {
+      "words": "كلمات"
+    }
+  },
+  "imageGen": {
+    "title": "إنشاء",
+    "prompt": {
+      "title": "صف صورتك",
+      "placeholder": "منظر جبلي هادئ عند الساعة الذهبية مع سحب درامية..."
+    },
+    "model": {
+      "title": "نموذج الذكاء الاصطناعي",
+      "loading": "جاري تحميل النماذج...",
+      "retry": "لا تتوفر نماذج. اضغط لإعادة المحاولة.",
+      "loadError": "فشل تحميل نماذج الذكاء الاصطناعي. حاول مرة أخرى."
+    },
+    "style": {
+      "title": "النمط",
+      "realistic": "واقعي",
+      "anime": "أنمي",
+      "digital": "فن رقمي",
+      "threeD": "تصيير ثلاثي الأبعاد",
+      "painting": "لوحة",
+      "sketch": "رسم"
+    },
+    "resolution": {
+      "title": "الدقة"
+    },
+    "generateButton": "إنشاء صورة",
+    "generating": "جاري الإنشاء...",
+    "progress": "جاري الإنشاء... {{percent}}%",
+    "emptyPrompt": {
+      "title": "طلب فارغ",
+      "message": "أدخل وصفاً لصورتك."
+    },
+    "noModel": {
+      "title": "لم يتم اختيار نموذج",
+      "message": "يرجى اختيار نموذج ذكاء اصطناعي أولاً."
+    },
+    "insufficientCredits": {
+      "title": "رصيد غير كافٍ",
+      "message": "يتطلب إنشاء الصورة {{cost}} رصيد، لكن لديك فقط {{balance}}. اشترِ المزيد من الرصيد.",
+      "cancel": "إلغاء",
+      "buy": "شراء رصيد"
+    },
+    "costToast": "تم إنشاء الصورة! استُخدم {{cost}} رصيد",
+    "imageOptions": {
+      "title": "خيارات الصورة",
+      "message": "ماذا تريد أن تفعل؟",
+      "download": "تنزيل",
+      "share": "مشاركة",
+      "cancel": "إلغاء"
+    },
+    "downloadSuccess": "تم حفظ الصورة في المعرض!",
+    "downloadError": "فشل حفظ الصورة",
+    "gallery": {
+      "title": "الصور المُنشأة"
+    },
+    "emptyState": {
+      "text": "لم يتم إنشاء صور بعد",
+      "subtext": "أدخل طلباً أعلاه واضغط إنشاء لإنشاء صورتك الأولى"
+    },
+    "costAction": "إنشاء صورة باستخدام {{model}}",
+    "a11y": {
+      "prompt": "طلب إنشاء الصورة",
+      "promptHint": "صف الصورة التي تريد إنشاءها"
+    }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "account": {
+      "title": "الحساب",
+      "editProfile": "تعديل الملف الشخصي",
+      "subscription": "الاشتراك",
+      "proPlan": "الخطة الاحترافية",
+      "freePlan": "الخطة المجانية",
+      "changePassword": "تغيير كلمة المرور"
+    },
+    "preferences": {
+      "title": "التفضيلات",
+      "notifications": "الإشعارات",
+      "notificationsSubtitle": "تلقي التحديثات والتنبيهات",
+      "darkMode": "الوضع الداكن",
+      "darkModeSubtitle": "مُفعّل دائماً حالياً",
+      "autoSave": "حفظ المحادثات تلقائياً",
+      "autoSaveSubtitle": "حفظ المحادثات تلقائياً"
+    },
+    "support": {
+      "title": "الدعم",
+      "helpFaq": "المساعدة والأسئلة الشائعة",
+      "contactSupport": "الاتصال بالدعم",
+      "rateApp": "تقييم التطبيق",
+      "shareApp": "مشاركة التطبيق"
+    },
+    "about": {
+      "title": "حول",
+      "terms": "شروط الخدمة",
+      "privacy": "سياسة الخصوصية",
+      "appVersion": "إصدار التطبيق",
+      "versionNumber": "1.0.0 (Build 1)"
+    },
+    "data": {
+      "title": "البيانات",
+      "clearCache": "مسح ذاكرة التخزين المؤقت",
+      "clearCacheSubtitle": "تحرير مساحة التخزين",
+      "exportData": "تصدير البيانات",
+      "exportDataSubtitle": "تنزيل بياناتك"
+    },
+    "dangerZone": {
+      "title": "منطقة الخطر",
+      "logout": "تسجيل الخروج",
+      "deleteAccount": "حذف الحساب",
+      "deleteAccountSubtitle": "حذف حسابك نهائياً"
+    },
+    "logoutAlert": {
+      "title": "تسجيل الخروج",
+      "message": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+      "cancel": "إلغاء",
+      "confirm": "تسجيل الخروج"
+    },
+    "deleteAlert": {
+      "title": "حذف الحساب",
+      "message": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع بياناتك نهائياً.",
+      "cancel": "إلغاء",
+      "confirm": "حذف",
+      "contactTitle": "الاتصال بالدعم",
+      "contactMessage": "يرجى التواصل مع support@z99.ai لحذف حسابك."
+    },
+    "clearCacheAlert": {
+      "title": "مسح ذاكرة التخزين المؤقت",
+      "message": "سيتم مسح البيانات المؤقتة مع الحفاظ على تسجيل دخولك.",
+      "cancel": "إلغاء",
+      "confirm": "مسح",
+      "success": "تم مسح ذاكرة التخزين المؤقت بنجاح",
+      "error": "فشل مسح ذاكرة التخزين المؤقت"
+    },
+    "comingSoon": {
+      "title": "قريباً",
+      "message": "هذه الميزة قادمة قريباً"
+    },
+    "rateAppAlert": {
+      "title": "شكراً!",
+      "message": "نقدر ملاحظاتك!"
+    },
+    "shareAlert": {
+      "title": "مشاركة",
+      "message": "ميزة المشاركة قادمة قريباً"
+    },
+    "linkError": "تعذر فتح الرابط",
+    "footer": {
+      "madeWith": "صنع بـ ❤️ من فريق Z99",
+      "copyright": "© 2026 جميع الحقوق محفوظة"
+    }
+  },
+  "forgotPassword": {
+    "email": {
+      "title": "نسيت كلمة المرور؟",
+      "subtitle": "أدخل بريدك الإلكتروني وسنرسل لك رمز تحقق لإعادة تعيين كلمة المرور.",
+      "placeholder": "البريد الإلكتروني",
+      "button": "إرسال رمز التحقق",
+      "sending": "جاري الإرسال...",
+      "emptyError": "أدخل بريدك الإلكتروني",
+      "invalidError": "أدخل بريد إلكتروني صالح",
+      "sendError": "فشل إرسال رمز التحقق",
+      "success": "تم إرسال رمز التحقق إلى بريدك الإلكتروني"
+    },
+    "otp": {
+      "title": "أدخل رمز التحقق",
+      "subtitle": "أرسلنا رمزاً مكوناً من 6 أرقام إلى {{email}}",
+      "button": "التحقق من الرمز",
+      "incompleteError": "أدخل رمز التحقق الكامل",
+      "resendText": "لم تستلم الرمز؟ ",
+      "resendLink": "إعادة الإرسال",
+      "resendSuccess": "تم إرسال رمز تحقق جديد",
+      "resendError": "فشل إعادة إرسال الرمز. حاول مرة أخرى."
+    },
+    "password": {
+      "title": "إنشاء كلمة مرور جديدة",
+      "subtitle": "يجب أن تحتوي كلمة المرور الجديدة على 8 أحرف على الأقل",
+      "newPlaceholder": "كلمة المرور الجديدة",
+      "confirmPlaceholder": "تأكيد كلمة المرور الجديدة",
+      "button": "إعادة تعيين كلمة المرور",
+      "resetting": "جاري إعادة التعيين...",
+      "emptyError": "أدخل كلمة مرور جديدة",
+      "lengthError": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل",
+      "mismatchError": "كلمات المرور غير متطابقة",
+      "resetError": "فشل إعادة تعيين كلمة المرور"
+    },
+    "successScreen": {
+      "title": "تمت إعادة تعيين كلمة المرور!",
+      "subtitle": "تمت إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.",
+      "button": "العودة لتسجيل الدخول"
+    }
+  },
+  "landing": {
+    "badge": "مساعدك الذكي",
+    "heroLine1": "مرحباً بك في",
+    "heroLine2": "Z99",
+    "description": "تحدث مع ChatGPT و Gemini و Claude و Mistral. أنشئ صوراً مع DALL·E و Stable Diffusion. كل ذلك في مكان واحد.",
+    "getStarted": "ابدأ مجاناً",
+    "createAccount": "إنشاء حساب",
+    "features": {
+      "multiModelChat": "محادثة متعددة النماذج",
+      "multiModelChatDesc": "انتقل بين نماذج الذكاء الاصطناعي بسلاسة",
+      "imageGeneration": "إنشاء الصور",
+      "imageGenerationDesc": "أنشئ مع DALL·E و Stable Diffusion",
+      "creditSystem": "نظام الرصيد",
+      "creditSystemDesc": "1,000 كلمة مجانية للبدء"
+    },
+    "aiModels": {
+      "title": "مدعوم بالذكاء الاصطناعي الرائد",
+      "subtitle": "الوصول إلى أكثر نماذج الذكاء الاصطناعي تقدماً في العالم",
+      "typeChat": "محادثة",
+      "typeImage": "صورة"
+    },
+    "howItWorks": {
+      "title": "كيف يعمل",
+      "subtitle": "ابدأ في ثلاث خطوات بسيطة",
+      "step1": { "title": "إنشاء حساب", "desc": "سجل في ثوانٍ بالبريد أو Google" },
+      "step2": { "title": "اختر نموذج ذكاء اصطناعي", "desc": "اختر من ChatGPT و Gemini و Claude والمزيد" },
+      "step3": { "title": "ابدأ الإنشاء", "desc": "تحدث، أنشئ صوراً، أو أنشئ فيديوهات" }
+    },
+    "pricing": {
+      "title": "أسعار بسيطة",
+      "subtitle": "اختر الخطة المناسبة لك",
+      "mostPopular": "الأكثر شيوعاً",
+      "getStarted": "ابدأ",
+      "subscribe": "اشترك"
+    },
+    "cta": {
+      "title": "مستعد للبدء؟",
+      "subtitle": "انضم إلى ملايين المستخدمين الذين يبدعون مع الذكاء الاصطناعي اليوم",
+      "button": "ابدأ التجربة المجانية"
+    }
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "ar": "العربية",
+    "bn": "বাংলা",
+    "title": "اختر اللغة"
+  },
+  "subscription": {
+    "loading": "جاري تحميل الخطط...",
+    "header": {
+      "title": "اختر خطتك",
+      "subtitle": "افتح كل قوة الذكاء الاصطناعي"
+    },
+    "credits": "{{count}} رصيد",
+    "perMonth": "/شهر",
+    "mostPopular": "الأكثر شعبية",
+    "features": {
+      "allModels": "جميع نماذج الذكاء الاصطناعي",
+      "prioritySupport": "دعم أولوية",
+      "unlimitedImage": "توليد صور غير محدود",
+      "videoGen": "توليد فيديو",
+      "apiAccess": "وصول API",
+      "customModels": "نماذج مخصصة",
+      "advancedImage": "توليد صور متقدم",
+      "limitedVideo": "توليد فيديو (محدود)",
+      "priorityQueue": "قائمة انتظار أولوية",
+      "basicImage": "توليد صور أساسي",
+      "standardQueue": "قائمة انتظار عادية"
+    },
+    "emptyState": {
+      "title": "لا توجد خطط متاحة",
+      "subtitle": "يرجى التحقق لاحقاً لخيارات الاشتراك"
+    },
+    "cta": {
+      "selectedPlan": "الخطة المختارة",
+      "planSummary": "{{name}} - ${{amount}}/شهر",
+      "processing": "جاري المعالجة...",
+      "subscribeNow": "اشترك الآن",
+      "disclaimer": "ألغِ في أي وقت. يتجدد الاشتراك تلقائياً."
+    },
+    "benefits": {
+      "title": "لماذا تشترك؟",
+      "fasterResponse": "استجابة أسرع",
+      "moreCredits": "المزيد من الرصيد",
+      "premiumModels": "نماذج مميزة",
+      "prioritySupport": "دعم أولوية"
+    },
+    "purchase": {
+      "title": "شراء",
+      "confirmMessage": "الاشتراك في {{name}} مقابل ${{amount}}؟\nستحصل على {{credits}} رصيد.",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد",
+      "success": "نجاح",
+      "successMessage": "تم تفعيل الاشتراك! تمت إضافة {{credits}} رصيد إلى حسابك.",
+      "error": "خطأ",
+      "errorMessage": "فشل في تحميل خطط الاشتراك",
+      "purchaseError": "فشل في معالجة الشراء. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "help": {
+    "title": "المساعدة والأسئلة الشائعة",
+    "searchPlaceholder": "البحث عن مساعدة...",
+    "categories": {
+      "all": "الكل",
+      "account": "الحساب",
+      "billing": "الفواتير",
+      "features": "الميزات",
+      "technical": "التقنية"
+    },
+    "contactTitle": "هل تحتاج مساعدة؟",
+    "contactSubtitle": "فريقنا هنا للمساعدة",
+    "contactButton": "اتصل بالدعم"
+  },
+  "about": {
+    "title": "حول",
+    "appName": "Z99",
+    "version": "الإصدار 1.0.0 (Build 1)",
+    "aboutTitle": "حول هذا التطبيق",
+    "featuresTitle": "الميزات الرئيسية",
+    "statsTitle": "الإحصائيات",
+    "developerTitle": "المطور",
+    "linksTitle": "الروابط"
+  },
+  "terms": {
+    "title": "شروط الخدمة",
+    "lastUpdated": "آخر تحديث",
+    "footer": "باستخدام تطبيقنا، فإنك توافق على شروط الخدمة هذه."
+  },
+  "privacy": {
+    "title": "سياسة الخصوصية",
+    "lastUpdated": "آخر تحديث",
+    "footer": "باستخدام تطبيقنا، فإنك توافق على شروط سياسة الخصوصية هذه."
+  }
+}

@@ -15,10 +15,13 @@ export const chatService = {
     try {
       const params = modelType ? { model_type: modelType } : {};
       const response = await api.get(ENDPOINTS.MODELS_LIST, { params });
-      // API returns array directly (no pagination), wrap it in expected format
+      // API may return {value: [...], Count} or array or {results: [...]}
       const data = response.data;
       if (Array.isArray(data)) {
         return { results: data, count: data.length, next: null, previous: null };
+      }
+      if (data.value && Array.isArray(data.value)) {
+        return { results: data.value, count: data.Count || data.value.length, next: null, previous: null };
       }
       return data;
     } catch (error) {

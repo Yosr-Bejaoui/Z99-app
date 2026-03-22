@@ -93,7 +93,7 @@ class LoginSerializer(serializers.Serializer):
         email= attrs.get('email')
         password= attrs.get('password')
         try:
-            user= User.objects.get(email=email)
+            user = User.objects.select_related('creditaccount').get(email=email)
         except User.DoesNotExist:
             raise serializers.ValidationError("Invalid email or password")
         
@@ -148,9 +148,21 @@ from .models import UserProfile
 class UserProfileSerializer(serializers.ModelSerializer):
     user_details=serializers.SerializerMethodField(read_only=True)
     user=serializers.PrimaryKeyRelatedField(read_only=True)
+    avatar = serializers.SerializerMethodField(read_only=True)
+    
     class Meta:
         model=UserProfile
         fields=['id','user','user_details','first_name','last_name','created_at','updated_at','avatar']
+    
+    def get_avatar(self, obj):
+        """Return absolute URL for avatar image"""
+        if obj.avatar:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.avatar.url)
+            # Fallback: return the relative URL
+            return obj.avatar.url
+        return None
     
     def get_user_details(self,obj):
         user=obj.user
@@ -173,14 +185,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
 from .models import CreditAccount
 
 class CreditAccountSerializer(serializers.ModelSerializer):
+    credits = serializers.SerializerMethodField()
+    
     class Meta:
         model=CreditAccount
         fields=['id','user','credits']
+    
+    def get_credits(self, obj):
+        return int(obj.credits)
 
 
 # Admin User Serializer for admin dashboard
 class AdminUserSerializer(serializers.ModelSerializer):
-    credits_balance = serializers.SerializerMethodField()
+    credits_balance = serializers.IntegerField(required=False)
     session_count = serializers.SerializerMethodField()
     
     class Meta:
@@ -191,13 +208,29 @@ class AdminUserSerializer(serializers.ModelSerializer):
             'total_token_used', 'date_joined', 'last_login',
             'credits_balance', 'session_count'
         ]
-        read_only_fields = ['date_joined', 'last_login']
+        read_only_fields = ['date_joined', 'last_login', 'session_count']
     
-    def get_credits_balance(self, obj):
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
         try:
-            return obj.creditaccount.credits if hasattr(obj, 'creditaccount') else 0
+            ret['credits_balance'] = int(instance.creditaccount.credits) if hasattr(instance, 'creditaccount') else 0
         except:
-            return 0
+            ret['credits_balance'] = 0
+        return ret
+    
+    def update(self, instance, validated_data):
+        credits_balance = validated_data.pop('credits_balance', None)
+        instance = super().update(instance, validated_data)
+        
+        if credits_balance is not None:
+            from .models import CreditAccount
+            credit_account, _ = CreditAccount.objects.get_or_create(user=instance)
+            credit_account.credits = credits_balance
+            credit_account.save()
+            # Refresh to get updated credit account
+            instance.refresh_from_db()
+        
+        return instance
     
     def get_session_count(self, obj):
-        return obj.chatsession_set.count() if hasattr(obj, 'chatsession_set') else 0
+        return obj.chat_sessions.count() if hasattr(obj, 'chat_sessions') else 0

@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
   ActivityIndicator,
   Alert,
 } from 'react-native';
@@ -19,8 +18,7 @@ import GradientButton from '../components/GradientButton';
 import { chatService, mediaService } from '../services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS, WS_BASE_URL } from '../services/config';
-
-const { width } = Dimensions.get('window');
+import * as LegacyFS from 'expo-file-system/legacy';
 
 const effectOptions = [
   { id: 'slowmo', label: 'Slow Motion', icon: 'speedometer-outline' as const, description: '0.5x speed' },
@@ -96,39 +94,59 @@ const VideoEffectsScreen: React.FC = () => {
 
     const ws = new WebSocket(`${WS_BASE_URL}/chat/${sessionId}/?token=${token}`);
     
-    ws.onopen = () => {
+    ws.onopen = async () => {
       console.log('WebSocket connected');
+      // Convert local video file to base64 for server access
+      let videoData = selectedVideo;
+      if (selectedVideo && selectedVideo.startsWith('file://')) {
+        try {
+          const base64 = await LegacyFS.readAsStringAsync(selectedVideo, {
+            encoding: LegacyFS.EncodingType.Base64,
+          });
+          videoData = `data:video/mp4;base64,${base64}`;
+        } catch (e) {
+          console.error('Failed to read video as base64:', e);
+        }
+      }
       ws.send(JSON.stringify({
         message: `Apply ${selectedEffect} effect`,
-        video_url: selectedVideo,
+        images: [videoData],
         effect: selectedEffect,
       }));
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      
-      if (data.video_url || data.url) {
-        const videoUrl = data.video_url || data.url;
-        setProcessedVideos(prev => [
-          {
-            id: Date.now().toString(),
-            url: videoUrl,
-            effect: selectedEffect,
-            status: 'completed',
-          },
-          ...prev.filter(v => v.status !== 'processing'),
-        ]);
-        setIsProcessing(false);
-      } else if (data.error) {
-        const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
-        Alert.alert('Error', errorMsg);
-        setProcessedVideos(prev => prev.filter(v => v.status !== 'processing'));
-        setIsProcessing(false);
+      try {
+        const data = JSON.parse(event.data);
+        
+        if (data.video_url || data.url) {
+          const videoUrl = data.video_url || data.url;
+          setProcessedVideos(prev => [
+            {
+              id: Date.now().toString(),
+              url: videoUrl,
+              effect: selectedEffect,
+              status: 'completed',
+            },
+            ...prev.filter(v => v.status !== 'processing'),
+          ]);
+          setIsProcessing(false);
+          ws.close();
+        } else if (data.error) {
+          const errorMsg = typeof data.error === 'string' ? data.error : (data.error?.message || 'An error occurred');
+          Alert.alert('Error', errorMsg);
+          setProcessedVideos(prev => prev.filter(v => v.status !== 'processing'));
+          setIsProcessing(false);
+          ws.close();
+        }
+      } catch (e) {
+        console.error('Error parsing WebSocket message:', e);
       }
     };
 
     ws.onerror = () => {
+      Alert.alert('Connection Error', 'Failed to connect to the server. Please try again.');
+      setProcessedVideos(prev => prev.filter(v => v.status !== 'processing'));
       setIsProcessing(false);
     };
 

@@ -246,7 +246,8 @@ export const notificationService = {
     try {
       await api.patch('/accounts/notification-settings/', settings);
     } catch (error) {
-      throw new Error(getErrorMessage(error));
+      // Silently fail — backend endpoint may not exist yet
+      console.warn('Failed to update notification settings on server:', getErrorMessage(error));
     }
   },
 

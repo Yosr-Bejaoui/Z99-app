@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import GradientButton from '../components/GradientButton';
 import GlassCard from '../components/GlassCard';
@@ -48,7 +49,7 @@ describe('UI Components', () => {
     it('should render children', () => {
       const { getByText } = render(
         <GlassCard>
-          <React.Fragment>Card Content</React.Fragment>
+          <Text>Card Content</Text>
         </GlassCard>
       );
 
@@ -59,7 +60,7 @@ describe('UI Components', () => {
       const customStyle = { padding: 20 };
       const { getByText } = render(
         <GlassCard style={customStyle}>
-          <React.Fragment>Content</React.Fragment>
+          <Text>Content</Text>
         </GlassCard>
       );
 

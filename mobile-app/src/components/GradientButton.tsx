@@ -40,6 +40,9 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
       onPress={onPress} 
       activeOpacity={0.7} 
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
     >
       <View style={[
         styles.button,
@@ -114,6 +117,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 15,
     fontWeight: '600',
+    textAlign: 'center',
   },
   primaryText: {
     color: colors.white,
