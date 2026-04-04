@@ -365,23 +365,19 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     paddingHorizontal: spacing.md,
     gap: spacing.sm,
+    width: '100%',
   },
   userMessageContainer: {
-    maxWidth: '80%',
+    maxWidth: '85%',
   },
   userBubble: {
-    backgroundColor: colors.userMessage,
-    borderRadius: borderRadius.xl,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    padding: spacing.md, paddingHorizontal: spacing.lg,
+    backgroundColor: '#2f2f2f',
+    borderRadius: 18, borderBottomRightRadius: 4,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)',
   },
   userAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.card,
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: 'none',
   },
   aiMessageRow: {
     flexDirection: 'row',
@@ -389,6 +385,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     paddingHorizontal: spacing.md,
     gap: spacing.sm,
+    backgroundColor: 'transparent',
+    width: '100%',
   },
   aiAvatar: {
     width: 28,
@@ -405,7 +403,7 @@ const styles = StyleSheet.create({
   },
   aiMessageContainer: {
     flex: 1,
-    paddingRight: spacing.xl,
+    paddingRight: spacing.sm,
   },
   modelLabel: {
     fontSize: 13,

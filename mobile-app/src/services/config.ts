@@ -37,8 +37,10 @@ const envApiHost = getHostFromUrl(envApiBaseUrl);
 // In standalone APK builds, bundleHost is often null and should not be treated as emulator.
 const isAndroidEmulator = Platform.OS === 'android' && bundleHost === '10.0.2.2';
 // Force API URL to local network IP for testing
-const configuredApiBaseUrl = 'http://192.168.1.11:8000/api/v1';
+const webHost = Platform.OS === 'web' ? 'localhost' : null;
 
+// Use explicitly defined environment variable if provided, otherwise fallback to bundle host
+const configuredApiBaseUrl = envApiBaseUrl || `http://${webHost || bundleHost || '127.0.0.1'}:8000/api/v1`;
 export const API_BASE_URL = configuredApiBaseUrl.replace(/\/+$/, '');
 
 // WebSocket URL for real-time chat

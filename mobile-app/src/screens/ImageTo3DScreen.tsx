@@ -18,6 +18,8 @@ import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import { chatService, mediaService } from '../services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCredits } from '../context/CreditsContext';
+import { useDrawer } from '../context/DrawerContext';
 import { STORAGE_KEYS, WS_BASE_URL } from '../services/config';
 
 const formatOptions = [
@@ -48,6 +50,8 @@ interface AIModel {
 }
 
 const ImageTo3DScreen: React.FC = () => {
+  const { credits } = useCredits();
+  const { openDrawer } = useDrawer();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
   const [selectedFormat, setSelectedFormat] = useState('glb');
@@ -254,16 +258,23 @@ const ImageTo3DScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
+          <Ionicons name="menu-outline" size={28} color={colors.textPrimary || '#fff'} />
+        </TouchableOpacity>
+        <Text style={styles.title}>Image to 3D</Text>
+        <View style={styles.iconButton}>
+          <View style={styles.coinBadge}>
+             <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
+          </View>
+        </View>
+      </View>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Image to 3D</Text>
-          <Text style={styles.headerSubtitle}>Transform images into 3D models</Text>
-        </View>
+        <Text style={styles.headerSubtitle}>Transform images into 3D models</Text>
 
         {/* Image Selection */}
         <GlassCard style={styles.imageCard}>
@@ -391,7 +402,7 @@ const ImageTo3DScreen: React.FC = () => {
             title={isGenerating ? 'Generating...' : 'Generate 3D Model'}
             onPress={handleGenerate}
             disabled={isGenerating || !selectedImage}
-            icon={isGenerating ? undefined : 'cube'}
+            icon={isGenerating ? undefined : <Ionicons name="cube" size={20} color="#fff" />}
           />
         </View>
 
@@ -475,13 +486,33 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   header: {
-    marginBottom: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    marginBottom: 20,
   },
-  headerTitle: {
-    fontSize: 28,
+  title: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: colors.foreground,
-    marginBottom: 4,
+    color: '#fff',
+  },
+  iconButton: {
+    padding: 8,
+  },
+  coinBadge: {
+    backgroundColor: '#fff20',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  coinBadgeText: {
+    color: '#fbbf24',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   headerSubtitle: {
     fontSize: 16,

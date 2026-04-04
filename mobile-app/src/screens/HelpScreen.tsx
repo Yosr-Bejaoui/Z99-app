@@ -83,8 +83,8 @@ const HelpScreen: React.FC<HelpScreenProps> = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('help.title')}</Text>
         <View style={styles.placeholder} />
+      
       </View>
-
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}

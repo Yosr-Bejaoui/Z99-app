@@ -50,7 +50,7 @@ const slides: SlideItem[] = [
   {
     id: '2',
     icon: 'chatbubbles',
-    iconColor: '#0ea5e9',
+    iconColor: '#d1d5db',
     title: 'Multiple AI',
     subtitle: 'Models',
     description: 'Switch seamlessly between ChatGPT, Gemini, Claude, DeepSeek and more. Find the perfect AI for every task.',
@@ -58,7 +58,7 @@ const slides: SlideItem[] = [
   {
     id: '3',
     icon: 'image',
-    iconColor: '#a855f7',
+    iconColor: '#10a37f',
     title: 'Create Amazing',
     subtitle: 'Content',
     description: 'Generate stunning images with DALL·E and Stable Diffusion. Transform your ideas into visual masterpieces.',
@@ -196,7 +196,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }) => {
       </View>
       <View style={styles.orbBottom}>
         <LinearGradient
-          colors={['rgba(168, 85, 247, 0.1)', 'transparent']}
+          colors={['rgba(16, 163, 127, 0.1)', 'transparent']}
           style={styles.orb}
         />
       </View>

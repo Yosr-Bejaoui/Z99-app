@@ -432,6 +432,7 @@ const NotificationsScreen: React.FC = () => {
       </View>
 
       {/* Content */}
+      
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

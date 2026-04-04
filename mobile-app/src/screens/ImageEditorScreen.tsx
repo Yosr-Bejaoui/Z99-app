@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   View,
   Text,
@@ -6,7 +7,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Image,
   Dimensions,
   ActivityIndicator,
@@ -18,6 +18,8 @@ import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import { chatService, mediaService } from '../services';
+import { useCredits } from '../context/CreditsContext';
+import { useDrawer } from '../context/DrawerContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS, WS_BASE_URL } from '../services/config';
 
@@ -47,6 +49,9 @@ interface AIModel {
 }
 
 const ImageEditorScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  const { credits, hasEnoughCredits, deductCredits } = useCredits();
+  const { openDrawer } = useDrawer();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
   const [selectedTool, setSelectedTool] = useState('enhance');
@@ -244,7 +249,7 @@ const ImageEditorScreen: React.FC = () => {
   const needsPrompt = ['inpaint'].includes(selectedTool);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -252,9 +257,16 @@ const ImageEditorScreen: React.FC = () => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Image Editor</Text>
-          <Text style={styles.headerSubtitle}>AI-powered image editing tools</Text>
+        <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
+          <Ionicons name="menu-outline" size={28} color={colors.textPrimary || '#fff'} />
+        </TouchableOpacity>
+        <Text style={styles.title}>Image Editor</Text>
+        <View style={styles.iconButton}>
+          <View style={styles.coinBadge}>
+             <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
+          </View>
         </View>
+      </View>
 
         {/* Image Selection */}
         <GlassCard style={styles.imageCard}>
@@ -428,7 +440,7 @@ const ImageEditorScreen: React.FC = () => {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -445,7 +457,17 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   header: {
-    marginBottom: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   headerTitle: {
     fontSize: 28,
@@ -635,6 +657,27 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 14,
     fontWeight: '500',
+  },
+
+  coinBadge: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coinBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+
+  iconButton: {
+    padding: spacing.xs,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 40,
   },
 });
 

@@ -206,7 +206,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   // Get subscription status color
   const getSubscriptionColor = () => {
     const planName = user?.subscription?.plan?.name?.toLowerCase() || 'free';
-    if (planName.includes('enterprise')) return '#8b5cf6';
+    if (planName.includes('enterprise')) return '#10a37f';
     if (planName.includes('pro')) return colors.primary;
     return colors.textMuted;
   };
@@ -281,8 +281,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         >
           <Ionicons name="settings-outline" size={22} color={colors.foreground} />
         </TouchableOpacity>
+      
       </View>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

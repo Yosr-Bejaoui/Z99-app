@@ -8,6 +8,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from './src/theme';
 import { AuthProvider, useAuth, CreditsProvider } from './src/context';
 import { initI18n } from './src/i18n';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync();
 
 // Global error handler to catch uncaught errors
 if (__DEV__) {
@@ -15,12 +18,15 @@ if (__DEV__) {
 }
 
 // Set up global error handler for production
-const originalHandler = ErrorUtils.getGlobalHandler();
-ErrorUtils.setGlobalHandler((error, isFatal) => {
-  console.error('Global Error:', error);
-  // Call original handler
-  originalHandler(error, isFatal);
-});
+// Ensure ErrorUtils exists (it doesn't on Web)
+if (typeof ErrorUtils !== 'undefined') {
+  const originalHandler = ErrorUtils.getGlobalHandler();
+  ErrorUtils.setGlobalHandler((error, isFatal) => {
+    console.error('Global Error:', error);
+    // Call original handler
+    originalHandler(error, isFatal);
+  });
+}
 
 // Screens
 import LandingScreen from './src/screens/LandingScreen';
@@ -31,6 +37,8 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import HelpScreen from './src/screens/HelpScreen';
 import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
+import CustomGPTCreateScreen from './src/screens/CustomGPTCreateScreen';
+
 import DeleteAccountScreen from './src/screens/DeleteAccountScreen';
 import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
 import TermsOfServiceScreen from './src/screens/TermsOfServiceScreen';
@@ -44,6 +52,8 @@ import DrawerNavigator from './src/navigation/DrawerNavigator';
 import TextToVideoScreen from './src/screens/TextToVideoScreen';
 import ImageToVideoScreen from './src/screens/ImageToVideoScreen';
 import TextToSpeechScreen from './src/screens/TextToSpeechScreen';
+import SpeechToTextScreen from './src/screens/SpeechToTextScreen';
+import VoiceCloningScreen from './src/screens/VoiceCloningScreen';
 import VideoEffectsScreen from './src/screens/VideoEffectsScreen';
 import ImageEditorScreen from './src/screens/ImageEditorScreen';
 import ImageTo3DScreen from './src/screens/ImageTo3DScreen';
@@ -71,12 +81,15 @@ export type RootStackParamList = {
   TextToVideo: undefined;
   ImageToVideo: undefined;
   TextToSpeech: undefined;
+  SpeechToText: undefined;
+  VoiceCloning: undefined;
   VideoEffects: undefined;
   ImageEditor: undefined;
   ImageTo3D: undefined;
   // Account
   InvoiceHistory: undefined;
   AdRewards: undefined;
+  CustomGPTCreate: { gpt?: any } | undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -181,12 +194,14 @@ function Navigation() {
     }
   };
 
+  useEffect(() => {
+    if (!isLoading && hasSeenOnboarding !== null && i18nReady) {
+      SplashScreen.hideAsync();
+    }
+  }, [isLoading, hasSeenOnboarding, i18nReady]);
+
   if (isLoading || hasSeenOnboarding === null || !i18nReady) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return null;
   }
 
   const getInitialRoute = () => {
@@ -273,7 +288,17 @@ function Navigation() {
       />
       <Stack.Screen 
         name="TextToSpeech" 
-        component={TextToSpeechScreen}
+        component={TextToSpeechScreen} 
+        options={{ animation: 'slide_from_right' }} 
+      />
+      <Stack.Screen 
+        name="SpeechToText" 
+        component={SpeechToTextScreen} 
+        options={{ animation: 'slide_from_right' }} 
+      />
+      <Stack.Screen 
+        name="VoiceCloning" 
+        component={VoiceCloningScreen} 
         options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen 
@@ -297,10 +322,15 @@ function Navigation() {
         component={InvoiceHistoryScreen}
         options={{ animation: 'slide_from_right' }}
       />
-      <Stack.Screen 
-        name="AdRewards" 
+      <Stack.Screen
+        name="AdRewards"
         component={AdRewardsScreen}
         options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="CustomGPTCreate"
+        component={CustomGPTCreateScreen}
+        options={{ animation: 'slide_from_right', headerShown: false }}
       />
     </Stack.Navigator>
   );

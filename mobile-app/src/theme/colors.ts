@@ -19,7 +19,7 @@ export const colors = {
   // Text color aliases
   textPrimary: '#ececec',
   textSecondary: '#b4b4b4',
-  textMuted: '#8e8e8e',
+  textMuted: '#9ca3af', // AUDIT FIX 1 - Improve contrast
 
   // Primary accent (subtle teal for actions)
   primary: '#10a37f',
@@ -29,9 +29,10 @@ export const colors = {
 
   // Card and surface colors
   card: '#2f2f2f',
+  cardBorder: 'rgba(255,255,255,0.07)',
   cardLight: '#3a3a3a',
   cardHover: '#3f3f3f',
-  cardBorder: '#3f3f3f',
+  
   surface: '#2f2f2f',
   surfaceHover: '#424242',
 
@@ -50,7 +51,7 @@ export const colors = {
   // Status colors
   success: '#10a37f',
   warning: '#f59e0b',
-  error: '#ef4444',
+  error: '#fca5a5',
   info: '#3b82f6',
 
   // Overlay
@@ -58,7 +59,7 @@ export const colors = {
   overlayLight: 'rgba(0, 0, 0, 0.4)',
 
   // Special
-  white: '#ffffff',
+  white: '#ececec',
   black: '#000000',
 };
 

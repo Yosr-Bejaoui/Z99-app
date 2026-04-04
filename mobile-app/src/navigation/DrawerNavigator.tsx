@@ -8,6 +8,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,6 +22,29 @@ import ImageGenScreen from '../screens/ImageGenScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import CreditsScreen from '../screens/CreditsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import ReferralScreen from '../screens/ReferralScreen';
+import TextRemoverScreen from '../screens/TextRemoverScreen';
+import BackgroundGenScreen from '../screens/BackgroundGenScreen';
+import VideoUpscalerScreen from '../screens/VideoUpscalerScreen';
+import VideoWatermarkRemoverScreen from '../screens/VideoWatermarkRemoverScreen';
+import ImageWatermarkRemoverScreen from '../screens/ImageWatermarkRemoverScreen';
+import ImageUpscalerScreen from '../screens/ImageUpscalerScreen';
+import PromptOptimizerScreen from '../screens/PromptOptimizerScreen';
+import DonateScreen from '../screens/DonateScreen';
+import CustomGPTLibraryScreen from '../screens/CustomGPTLibraryScreen';
+import GPTToolsScreen from '../screens/GPTToolsScreen';
+import ImageTo3DScreen from '../screens/ImageTo3DScreen';
+import BackgroundRemoverScreen from '../screens/BackgroundRemoverScreen';
+import TextToSpeechScreen from '../screens/TextToSpeechScreen';
+import SpeechToTextScreen from '../screens/SpeechToTextScreen';
+import VoiceCloningScreen from '../screens/VoiceCloningScreen';
+import TextToVideoScreen from '../screens/TextToVideoScreen';
+import ImageToVideoScreen from '../screens/ImageToVideoScreen';
+
+
+
+
+
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = 280;
@@ -87,11 +111,41 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
     return 'AI';
   };
 
-  const menuItems = [
-    { icon: 'chatbubble-outline' as const, label: t('drawer.menu.chat'), route: 'ChatScreen' },
+  const imageTools = [
     { icon: 'image-outline' as const, label: t('drawer.menu.createImage'), route: 'ImageGenScreen' },
+    { icon: 'expand-outline' as const, label: 'Image Upscaler', route: 'ImageUpscalerScreen' },
+    { icon: 'water-outline' as const, label: 'Watermark Remover', route: 'ImageWatermarkRemoverScreen' },
+    { icon: 'color-wand-outline' as const, label: 'Text Remover', route: 'TextRemoverScreen' },
+    { icon: 'color-palette-outline' as const, label: 'Generate Background', route: 'BackgroundGenScreen' },
+    { icon: 'cut-outline' as const, label: 'Background Remover', route: 'BackgroundRemoverScreen' },
+    { icon: 'cube-outline' as const, label: 'Image to 3D', route: 'ImageTo3DScreen' },
+  ];
+
+  const videoTools = [
+    { icon: 'videocam-outline' as const, label: 'Text to Video', route: 'TextToVideoScreen' },
+    { icon: 'images-outline' as const, label: 'Image to Video', route: 'ImageToVideoScreen' },
+    { icon: 'cut-outline' as const, label: 'Background Remover', route: 'BackgroundRemoverScreen' },
+    { icon: 'expand-outline' as const, label: 'Video Upscaler', route: 'VideoUpscalerScreen' },
+    { icon: 'water-outline' as const, label: 'Watermark Remover', route: 'VideoWatermarkRemoverScreen' },
+  ];
+
+  const textTools = [
+    { icon: 'flash-outline' as const, label: 'Prompt Optimizer', route: 'PromptOptimizerScreen' },
+    { icon: 'library-outline' as const, label: 'My Custom GPTs', route: 'CustomGPTLibraryScreen' },
+    { icon: 'briefcase-outline' as const, label: 'GPT Tools', route: 'GPTToolsScreen' },
+  ];
+
+  const audioTools = [
+    { icon: 'mic-outline' as const, label: 'Text to Speech', route: 'TextToSpeechScreen' },
+    { icon: 'musical-notes-outline' as const, label: 'Speech to Text', route: 'SpeechToTextScreen' },
+      { icon: 'git-branch-outline' as const, label: 'Voice Cloning', route: 'VoiceCloningScreen' },
+  ];
+
+  const accountItems = [
     { icon: 'time-outline' as const, label: t('drawer.menu.history'), route: 'HistoryScreen' },
     { icon: 'wallet-outline' as const, label: t('drawer.menu.credits'), route: 'CreditsScreen' },
+    { icon: 'people-outline' as const, label: 'Invite a Friend', route: 'ReferralScreen' },
+    { icon: 'gift-outline' as const, label: 'Donate Credits', route: 'Donate' },
     { icon: 'person-outline' as const, label: t('drawer.menu.profile'), route: 'ProfileScreen' },
   ];
 
@@ -108,7 +162,8 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
         <Text style={styles.brandName}>Z99</Text>
       </View>
 
-      {/* New Chat Button */}
+      {/* Primary Section */}
+      <Text style={styles.sectionLabel}>PRIMARY</Text>
       <TouchableOpacity
         style={styles.newChatButton}
         onPress={() => handleNavigate('ChatScreen')}
@@ -120,37 +175,98 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
       </TouchableOpacity>
 
       {/* Main Menu */}
-      <View style={styles.menuSection}>
-        {menuItems.map((item) => (
+      <ScrollView 
+        style={styles.menuSectionContainer}
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.divider} />
+        
+        {/* TOOLS */}
+        <View style={styles.menuSection}>
+          <Text style={styles.sectionLabel}>IMAGE TOOLS</Text>
+          {imageTools.map((item) => (
+            <DrawerMenuItem
+              key={item.route}
+              icon={item.icon}
+              label={item.label}
+              onPress={() => handleNavigate(item.route)}
+              isActive={currentRoute === item.route}
+            />
+          ))}
+        
+          <View style={styles.divider} />
+
+          <Text style={styles.sectionLabel}>VIDEO TOOLS</Text>
+          {videoTools.map((item) => (
+            <DrawerMenuItem
+              key={item.route}
+              icon={item.icon}
+              label={item.label}
+              onPress={() => handleNavigate(item.route)}
+              isActive={currentRoute === item.route}
+            />
+          ))}
+
+          <View style={styles.divider} />
+
+          <Text style={styles.sectionLabel}>TEXT & GPT TOOLS</Text>
+          {textTools.map((item) => (
+            <DrawerMenuItem
+              key={item.route}
+              icon={item.icon}
+              label={item.label}
+              onPress={() => handleNavigate(item.route)}
+              isActive={currentRoute === item.route}
+            />
+          ))}
+
+          <View style={styles.divider} />
+
+          <Text style={styles.sectionLabel}>AUDIO TOOLS</Text>
+          {audioTools.map((item) => (
+            <DrawerMenuItem
+              key={item.route}
+              icon={item.icon}
+              label={item.label}
+              onPress={() => handleNavigate(item.route)}
+              isActive={currentRoute === item.route}
+            />
+          ))}
+
+          <View style={styles.divider} />
+
+          <Text style={styles.sectionLabel}>ACCOUNT</Text>
+          {accountItems.map((item) => (
+            <DrawerMenuItem
+              key={item.route}
+              icon={item.icon}
+              label={item.label}
+              isActive={currentRoute === item.route}
+              onPress={() => handleNavigate(item.route)}
+            />
+          ))}
+        </View>
+
+        {/* Flexible space to push Support to bottom */}
+        <View style={{ flex: 1 }} />
+
+        {/* SUPPORT */}
+        <View style={styles.divider} />
+        <Text style={styles.sectionLabel}>SUPPORT</Text>
+        <View style={styles.menuSection}>
           <DrawerMenuItem
-            key={item.route}
-            icon={item.icon}
-            label={item.label}
-            isActive={currentRoute === item.route}
-            onPress={() => handleNavigate(item.route)}
+            icon="settings-outline"
+            label={t('drawer.menu.settings')}
+            onPress={() => handleNavigate('Settings')}
           />
-        ))}
-      </View>
-
-      {/* Divider */}
-      <View style={styles.divider} />
-
-      {/* Additional Options */}
-      <View style={styles.menuSection}>
-        <DrawerMenuItem
-          icon="settings-outline"
-          label={t('drawer.menu.settings')}
-          onPress={() => handleNavigate('Settings')}
-        />
-        <DrawerMenuItem
-          icon="help-circle-outline"
-          label={t('drawer.menu.helpFaq')}
-          onPress={() => handleNavigate('Help')}
-        />
-      </View>
-
-      {/* Spacer */}
-      <View style={{ flex: 1 }} />
+          <DrawerMenuItem
+            icon="help-circle-outline"
+            label={t('drawer.menu.helpFaq')}
+            onPress={() => handleNavigate('Help')}
+          />
+        </View>
+      </ScrollView>
 
       {/* User Profile Section */}
       <View style={[styles.userSection, { paddingBottom: insets.bottom + spacing.md }]}>
@@ -241,17 +357,61 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
   const renderScreen = () => {
     switch (currentRoute) {
       case 'ChatScreen':
-        return <ChatScreen navigation={navigation} sessionId={currentParams?.sessionId} />;
+        return <ChatScreen />;
       case 'ImageGenScreen':
         return <ImageGenScreen />;
       case 'HistoryScreen':
-        return <HistoryScreen navigation={navigation} />;
+        return <HistoryScreen />;
       case 'CreditsScreen':
         return <CreditsScreen />;
+      case 'ReferralScreen':
+        return <ReferralScreen />;
+      case 'Donate':
+        return <DonateScreen />;
+      case 'TextRemoverScreen':
+        return <TextRemoverScreen />;
+      case 'BackgroundGenScreen':
+        return <BackgroundGenScreen />;
+
+      case 'BackgroundRemoverScreen':
+        return <BackgroundRemoverScreen />;
+      case 'ImageTo3DScreen':
+        return <ImageTo3DScreen />;
+
+
+      case 'BackgroundRemoverScreen':
+        return <BackgroundRemoverScreen />;
+      case 'ImageTo3DScreen':
+        return <ImageTo3DScreen />;
+
+      case 'PromptOptimizerScreen':
+        return <PromptOptimizerScreen />;
+      case 'CustomGPTLibraryScreen':
+        return <CustomGPTLibraryScreen />;
+      case 'GPTToolsScreen':
+        return <GPTToolsScreen />;
+            case 'VideoUpscalerScreen':
+        return <VideoUpscalerScreen />;
+      case 'VideoWatermarkRemoverScreen':
+        return <VideoWatermarkRemoverScreen />;
+      case 'ImageWatermarkRemoverScreen':
+        return <ImageWatermarkRemoverScreen />;
+      case 'ImageUpscalerScreen':
+        return <ImageUpscalerScreen />;
+      case 'TextToSpeechScreen':
+        return <TextToSpeechScreen />;
+      case 'SpeechToTextScreen':
+        return <SpeechToTextScreen />;
+      case 'VoiceCloningScreen':
+        return <VoiceCloningScreen />;
+      case 'TextToVideoScreen':
+        return <TextToVideoScreen />;
+      case 'ImageToVideoScreen':
+        return <ImageToVideoScreen />;
       case 'ProfileScreen':
         return <ProfileScreen navigation={navigation} />;
       default:
-        return <ChatScreen navigation={navigation} sessionId={currentParams?.sessionId} />;
+        return <ChatScreen />;
     }
   };
 
@@ -330,6 +490,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.sidebar,
   },
+  menuSectionContainer: {
+    flex: 1,
+  },
   brandHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -344,10 +507,21 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     letterSpacing: 0.5,
   },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.textSecondary,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: 4,
+    letterSpacing: 0.5,
+  },
   newChatButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    margin: spacing.md,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    marginTop: spacing.xs,
     padding: spacing.md,
     backgroundColor: colors.card,
     borderRadius: borderRadius.md,
@@ -374,7 +548,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   menuItemActive: {
-    backgroundColor: colors.card,
+    backgroundColor: 'rgba(16, 163, 127, 0.12)',
   },
   menuLabel: {
     flex: 1,
@@ -434,3 +608,6 @@ const styles = StyleSheet.create({
 });
 
 export default DrawerNavigator;
+
+
+

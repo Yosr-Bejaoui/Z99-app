@@ -10,8 +10,9 @@ import {
   Platform,
   Animated,
   ActivityIndicator,
-  Alert,
+  Alert, // Keeping for backward compatibility if needed elsewhere
   StatusBar,
+  Modal, // AUDIT FIX 4b
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, borderRadius } from '../theme';
 import ModelSelector from '../components/ModelSelector';
 import MessageBubble from '../components/MessageBubble';
+import IconButton from '../components/ui/IconButton'; // AUDIT FIX 3
 import { chatService, AIModel, ChatSession, ChatMessage } from '../services';
 import { useDrawer } from '../context';
 
@@ -48,6 +50,11 @@ const ChatScreen: React.FC = () => {
   const isConnectingRef = useRef(false); // Ref to avoid stale closure
   const sentMessagesRef = useRef<Set<string>>(new Set()); // Track sent messages to prevent duplicates
   const typingAnim = useRef(new Animated.Value(0)).current;
+  const bannerAnim = useRef(new Animated.Value(-100)).current; // AUDIT FIX 4a - Animated banner
+
+  // AUDIT FIX 4b - Bottom sheet state
+  const [showModelModal, setShowModelModal] = useState(false);
+  const [modelToSwitch, setModelToSwitch] = useState<number | null>(null);
 
   // Fetch available chat models
   useEffect(() => {
@@ -122,6 +129,13 @@ const ChatScreen: React.FC = () => {
         isConnectingRef.current = false;
         setIsConnecting(false);
         
+        // Hide banner if reconnected
+        Animated.timing(bannerAnim, {
+          toValue: -100,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+        
         // Send pending message if exists
         const pendingMsg = pendingMessageRef.current;
         if (pendingMsg && !sentMessagesRef.current.has(pendingMsg)) {
@@ -173,9 +187,7 @@ const ChatScreen: React.FC = () => {
               return history;
             });
 
-            setTimeout(() => {
-              scrollViewRef.current?.scrollToEnd({ animated: true });
-            }, 100);
+            // Removed setTimeout // AUDIT FIX 5
             return;
           }
 
@@ -213,9 +225,6 @@ const ChatScreen: React.FC = () => {
             }
 
             setIsTyping(false);
-            setTimeout(() => {
-              scrollViewRef.current?.scrollToEnd({ animated: true });
-            }, 100);
           }
         } catch (e) {
           console.error('Failed to parse message:', e);
@@ -227,20 +236,36 @@ const ChatScreen: React.FC = () => {
         isConnectingRef.current = false;
         setIsConnecting(false);
         setIsTyping(false);
+        // Show banner on error
+        Animated.timing(bannerAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
       };
       
       ws.onclose = () => {
         isConnectingRef.current = false;
         setIsConnecting(false);
+        // Show banner on close
+        Animated.timing(bannerAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
       };
       
       wsRef.current = ws;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to start session';
-      Alert.alert('Connection Error', errorMessage);
+      // AUDIT FIX 4a - Remove Alert
       isConnectingRef.current = false;
       setIsConnecting(false);
       setIsTyping(false);
+      Animated.timing(bannerAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
     }
   }, [selectedModel]);
 
@@ -266,10 +291,7 @@ const ChatScreen: React.FC = () => {
     setInputText('');
     setIsTyping(true);
     
-    // Scroll to bottom
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    // AUDIT FIX 5 - Remove setTimeout scroll handling
     
     // If WebSocket is ready, send immediately
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -288,26 +310,15 @@ const ChatScreen: React.FC = () => {
     }
   };
 
-  const handleModelChange = (modelId: number) => {
-    if (modelId === selectedModel) return;
+  const handleModelChange = (model: { id: number; name: string }) => {
+    if (model.id === selectedModel) return;
     
-    // If there are messages, confirm before switching
+    // AUDIT FIX 4b - Replace Alert with Bottom Sheet
     if (messages.length > 0) {
-      Alert.alert(
-        'Switch Model',
-        'Switching models will start a new conversation. Continue?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Switch',
-            onPress: () => {
-              doModelSwitch(modelId);
-            },
-          },
-        ]
-      );
+      setModelToSwitch(model.id);
+      setShowModelModal(true);
     } else {
-      doModelSwitch(modelId);
+      doModelSwitch(model.id);
     }
   };
   
@@ -328,10 +339,8 @@ const ChatScreen: React.FC = () => {
 
   const handleNewChat = () => {
     if (messages.length === 0) return;
-    Alert.alert('New Chat', 'Start a new conversation?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'New Chat', onPress: () => doModelSwitch(selectedModel!) },
-    ]);
+    setModelToSwitch(selectedModel);
+    setShowModelModal(true); // AUDIT FIX 4b - Ensure modal is also used here
   };
 
   const getSelectedModelName = () => {
@@ -355,14 +364,20 @@ const ChatScreen: React.FC = () => {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       
+      {/* AUDIT FIX 4a - Animated banner */}
+      <Animated.View style={[styles.connectionBanner, { transform: [{ translateY: bannerAnim }] }]}>
+        <Text style={styles.connectionBannerText}>Connection lost — reconnecting...</Text>
+      </Animated.View>
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.headerButton} 
+        <IconButton 
+          icon="menu-outline" 
           onPress={openDrawer}
-        >
-          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
-        </TouchableOpacity>
+          accessibilityLabel="Open drawer"
+          color={colors.textSecondary}
+          style={styles.headerButton}
+        />
         
         <ModelSelector 
           selected={selectedModel} 
@@ -370,12 +385,18 @@ const ChatScreen: React.FC = () => {
           models={models.map(m => ({ id: m.id, name: m.name }))}
         />
         
-        <TouchableOpacity style={styles.headerRight} onPress={handleNewChat}>
-          <Ionicons name="create-outline" size={22} color={colors.textSecondary} />
-        </TouchableOpacity>
+        <IconButton
+          icon="create-outline"
+          onPress={handleNewChat}
+          accessibilityLabel="Start new chat"
+          color={colors.textSecondary}
+          style={styles.headerRight}
+          size={22}
+        />
       </View>
 
       {/* Messages or Empty State */}
+      
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
@@ -416,6 +437,8 @@ const ChatScreen: React.FC = () => {
             style={styles.messagesContainer}
             contentContainerStyle={styles.messagesContent}
             showsVerticalScrollIndicator={false}
+            // AUDIT FIX 5 - Use onContentSizeChange
+            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
             {messages.map((message) => (
               <MessageBubble
@@ -503,6 +526,49 @@ const ChatScreen: React.FC = () => {
           </Text>
         </View>
       </KeyboardAvoidingView>
+
+      {/* AUDIT FIX 4b - Bottom Sheet Modal for Model Change / New Chat */}
+      <Modal
+        visible={showModelModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowModelModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.bottomSheet}>
+            <View style={styles.bottomSheetHeader}>
+              <Text style={styles.bottomSheetTitle}>Switch Model?</Text>
+              <IconButton 
+                icon="close"
+                onPress={() => setShowModelModal(false)}
+                accessibilityLabel="Close confirmation"
+                color={colors.textSecondary}
+                size={24}
+              />
+            </View>
+            <Text style={styles.bottomSheetText}>
+              Switching models will start a new conversation. Continue?
+            </Text>
+            <View style={styles.bottomSheetActions}>
+              <TouchableOpacity 
+                style={[styles.bottomSheetButton, styles.bottomSheetCancel]}
+                onPress={() => setShowModelModal(false)}
+              >
+                <Text style={styles.bottomSheetCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.bottomSheetButton, styles.bottomSheetConfirm]}
+                onPress={() => {
+                  setShowModelModal(false);
+                  if (modelToSwitch !== null) doModelSwitch(modelToSwitch);
+                }}
+              >
+                <Text style={styles.bottomSheetConfirmText}>Switch</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -521,6 +587,78 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.md,
     fontSize: 15,
+  },
+  // AUDIT FIX 4a - Connection banner styles
+  connectionBanner: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    backgroundColor: colors.warning,
+    padding: spacing.md,
+    paddingTop: Platform.OS === 'ios' ? 50 : spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  connectionBannerText: {
+    color: colors.white,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  // AUDIT FIX 4b - Bottom sheet styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  bottomSheet: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 24, // Fallback if xl is missing
+    borderTopRightRadius: 24,
+    padding: spacing.xl || 24,
+    paddingBottom: (spacing.xl || 24) * 2,
+  },
+  bottomSheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  bottomSheetTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+  },
+  bottomSheetText: {
+    fontSize: 16,
+    color: colors.textMuted,
+    marginBottom: spacing.xl || 24,
+  },
+  bottomSheetActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  bottomSheetButton: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    marginHorizontal: spacing.xs,
+  },
+  bottomSheetCancel: {
+    backgroundColor: colors.card,
+  },
+  bottomSheetConfirm: {
+    backgroundColor: colors.primary,
+  },
+  bottomSheetCancelText: {
+    color: colors.textPrimary,
+    fontWeight: '600',
+  },
+  bottomSheetConfirmText: {
+    color: colors.white,
+    fontWeight: '600',
   },
   header: {
     flexDirection: 'row',

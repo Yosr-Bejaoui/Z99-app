@@ -42,18 +42,18 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         };
       case 'history':
         return {
-          iconBg: ['rgba(139, 92, 246, 0.15)', 'rgba(139, 92, 246, 0.05)'],
-          iconColor: '#8b5cf6',
+          iconBg: ['rgba(16, 163, 127, 0.15)', 'rgba(16, 163, 127, 0.05)'],
+          iconColor: '#10a37f',
         };
       case 'images':
         return {
-          iconBg: ['rgba(249, 115, 22, 0.15)', 'rgba(249, 115, 22, 0.05)'],
-          iconColor: '#f97316',
+          iconBg: ['rgba(156, 163, 175, 0.15)', 'rgba(156, 163, 175, 0.05)'],
+          iconColor: '#9ca3af',
         };
       case 'search':
         return {
-          iconBg: ['rgba(14, 165, 233, 0.15)', 'rgba(14, 165, 233, 0.05)'],
-          iconColor: '#0ea5e9',
+          iconBg: ['rgba(209, 213, 219, 0.15)', 'rgba(209, 213, 219, 0.05)'],
+          iconColor: '#d1d5db',
         };
       default:
         return {

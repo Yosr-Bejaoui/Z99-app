@@ -22,6 +22,8 @@ export { default as NotificationsScreen } from './NotificationsScreen';
 export { default as TextToVideoScreen } from './TextToVideoScreen';
 export { default as ImageToVideoScreen } from './ImageToVideoScreen';
 export { default as TextToSpeechScreen } from './TextToSpeechScreen';
+export { default as SpeechToTextScreen } from './SpeechToTextScreen';
+export { default as VoiceCloningScreen } from './VoiceCloningScreen';
 export { default as VideoEffectsScreen } from './VideoEffectsScreen';
 export { default as ImageEditorScreen } from './ImageEditorScreen';
 export { default as ImageTo3DScreen } from './ImageTo3DScreen';

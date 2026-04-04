@@ -38,8 +38,8 @@ const TermsOfServiceScreen: React.FC<TermsOfServiceScreenProps> = ({ navigation 
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('terms.title')}</Text>
         <View style={styles.headerSpacer} />
+      
       </View>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

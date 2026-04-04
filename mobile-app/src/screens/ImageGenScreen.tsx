@@ -66,6 +66,7 @@ const ImageGenScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { openDrawer } = useDrawer();
+  
   const { credits, hasEnoughCredits, refreshCredits } = useCredits();
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('realistic');
@@ -102,7 +103,7 @@ const ImageGenScreen: React.FC = () => {
       );
       const imageModels = allImageModels.length > 0 ? allImageModels : [];
       
-      const modelColors = ['#10b981', '#8b5cf6', '#f59e0b', '#3b82f6', '#ef4444', '#06b6d4'];
+      const modelColors = ['#10b981', '#10a37f', '#a7f3d0', '#d1d5db', '#9ca3af', '#4b5563'];
       const formattedModels: AIModel[] = imageModels.map((m: any, idx: number) => ({
         id: m.id,
         name: m.name,
@@ -345,6 +346,7 @@ const ImageGenScreen: React.FC = () => {
     }
 
     return (
+      
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -380,14 +382,15 @@ const ImageGenScreen: React.FC = () => {
       
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.headerButton} 
-          onPress={openDrawer}
-        >
-          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
+        <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
+          <Ionicons name="menu-outline" size={28} color={colors.textPrimary || '#fff'} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('imageGen.title')}</Text>
-        <View style={styles.headerButton} />
+        <Text style={styles.title}>{t('imageGen.title')}</Text>
+        <View style={styles.iconButton}>
+          <View style={styles.coinBadge}>
+             <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
+          </View>
+        </View>
       </View>
       
       <ScrollView
@@ -509,7 +512,7 @@ const ImageGenScreen: React.FC = () => {
 
         {/* Generate Button */}
         <GradientButton
-          title={isGenerating ? t('imageGen.generating') : `${t('imageGen.generateButton')} (${selectedModel?.base_cost || 10} ${t('common.credits')})`}
+          title={isGenerating ? t('imageGen.generating') : `${t('imageGen.generateButton')} (${Math.round(Number(selectedModel?.base_cost || 10))} ${t('common.credits')})`}
           onPress={handleGenerate}
           style={styles.generateButton}
           disabled={isGenerating || !prompt.trim() || !selectedModel}
@@ -639,8 +642,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    marginBottom: spacing.sm,
   },
   headerButton: {
     width: 40,
@@ -916,6 +918,33 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '500',
+  },
+
+  coinBadge: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coinBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+
+  iconButton: {
+    padding: spacing.xs,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 40,
+  },
+
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.textPrimary || '#fff',
   },
 });
 

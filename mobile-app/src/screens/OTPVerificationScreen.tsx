@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius } from '../theme';
 import GradientButton from '../components/GradientButton';
 import GlassCard from '../components/GlassCard';
+import IconButton from '../components/ui/IconButton'; // AUDIT FIX 3 - Import IconButton
 import { authService } from '../services';
 import api from '../services/api';
 import { ENDPOINTS } from '../services/config';
@@ -62,16 +63,17 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
   }, []);
 
   const handleOtpChange = (value: string, index: number) => {
+    // AUDIT FIX 2 - Clean paste logic
     if (value.length > 1) {
-      // Handle paste
       const pastedCode = value.slice(0, 6).split('');
-      const newOtp = [...otp];
+      const newOtp = ['', '', '', '', '', ''];
       pastedCode.forEach((char, i) => {
-        if (i < 6) newOtp[i] = char;
+        newOtp[i] = char;
       });
       setOtp(newOtp);
+      inputRefs.current[Math.min(pastedCode.length - 1, 5)]?.focus();
       if (pastedCode.length === 6) {
-        inputRefs.current[5]?.focus();
+        handleVerify(newOtp.join(''));
       }
       return;
     }
@@ -80,20 +82,15 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
+    } else if (index === 5 && value) {
+      handleVerify(newOtp.join(''));
     }
   };
 
-  const handleKeyPress = (e: any, index: number) => {
-    if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleVerify = async () => {
-    const code = otp.join('');
+  const handleVerify = async (codeToVerify?: string) => {
+    const code = codeToVerify || otp.join('');
     if (code.length !== 6) {
       setError('Please enter the complete 6-digit code');
       return;
@@ -136,6 +133,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -150,12 +148,14 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
           ]}
         >
           {/* Back Button */}
-          <TouchableOpacity
-            style={styles.backButton}
+          {/* AUDIT FIX 3 - Use IconButton */}
+          <IconButton
+            icon="arrow-back"
             onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
-          </TouchableOpacity>
+            accessibilityLabel="Go back"
+            color={colors.textPrimary}
+            style={styles.backButton}
+          />
 
           {/* Header */}
           <View style={styles.header}>
@@ -185,10 +185,16 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
                   ]}
                   value={digit}
                   onChangeText={(value) => handleOtpChange(value, index)}
-                  onKeyPress={(e) => handleKeyPress(e, index)}
+                  onKeyPress={(e) => {
+                    if (e.nativeEvent.key === 'Backspace' && !digit && index > 0) {
+                      inputRefs.current[index - 1]?.focus();
+                    }
+                  }}
                   keyboardType="number-pad"
                   maxLength={6}
                   selectTextOnFocus
+                  textContentType="oneTimeCode" // AUDIT FIX 2
+                  autoComplete="sms-otp" // AUDIT FIX 2
                 />
               ))}
             </View>

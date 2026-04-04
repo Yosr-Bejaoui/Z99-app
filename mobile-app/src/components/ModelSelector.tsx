@@ -27,10 +27,17 @@ interface ModelSelectorProps {
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({ selected, onSelect, models = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+  const [filter, setFilter] = useState<'all' | 'free' | 'premium'>('all');
+
   const selectedId = selected && typeof selected === 'object' ? selected.id : selected;
   const selectedModel = models.find(m => m.id === selectedId);
   const displayName = selectedModel ? getCleanModelName(selectedModel.name) : 'Select Model';
+
+  const filteredModels = models.filter(m => {
+    if (filter === 'all') return true;
+    const isFree = !m.base_cost || m.base_cost === 0 || m.name.toLowerCase().includes('free');
+    return filter === 'free' ? isFree : !isFree;
+  });
 
   const handleSelect = (model: Model) => {
     onSelect(model);
@@ -71,8 +78,21 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selected, onSelect, model
                 <Ionicons name="close" size={22} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
+
+            <View style={styles.tabsContainer}>
+              <TouchableOpacity style={[styles.tab, filter === 'all' && styles.tabActive]} onPress={() => setFilter('all')}>
+                <Text style={[styles.tabText, filter === 'all' && styles.tabTextActive]}>All</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.tab, filter === 'free' && styles.tabActive]} onPress={() => setFilter('free')}>
+                <Text style={[styles.tabText, filter === 'free' && styles.tabTextActive]}>Free</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.tab, filter === 'premium' && styles.tabActive]} onPress={() => setFilter('premium')}>
+                <Text style={[styles.tabText, filter === 'premium' && styles.tabTextActive]}>Premium</Text>
+              </TouchableOpacity>
+            </View>
+
             <FlatList
-              data={models}
+              data={filteredModels}
               keyExtractor={(item) => String(item.id)}
               renderItem={({ item }) => (
                 <TouchableOpacity
@@ -149,6 +169,31 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     color: colors.textPrimary,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+  },
+  tabActive: {
+    backgroundColor: colors.surfaceHover,
+  },
+  tabText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  tabTextActive: {
+    color: colors.primary,
+    fontWeight: 'bold',
   },
   dropdownItem: {
     flexDirection: 'row',

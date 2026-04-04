@@ -25,11 +25,23 @@ export type RootStackParamList = {
   TextToVideo: undefined;
   ImageToVideo: undefined;
   TextToSpeech: undefined;
+  SpeechToText: undefined;
+  VoiceCloning: undefined;
   VideoEffects: undefined;
   ImageEditor: undefined;
   ImageTo3D: undefined;
   InvoiceHistory: undefined;
   AdRewards: undefined;
+  Referral: undefined;
+  TextRemover: undefined;
+  WatermarkRemover: undefined;
+  VideoUpscaler: undefined;
+  BackgroundGen: undefined;
+  PromptOptimizer: undefined;
+  Donate: undefined;
+  CustomGPTLibrary: undefined;
+  CustomGPTCreate: { gpt?: any } | undefined;
+  GPTTools: undefined;
 };
 
 // Extend React Navigation types

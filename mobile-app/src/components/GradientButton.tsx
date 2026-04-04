@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ViewStyle,
   TextStyle,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { colors, borderRadius, spacing } from '../theme';
 
@@ -20,6 +21,7 @@ interface GradientButtonProps {
   loading?: boolean;
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
+  badge?: string;
 }
 
 export const GradientButton: React.FC<GradientButtonProps> = ({
@@ -32,25 +34,45 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   loading = false,
   variant = 'primary',
   size = 'md',
+  badge,
 }) => {
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleValue, {
+      toValue: 0.97,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleValue, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
   const isDisabled = disabled || loading;
 
   return (
-    <TouchableOpacity 
-      onPress={onPress} 
-      activeOpacity={0.7} 
-      disabled={isDisabled}
-      accessibilityRole="button"
-      accessibilityLabel={title}
-      accessibilityState={{ disabled: isDisabled, busy: loading }}
-    >
-      <View style={[
-        styles.button,
-        styles[variant],
-        styles[`size_${size}`],
-        isDisabled && styles.buttonDisabled,
-        style,
-      ]}>
+    <Animated.View style={{ transform: [{ scale: scaleValue }], width: style?.width }}>
+      <TouchableOpacity 
+        onPress={onPress} 
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        activeOpacity={0.85} 
+        disabled={isDisabled}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        accessibilityState={{ disabled: isDisabled, busy: loading }}
+        style={[
+          styles.button,
+          styles[variant],
+          styles[`size_${size}`],
+          isDisabled && styles.buttonDisabled,
+          style,
+        ]}
+      >
         {loading ? (
           <ActivityIndicator 
             size="small" 
@@ -58,20 +80,33 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
           />
         ) : (
           <>
-            {icon && <View style={styles.iconContainer}>{icon}</View>}
-            <Text style={[
-              styles.buttonText,
-              styles[`${variant}Text`],
-              styles[`size_${size}_text`],
-              isDisabled && styles.buttonTextDisabled,
-              textStyle,
-            ]}>
-              {title}
-            </Text>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+              {icon && <View style={styles.iconContainer}>{icon}</View>}
+              <Text style={[
+                styles.buttonText,
+                styles[`${variant}Text`],
+                styles[`size_${size}_text`],
+                isDisabled && styles.buttonTextDisabled,
+                textStyle,
+              ]}>
+                {title}
+              </Text>
+            </View>
+            {badge && (
+              <View style={{
+                 backgroundColor: 'rgba(255,255,255,0.2)', 
+                 paddingHorizontal: 8, 
+                 paddingVertical: 4, 
+                 borderRadius: 12, 
+                 marginLeft: 8 
+              }}>
+                <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>{badge}</Text>
+              </View>
+            )}
           </>
         )}
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
@@ -102,9 +137,15 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
   },
   size_md: {
-    paddingVertical: spacing.md,
+    height: 52,
+    justifyContent: 'center',
     paddingHorizontal: spacing.xl,
-    borderRadius: borderRadius.md,
+    borderRadius: 14,
+    shadowColor: '#10a37f',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
   size_lg: {
     paddingVertical: spacing.lg,

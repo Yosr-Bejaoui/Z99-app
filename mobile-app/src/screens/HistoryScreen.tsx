@@ -327,6 +327,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = () => {
       )}
 
       {/* Filter Tabs */}
+      
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false}

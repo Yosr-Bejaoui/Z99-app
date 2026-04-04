@@ -42,8 +42,8 @@ const AboutScreen: React.FC<AboutScreenProps> = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('about.title')}</Text>
         <View style={styles.headerSpacer} />
+      
       </View>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

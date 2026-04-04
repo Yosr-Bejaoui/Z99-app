@@ -38,8 +38,8 @@ const PrivacyPolicyScreen: React.FC<PrivacyPolicyScreenProps> = ({ navigation })
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('privacy.title')}</Text>
         <View style={styles.headerSpacer} />
+      
       </View>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

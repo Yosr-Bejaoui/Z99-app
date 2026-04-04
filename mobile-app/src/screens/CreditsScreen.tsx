@@ -79,9 +79,9 @@ const CreditsScreen: React.FC = () => {
 
       setUsageStats([
         { icon: 'chatbubble', label: t('credits.usage.today'), value: usage.today_used.toString(), color: '#10b981' },
-        { icon: 'calendar', label: t('credits.usage.thisWeek'), value: usage.week_used.toString(), color: '#8b5cf6' },
-        { icon: 'document-text', label: t('credits.usage.thisMonth'), value: formatNumber(usage.month_used), color: '#3b82f6' },
-        { icon: 'time', label: t('credits.usage.total'), value: formatNumber(usage.total_used), color: '#f59e0b' },
+        { icon: 'calendar', label: t('credits.usage.thisWeek'), value: usage.week_used.toString(), color: '#10a37f' },
+        { icon: 'document-text', label: t('credits.usage.thisMonth'), value: formatNumber(usage.month_used), color: '#9ca3af' },
+        { icon: 'time', label: t('credits.usage.total'), value: formatNumber(usage.total_used), color: '#ffffff' },
       ]);
     } catch (err) {
       setError(getErrorMessage(err));
@@ -189,8 +189,9 @@ const CreditsScreen: React.FC = () => {
             <TouchableOpacity onPress={() => setShowTransactions(false)}>
               <Ionicons name="close" size={24} color={colors.textMuted} />
             </TouchableOpacity>
-          </View>
-          <ScrollView style={styles.transactionsList}>
+          
+                  </View>
+            <ScrollView style={styles.transactionsList}>
             {transactions.length === 0 ? (
               <Text style={styles.noTransactions}>{t('credits.transactions.empty')}</Text>
             ) : (
