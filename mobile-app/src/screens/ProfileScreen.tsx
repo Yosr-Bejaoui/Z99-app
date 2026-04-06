@@ -308,7 +308,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               </LinearGradient>
             )}
             <TouchableOpacity style={styles.editAvatarButton} onPress={showImageOptions}>
-              <Ionicons name="camera" size={14} color="#fff" />
+              <Ionicons name="camera" size={14} color={colors.white} />
             </TouchableOpacity>
           </View>
           <View style={styles.nameContainer}>
@@ -408,7 +408,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 value={settings.notifications}
                 onValueChange={() => toggleSetting('notifications')}
                 trackColor={{ false: colors.surface, true: colors.primary }}
-                thumbColor="#fff"
+                thumbColor={colors.foreground}
               />
             </TouchableOpacity>
 
@@ -423,7 +423,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               <View style={styles.settingsBadge}>
                 <Text style={styles.settingsBadgeText}>{currentLang.flag} {currentLang.nativeName}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} style={{ marginLeft: 8 }} />
+              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} style={{ marginLeft: spacing.sm }} />
             </TouchableOpacity>
           </GlassCard>
         </View>
@@ -586,15 +586,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 32,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
-    paddingTop: 8,
+    marginBottom: spacing.lg,
+    paddingTop: spacing.sm,
   },
   headerTitle: {
     fontSize: 24,
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
   },
   headerActions: {
     flexDirection: 'row',
-    gap: 8,
+    gap: spacing.sm,
   },
   headerButton: {
     width: 40,
@@ -624,13 +624,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.error,
   },
   profileCard: {
-    padding: 24,
+    padding: spacing.xl,
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   avatarGradient: {
     width: 90,
@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#fff',
+    color: colors.foreground,
   },
   editAvatarButton: {
     position: 'absolute',
@@ -666,18 +666,18 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   userEmail: {
     fontSize: 14,
     color: colors.textMuted,
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   quickStats: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    paddingTop: 16,
+    paddingTop: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
@@ -689,7 +689,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   quickStatLabel: {
     fontSize: 12,
@@ -701,16 +701,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   infoCard: {
-    padding: 4,
+    padding: spacing.xs,
   },
   infoRow: {
     flexDirection: 'row',
@@ -756,7 +756,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   settingsCard: {
-    padding: 4,
+    padding: spacing.xs,
   },
   settingsRow: {
     flexDirection: 'row',
@@ -784,8 +784,8 @@ const styles = StyleSheet.create({
   },
   settingsBadge: {
     backgroundColor: colors.surface,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
   },
   settingsBadgeText: {
@@ -800,8 +800,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderRadius: 16,
     paddingVertical: 14,
-    gap: 8,
-    marginBottom: 16,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
   signOutText: {
     fontSize: 16,
@@ -819,12 +819,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.lg,
   },
   modalContent: {
     backgroundColor: colors.surface,
     borderRadius: 20,
-    padding: 24,
+    padding: spacing.xl,
     width: '100%',
     maxWidth: 400,
   },
@@ -832,7 +832,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   modalTitle: {
     fontSize: 20,
@@ -840,18 +840,18 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
     color: colors.textSecondary,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   input: {
     backgroundColor: colors.background,
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
     paddingVertical: 14,
     fontSize: 16,
     color: colors.textPrimary,
@@ -863,7 +863,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   saveButtonDisabled: {
     opacity: 0.6,
@@ -871,29 +871,29 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: colors.black,
   },
   // Name container with edit button
   nameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
   },
   editNameButton: {
-    padding: 4,
+    padding: spacing.xs,
   },
   // Subscription badge
   subscriptionBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   subscriptionText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#fff',
+    color: colors.foreground,
   },
   // Avatar loading overlay
   avatarLoading: {
@@ -912,7 +912,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -927,7 +927,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 12,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   languageOptionActive: {
     backgroundColor: `${colors.primary}15`,

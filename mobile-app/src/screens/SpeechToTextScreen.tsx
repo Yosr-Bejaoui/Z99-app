@@ -82,7 +82,7 @@ export default function SpeechToTextScreen() {
         
         <View style={styles.headerButton}>
           <View style={styles.coinBadge}>
-            <Text style={styles.coinIcon}>🪙</Text>
+            <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
               <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
           
       </View>
@@ -159,7 +159,7 @@ export default function SpeechToTextScreen() {
                onPress={handleTranscribe}
                disabled={isTranscribing}
                icon={isTranscribing ? <ActivityIndicator color={colors.white} /> : <Ionicons name="document-text" size={20} color={colors.white} />}
-               badge="🪙 15"
+               badge={"\uD83E\uDE99 15 Credits"}
              />
            </View>
         )}
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   
   segmentedControl: {
     flexDirection: 'row', backgroundColor: 'transparent',
-    borderRadius: 24, padding: 4, marginBottom: spacing.xl,
+    borderRadius: 24, padding: spacing.xs, marginBottom: spacing.xl,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)',
   },
   segment: {
@@ -285,13 +285,13 @@ segmentTextActive: { color: '#10a37f' },
   actionBtnText: { marginLeft: 6, fontSize: 14, fontWeight: '600', color: colors.primary },
   coinBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: spacing.xs,
     flexShrink: 0,
   },
   coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },

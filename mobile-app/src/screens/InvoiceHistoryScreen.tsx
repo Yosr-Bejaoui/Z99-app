@@ -252,24 +252,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingBottom: 100,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
   },
   summaryCard: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontSize: 13,
     color: colors.textMuted,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   summaryValue: {
     fontSize: 24,
@@ -296,14 +296,14 @@ const styles = StyleSheet.create({
   },
   emptyCard: {
     alignItems: 'center',
-    paddingVertical: 48,
+    paddingVertical: spacing.xxxl,
   },
   emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: colors.foreground,
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
   emptySubtitle: {
     fontSize: 14,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   invoicesList: {
-    gap: 12,
+    gap: spacing.md,
   },
   invoiceCard: {
     marginBottom: 0,
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   invoiceInfo: {},
   invoiceNumber: {
@@ -336,9 +336,9 @@ const styles = StyleSheet.create({
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: spacing.xs,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
   },
   statusText: {
@@ -349,14 +349,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 12,
+    paddingTop: spacing.md,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
   planInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   planName: {
     fontSize: 14,
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginTop: 12,
+    marginTop: spacing.md,
     paddingVertical: 10,
     borderTopWidth: 1,
     borderTopColor: colors.border,

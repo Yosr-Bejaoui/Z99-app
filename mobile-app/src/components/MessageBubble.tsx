@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
     backgroundColor: colors.backgroundTertiary,
     color: colors.primaryLight,
-    paddingHorizontal: 4,
+    paddingHorizontal: spacing.xs,
     borderRadius: borderRadius.xs,
   },
   codeBlock: {

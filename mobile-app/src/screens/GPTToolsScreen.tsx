@@ -67,7 +67,7 @@ const GPTToolsScreen: React.FC = ({ navigation }: any) => {
         <Text style={styles.headerTitle}>GPT Tools</Text>
           <View style={styles.headerButton}>
             <View style={styles.coinBadge}>
-              <Text style={styles.coinIcon}>🪙</Text>
+              <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
               <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
             </View>
           </View>
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   catBtn: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
   catBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   catText: { color: colors.textSecondary },
-  catTextActive: { color: '#fff', fontWeight: 'bold' },
+  catTextActive: { color: colors.foreground, fontWeight: 'bold' },
   list: { padding: spacing.md, gap: spacing.md },
   card: { padding: spacing.md },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
@@ -133,17 +133,17 @@ const styles = StyleSheet.create({
   cost: { fontSize: 12, color: colors.warning, fontWeight: 'bold' },
   cardDesc: { color: colors.textMuted, marginBottom: spacing.md },
   useBtn: { backgroundColor: colors.primary, padding: spacing.sm, borderRadius: borderRadius.md, alignItems: 'center' },
-  useBtnText: { color: '#fff', fontWeight: 'bold' },
+  useBtnText: { color: colors.foreground, fontWeight: 'bold' },
   empty: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
   coinBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: spacing.xs,
     flexShrink: 0,
   },
   coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },

@@ -147,7 +147,7 @@ const ForgotPasswordScreen: React.FC = () => {
           colors={[colors.primary, colors.secondary]}
           style={styles.iconGradient}
         >
-          <Ionicons name="mail" size={40} color="#fff" />
+          <Ionicons name="mail" size={40} color={colors.white} />
         </LinearGradient>
       </View>
 
@@ -190,7 +190,7 @@ const ForgotPasswordScreen: React.FC = () => {
           colors={[colors.primary, colors.secondary]}
           style={styles.iconGradient}
         >
-          <Ionicons name="keypad" size={40} color="#fff" />
+          <Ionicons name="keypad" size={40} color={colors.white} />
         </LinearGradient>
       </View>
 
@@ -243,7 +243,7 @@ const ForgotPasswordScreen: React.FC = () => {
           colors={[colors.primary, colors.secondary]}
           style={styles.iconGradient}
         >
-          <Ionicons name="lock-closed" size={40} color="#fff" />
+          <Ionicons name="lock-closed" size={40} color={colors.white} />
         </LinearGradient>
       </View>
 
@@ -273,7 +273,7 @@ const ForgotPasswordScreen: React.FC = () => {
         </View>
       </GlassCard>
 
-      <GlassCard style={[styles.inputCard, { marginTop: 12 }]}>
+      <GlassCard style={[styles.inputCard, { marginTop: spacing.md }]}>
         <View style={styles.inputContainer}>
           <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
           <TextInput
@@ -305,7 +305,7 @@ const ForgotPasswordScreen: React.FC = () => {
           colors={[colors.success, '#10b981']}
           style={styles.iconGradient}
         >
-          <Ionicons name="checkmark-circle" size={50} color="#fff" />
+          <Ionicons name="checkmark-circle" size={50} color={colors.white} />
         </LinearGradient>
       </View>
 
@@ -384,8 +384,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
     paddingBottom: 40,
   },
   backButton: {
@@ -395,13 +395,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 32,
+    marginBottom: spacing.xxl,
   },
   progressDot: {
     width: 12,
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 2,
     backgroundColor: colors.border,
-    marginHorizontal: 8,
+    marginHorizontal: spacing.sm,
   },
   progressLineActive: {
     backgroundColor: colors.primary,
@@ -424,10 +424,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: spacing.lg,
   },
   iconContainer: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   iconGradient: {
     width: 80,
@@ -441,14 +441,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.foreground,
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   subtitle: {
     fontSize: 16,
     color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 32,
+    marginBottom: spacing.xxl,
     paddingHorizontal: 10,
   },
   inputCard: {
@@ -458,8 +458,8 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    padding: 16,
+    gap: spacing.md,
+    padding: spacing.lg,
   },
   input: {
     flex: 1,
@@ -470,12 +470,12 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontSize: 14,
     textAlign: 'center',
-    marginTop: 12,
-    marginBottom: 8,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   button: {
     width: '100%',
-    marginTop: 24,
+    marginTop: spacing.xl,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 10,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   otpInput: {
     width: 48,
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textMuted,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: spacing.lg,
   },
   resendLink: {
     color: colors.primary,

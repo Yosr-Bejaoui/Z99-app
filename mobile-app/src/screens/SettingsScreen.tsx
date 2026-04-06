@@ -455,12 +455,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.lg,
   },
   modalContent: {
     backgroundColor: colors.surface,
     borderRadius: 20,
-    padding: 24,
+    padding: spacing.xl,
     width: '100%',
     maxWidth: 400,
   },
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   modalTitle: {
     fontSize: 20,
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 12,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   languageOptionActive: {
     backgroundColor: `${colors.primary}15`,

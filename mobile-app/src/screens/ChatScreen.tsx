@@ -766,7 +766,7 @@ const styles = StyleSheet.create({
   },
   typingDots: {
     flexDirection: 'row',
-    gap: 4,
+    gap: spacing.xs,
   },
   typingDot: {
     width: 8,

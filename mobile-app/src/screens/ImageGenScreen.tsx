@@ -383,7 +383,7 @@ const ImageGenScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={28} color={colors.textPrimary || '#fff'} />
+          <Ionicons name="menu-outline" size={28} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>{t('imageGen.title')}</Text>
         <View style={styles.iconButton}>
@@ -518,9 +518,9 @@ const ImageGenScreen: React.FC = () => {
           disabled={isGenerating || !prompt.trim() || !selectedModel}
           icon={
             isGenerating ? (
-              <ActivityIndicator color="#fff" size="small" />
+              <ActivityIndicator color={colors.white} size="small" />
             ) : (
-              <Ionicons name="sparkles" size={20} color="#fff" />
+              <Ionicons name="sparkles" size={20} color={colors.white} />
             )
           }
         />
@@ -551,13 +551,13 @@ const ImageGenScreen: React.FC = () => {
                         style={styles.imageActionButton}
                         onPress={() => handleDownload(img)}
                       >
-                        <Ionicons name="download-outline" size={16} color="#fff" />
+                        <Ionicons name="download-outline" size={16} color={colors.white} />
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.imageActionButton}
                         onPress={() => handleShare(img)}
                       >
-                        <Ionicons name="share-outline" size={16} color="#fff" />
+                        <Ionicons name="share-outline" size={16} color={colors.white} />
                       </TouchableOpacity>
                     </View>
                     <Text style={styles.imagePrompt} numberOfLines={2}>
@@ -594,7 +594,7 @@ const ImageGenScreen: React.FC = () => {
             style={styles.imageViewerClose}
             onPress={() => setSelectedImage(null)}
           >
-            <Ionicons name="close" size={28} color="#fff" />
+            <Ionicons name="close" size={28} color={colors.white} />
           </TouchableOpacity>
           {selectedImage && (
             <>
@@ -610,7 +610,7 @@ const ImageGenScreen: React.FC = () => {
                     handleDownload(selectedImage);
                   }}
                 >
-                  <Ionicons name="download-outline" size={24} color="#fff" />
+                  <Ionicons name="download-outline" size={24} color={colors.white} />
                   <Text style={styles.imageViewerButtonText}>{t('imageGen.imageOptions.download')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -619,7 +619,7 @@ const ImageGenScreen: React.FC = () => {
                     handleShare(selectedImage);
                   }}
                 >
-                  <Ionicons name="share-outline" size={24} color="#fff" />
+                  <Ionicons name="share-outline" size={24} color={colors.white} />
                   <Text style={styles.imageViewerButtonText}>{t('imageGen.imageOptions.share')}</Text>
                 </TouchableOpacity>
               </View>
@@ -865,7 +865,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   imagePrompt: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 11,
     lineHeight: 14,
   },
@@ -915,21 +915,21 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   imageViewerButtonText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 14,
     fontWeight: '500',
   },
 
   coinBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   coinBadgeText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 12,
     fontWeight: 'bold',
   },
@@ -944,7 +944,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.textPrimary || '#fff',
+    color: colors.textPrimary,
   },
 });
 

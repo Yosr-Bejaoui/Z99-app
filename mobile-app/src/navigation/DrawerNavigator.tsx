@@ -13,12 +13,13 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, BRAND_NAME } from '../theme';
 import { useAuth, DrawerContext, NavigationParams, useCredits } from '../context';
 
 // Screens
 import ChatScreen from '../screens/ChatScreen';
 import ImageGenScreen from '../screens/ImageGenScreen';
+import ImageEditorScreen from '../screens/ImageEditorScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import CreditsScreen from '../screens/CreditsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -159,7 +160,7 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
       {/* Z99 Brand Header */}
       <View style={styles.brandHeader}>
         <Ionicons name="sparkles" size={24} color={colors.primary} />
-        <Text style={styles.brandName}>Z99</Text>
+        <Text style={styles.brandName}>BRAND_NAME</Text>
       </View>
 
       {/* Primary Section */}
@@ -360,6 +361,8 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
         return <ChatScreen />;
       case 'ImageGenScreen':
         return <ImageGenScreen />;
+      case 'ImageEditorScreen':
+        return <ImageEditorScreen />;
       case 'HistoryScreen':
         return <HistoryScreen />;
       case 'CreditsScreen':
@@ -368,10 +371,6 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
         return <ReferralScreen />;
       case 'Donate':
         return <DonateScreen />;
-      case 'TextRemoverScreen':
-        return <TextRemoverScreen />;
-      case 'BackgroundGenScreen':
-        return <BackgroundGenScreen />;
 
       case 'BackgroundRemoverScreen':
         return <BackgroundRemoverScreen />;
@@ -379,10 +378,8 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
         return <ImageTo3DScreen />;
 
 
-      case 'BackgroundRemoverScreen':
-        return <BackgroundRemoverScreen />;
-      case 'ImageTo3DScreen':
-        return <ImageTo3DScreen />;
+      
+      
 
       case 'PromptOptimizerScreen':
         return <PromptOptimizerScreen />;
@@ -392,10 +389,6 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
         return <GPTToolsScreen />;
             case 'VideoUpscalerScreen':
         return <VideoUpscalerScreen />;
-      case 'VideoWatermarkRemoverScreen':
-        return <VideoWatermarkRemoverScreen />;
-      case 'ImageWatermarkRemoverScreen':
-        return <ImageWatermarkRemoverScreen />;
       case 'ImageUpscalerScreen':
         return <ImageUpscalerScreen />;
       case 'TextToSpeechScreen':
@@ -406,8 +399,6 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
         return <VoiceCloningScreen />;
       case 'TextToVideoScreen':
         return <TextToVideoScreen />;
-      case 'ImageToVideoScreen':
-        return <ImageToVideoScreen />;
       case 'ProfileScreen':
         return <ProfileScreen navigation={navigation} />;
       default:
@@ -513,7 +504,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
-    paddingBottom: 4,
+    paddingBottom: spacing.xs,
     letterSpacing: 0.5,
   },
   newChatButton: {

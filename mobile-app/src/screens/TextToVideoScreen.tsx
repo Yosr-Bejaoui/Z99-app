@@ -360,35 +360,35 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingBottom: 100,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
   },
   promptCard: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   promptInput: {
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 12,
-    padding: 16,
+    padding: spacing.lg,
     color: colors.foreground,
     fontSize: 15,
     minHeight: 100,
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   optionScroll: {
     gap: 10,
@@ -406,8 +406,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   optionButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -429,12 +429,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: spacing.lg,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
-    gap: 8,
+    gap: spacing.sm,
   },
   aspectButtonSelected: {
     backgroundColor: colors.primary + '20',
@@ -471,10 +471,10 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   generateButtonContainer: {
-    marginVertical: 20,
+    marginVertical: spacing.lg,
   },
   videoCard: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     overflow: 'hidden',
   },
   generatingContainer: {
@@ -486,12 +486,12 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   generatingSubtext: {
     color: colors.textMuted,
     fontSize: 14,
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   videoPlayer: {
     width: '100%',
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   videoPrompt: {
     color: colors.textMuted,
     fontSize: 13,
-    marginTop: 12,
+    marginTop: spacing.md,
   },
 });
 

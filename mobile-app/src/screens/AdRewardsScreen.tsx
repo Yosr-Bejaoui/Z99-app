@@ -199,12 +199,12 @@ const AdRewardsScreen: React.FC = () => {
           >
             {isWatchingAd ? (
               <>
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color={colors.white} />
                 <Text style={styles.watchButtonText}>Watching...</Text>
               </>
             ) : (
               <>
-                <Ionicons name="play-circle" size={24} color="#fff" />
+                <Ionicons name="play-circle" size={24} color={colors.white} />
                 <Text style={styles.watchButtonText}>
                   {adsRemaining > 0 ? 'Watch Ad' : 'Limit Reached'}
                 </Text>
@@ -357,17 +357,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingBottom: 100,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   headerSubtitle: {
     fontSize: 16,
@@ -375,8 +375,8 @@ const styles = StyleSheet.create({
   },
   mainCard: {
     alignItems: 'center',
-    paddingVertical: 32,
-    marginBottom: 16,
+    paddingVertical: spacing.xxl,
+    marginBottom: spacing.lg,
   },
   rewardIconContainer: {
     width: 80,
@@ -385,26 +385,26 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary + '20',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   creditsPerAd: {
     fontSize: 32,
     fontWeight: 'bold',
     color: colors.primary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   perAdText: {
     fontSize: 14,
     color: colors.textMuted,
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   watchButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: spacing.sm,
     backgroundColor: colors.primary,
-    paddingHorizontal: 32,
+    paddingHorizontal: spacing.xxl,
     paddingVertical: 14,
     borderRadius: 25,
     minWidth: 180,
@@ -413,18 +413,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.textMuted,
   },
   watchButtonText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
   },
   progressCard: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   progressTitle: {
     fontSize: 16,
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   progressBarContainer: {
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   progressBarBg: {
     height: 8,
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   progressInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: spacing.xs,
   },
   progressInfoText: {
     fontSize: 12,
@@ -470,33 +470,33 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 24,
+    gap: spacing.md,
+    marginBottom: spacing.xl,
   },
   statCard: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 20,
+    paddingVertical: spacing.lg,
   },
   statValue: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginTop: 8,
-    marginBottom: 4,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
   },
   statLabel: {
     fontSize: 12,
     color: colors.textMuted,
   },
   recentSection: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   recentList: {
     padding: 0,
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.lg,
   },
   recentItemBorder: {
     borderBottomWidth: 1,
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
   recentItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.md,
   },
   recentIcon: {
     width: 36,
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
     color: colors.success,
   },
   howItWorks: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   stepsCard: {
     padding: 0,
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
   step: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    padding: 16,
+    padding: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -560,12 +560,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   stepNumberText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.foreground,
   },
   stepContent: {
     flex: 1,
@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   stepDesc: {
     fontSize: 13,

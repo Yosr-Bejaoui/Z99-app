@@ -180,7 +180,7 @@ const TextRemoverScreen: React.FC = () => {
                     onPress={processImage}
                     disabled={isProcessing}
                     style={{ marginTop: spacing.lg }}
-                    icon={isProcessing ? <ActivityIndicator color="#fff" /> : <Ionicons name="color-wand" size={20} color="#fff" />}
+                    icon={isProcessing ? <ActivityIndicator color={colors.white} /> : <Ionicons name="color-wand" size={20} color={colors.white} />}
                 />
             )}
 
@@ -192,7 +192,7 @@ const TextRemoverScreen: React.FC = () => {
                          title="Download"
                          onPress={downloadResult}
                          style={{ marginTop: spacing.md }}
-                         icon={<Ionicons name="download-outline" size={20} color="#fff" />}
+                         icon={<Ionicons name="download-outline" size={20} color={colors.white} />}
                      />
                 </View>
             )}
@@ -218,28 +218,28 @@ const styles = StyleSheet.create({
   imageSelector: {
       width: '100%', aspectRatio: 1, borderRadius: borderRadius.lg,
       borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', borderStyle: 'solid',
-      overflow: 'hidden', backgroundColor: '#1a1a1a'
+      overflow: 'hidden', backgroundColor: colors.surface
   },
   previewImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   placeholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   placeholderText: { color: colors.textMuted, marginTop: spacing.md },
   resultContainer: { width: '100%', marginTop: spacing.xl },
   resultTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.sm },
-  downloadBtn: { flexDirection: 'row', backgroundColor: colors.success, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: spacing.md },
+  downloadBtn: { flexDirection: 'row', backgroundColor: colors.success, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
 
   coinBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: spacing.xs,
     flexShrink: 0,
   },
   coinBadgeText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 12,
     fontWeight: 'bold',
   },

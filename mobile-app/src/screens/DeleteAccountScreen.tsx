@@ -247,10 +247,10 @@ const DeleteAccountScreen: React.FC<DeleteAccountScreenProps> = ({ navigation })
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator size="small" color="#fff" />
+              <ActivityIndicator size="small" color={colors.white} />
             ) : (
               <>
-                <Ionicons name="trash-outline" size={20} color="#fff" />
+                <Ionicons name="trash-outline" size={20} color={colors.white} />
                 <Text style={styles.deleteButtonText}>Delete My Account</Text>
               </>
             )}
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: colors.foreground,
   },
   cancelButton: {
     backgroundColor: colors.surface,

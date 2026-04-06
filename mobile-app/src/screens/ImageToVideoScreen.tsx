@@ -439,34 +439,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingBottom: 100,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
   },
   imageCard: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   imageButtons: {
     flexDirection: 'row',
-    gap: 16,
+    gap: spacing.lg,
   },
   imageButton: {
     flex: 1,
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 16,
-    padding: 24,
+    padding: spacing.xl,
     borderWidth: 2,
     borderColor: colors.border,
     borderStyle: 'dashed',
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   selectedImageContainer: {
     position: 'relative',
@@ -502,12 +502,12 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   promptCard: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   promptInput: {
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 12,
-    padding: 16,
+    padding: spacing.lg,
     color: colors.foreground,
     fontSize: 15,
     minHeight: 80,
@@ -515,14 +515,14 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   optionScroll: {
     gap: 10,
   },
   optionButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -547,8 +547,8 @@ const styles = StyleSheet.create({
   motionButton: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 8,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.sm,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -562,7 +562,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   motionLabelSelected: {
     color: colors.primary,
@@ -573,10 +573,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   generateButtonContainer: {
-    marginVertical: 20,
+    marginVertical: spacing.lg,
   },
   videoCard: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     overflow: 'hidden',
   },
   generatingContainer: {
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   videoPlayer: {
     width: '100%',
@@ -613,13 +613,13 @@ const styles = StyleSheet.create({
   videoPrompt: {
     color: colors.textMuted,
     fontSize: 13,
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   videoActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingTop: 16,
-    marginTop: 12,
+    paddingTop: spacing.lg,
+    marginTop: spacing.md,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
@@ -627,8 +627,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   actionButtonText: {
     color: colors.primary,

@@ -166,7 +166,7 @@ const SubscriptionPlansScreen: React.FC = () => {
                       end={{ x: 1, y: 0 }}
                       style={styles.popularBadge}
                     >
-                      <Ionicons name="star" size={12} color="#fff" />
+                      <Ionicons name="star" size={12} color={colors.white} />
                       <Text style={styles.popularText}>{t('subscription.mostPopular').toUpperCase()}</Text>
                     </LinearGradient>
                   )}
@@ -198,7 +198,7 @@ const SubscriptionPlansScreen: React.FC = () => {
                           colors={[colors.primary, colors.secondary]}
                           style={styles.checkIcon}
                         >
-                          <Ionicons name="checkmark" size={12} color="#fff" />
+                          <Ionicons name="checkmark" size={12} color={colors.white} />
                         </LinearGradient>
                         <Text style={styles.featureText}>{feature}</Text>
                       </View>
@@ -301,16 +301,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    marginTop: 16,
+    marginTop: spacing.lg,
     fontSize: 16,
     color: colors.textMuted,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   backButton: {
     width: 44,
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTextContainer: {
-    marginLeft: 16,
+    marginLeft: spacing.lg,
     flex: 1,
   },
   headerTitle: {
@@ -332,14 +332,14 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   plansContainer: {
-    paddingHorizontal: 20,
-    gap: 16,
+    paddingHorizontal: spacing.lg,
+    gap: spacing.lg,
   },
   planCard: {
-    padding: 20,
+    padding: spacing.lg,
     borderRadius: 20,
     borderWidth: 2,
     borderColor: 'transparent',
@@ -358,13 +358,13 @@ const styles = StyleSheet.create({
     left: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.md,
     paddingVertical: 6,
     borderRadius: 20,
-    gap: 4,
+    gap: spacing.xs,
   },
   popularText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   planName: {
     fontSize: 22,
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   planCredits: {
     fontSize: 14,
     color: colors.primary,
-    marginTop: 4,
+    marginTop: spacing.xs,
     fontWeight: '600',
   },
   priceContainer: {
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   price: {
     fontSize: 36,
@@ -410,21 +410,21 @@ const styles = StyleSheet.create({
   planDescription: {
     fontSize: 14,
     color: colors.textMuted,
-    marginBottom: 12,
+    marginBottom: spacing.md,
     lineHeight: 20,
   },
   divider: {
     height: 1,
     backgroundColor: colors.border,
-    marginVertical: 16,
+    marginVertical: spacing.lg,
   },
   featuresContainer: {
-    gap: 12,
+    gap: spacing.md,
   },
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.md,
   },
   checkIcon: {
     width: 20,
@@ -452,23 +452,23 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: colors.foreground,
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   emptySubtitle: {
     fontSize: 14,
     color: colors.textMuted,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   ctaContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
   },
   ctaSummary: {
     backgroundColor: colors.card,
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
   },
   ctaLabel: {
     fontSize: 12,
@@ -480,10 +480,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.foreground,
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   ctaButton: {
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   ctaDisclaimer: {
     fontSize: 12,
@@ -491,29 +491,29 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   benefitsSection: {
-    paddingHorizontal: 20,
-    paddingTop: 32,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xxl,
   },
   benefitsTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: colors.foreground,
-    marginBottom: 20,
+    marginBottom: spacing.lg,
     textAlign: 'center',
   },
   benefitsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: spacing.md,
   },
   benefitItem: {
     width: (width - 52) / 2,
     backgroundColor: colors.card,
     borderRadius: 16,
-    padding: 16,
+    padding: spacing.lg,
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   benefitIcon: {
     width: 48,

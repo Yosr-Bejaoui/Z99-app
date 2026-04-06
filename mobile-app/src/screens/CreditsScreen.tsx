@@ -81,7 +81,7 @@ const CreditsScreen: React.FC = () => {
         { icon: 'chatbubble', label: t('credits.usage.today'), value: usage.today_used.toString(), color: '#10b981' },
         { icon: 'calendar', label: t('credits.usage.thisWeek'), value: usage.week_used.toString(), color: '#10a37f' },
         { icon: 'document-text', label: t('credits.usage.thisMonth'), value: formatNumber(usage.month_used), color: '#9ca3af' },
-        { icon: 'time', label: t('credits.usage.total'), value: formatNumber(usage.total_used), color: '#ffffff' },
+        { icon: 'time', label: t('credits.usage.total'), value: formatNumber(usage.total_used), color: colors.foreground },
       ]);
     } catch (err) {
       setError(getErrorMessage(err));
@@ -308,7 +308,7 @@ const CreditsScreen: React.FC = () => {
               disabled={isRedeemingCode}
             >
               {isRedeemingCode ? (
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color={colors.white} />
               ) : (
                 <Text style={styles.promoButtonText}>{t('credits.promo.redeem')}</Text>
               )}
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.md,
   },
   loadingText: {
     color: colors.textMuted,
@@ -416,15 +416,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 32,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 20,
-    paddingTop: 8,
+    marginBottom: spacing.lg,
+    paddingTop: spacing.sm,
   },
   notificationButton: {
     width: 44,
@@ -447,11 +447,11 @@ const styles = StyleSheet.create({
   errorCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    marginBottom: 16,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderColor: colors.error,
-    gap: 8,
+    gap: spacing.sm,
   },
   errorText: {
     flex: 1,
@@ -459,13 +459,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   balanceCard: {
-    padding: 20,
-    marginBottom: 16,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
   },
   balanceHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   balanceIcon: {
     width: 44,
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(45, 212, 191, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   balanceLabel: {
     fontSize: 16,
@@ -485,22 +485,22 @@ const styles = StyleSheet.create({
     fontSize: 44,
     fontWeight: '700',
     color: colors.primary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   bonusCredits: {
     fontSize: 14,
     color: colors.success,
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   progressContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   progressBar: {
     height: 8,
     backgroundColor: colors.surface,
     borderRadius: 4,
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   progressFill: {
     height: '100%',
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
   planBadge: {
     alignSelf: 'flex-start',
     backgroundColor: 'rgba(45, 212, 191, 0.15)',
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.md,
     paddingVertical: 6,
     borderRadius: 20,
   },
@@ -533,25 +533,25 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   promoCard: {
-    padding: 16,
-    marginBottom: 24,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
   },
   promoTitle: {
     fontSize: 14,
     color: colors.textPrimary,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   promoRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: spacing.sm,
   },
   promoInput: {
     flex: 1,
     backgroundColor: colors.surface,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     color: colors.textPrimary,
     fontSize: 15,
     borderWidth: 1,
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
   promoButton: {
     backgroundColor: colors.primary,
     borderRadius: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -568,30 +568,30 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   promoButtonText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
   },
   section: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: spacing.md,
   },
   statCard: {
     width: '48%',
     backgroundColor: colors.surface,
     borderRadius: 16,
-    padding: 16,
+    padding: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -601,13 +601,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   statValue: {
     fontSize: 24,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   statLabel: {
     fontSize: 13,
@@ -619,8 +619,8 @@ const styles = StyleSheet.create({
   packageCard: {
     backgroundColor: colors.surface,
     borderRadius: 16,
-    padding: 16,
-    marginHorizontal: 4,
+    padding: spacing.lg,
+    marginHorizontal: spacing.xs,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',
@@ -631,13 +631,13 @@ const styles = StyleSheet.create({
   },
   bestValueBadge: {
     backgroundColor: colors.primary,
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: 10,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   bestValueText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 10,
     fontWeight: '600',
   },
@@ -649,12 +649,12 @@ const styles = StyleSheet.create({
   packageCreditsLabel: {
     fontSize: 12,
     color: colors.textMuted,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   packageBonus: {
     fontSize: 12,
     color: colors.success,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   packagePrice: {
     fontSize: 18,
@@ -665,9 +665,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    marginTop: 8,
-    gap: 8,
+    paddingVertical: spacing.lg,
+    marginTop: spacing.sm,
+    gap: spacing.sm,
   },
   viewAllPlansText: {
     fontSize: 16,
@@ -684,16 +684,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 20,
-    paddingBottom: 32,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxl,
     maxHeight: '70%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 16,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
   },
   modalTitle: {
     fontSize: 18,
@@ -701,17 +701,17 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   transactionsList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
   },
   noTransactions: {
     textAlign: 'center',
     color: colors.textMuted,
-    paddingVertical: 32,
+    paddingVertical: spacing.xxl,
   },
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -721,7 +721,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   txContent: {
     flex: 1,

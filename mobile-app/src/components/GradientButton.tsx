@@ -95,10 +95,10 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
             {badge && (
               <View style={{
                  backgroundColor: 'rgba(255,255,255,0.2)', 
-                 paddingHorizontal: 8, 
-                 paddingVertical: 4, 
+                 paddingHorizontal: spacing.sm, 
+                 paddingVertical: spacing.xs, 
                  borderRadius: 12, 
-                 marginLeft: 8 
+                 marginLeft: spacing.sm 
               }}>
                 <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>{badge}</Text>
               </View>

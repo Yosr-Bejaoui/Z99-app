@@ -107,8 +107,8 @@ const styles = StyleSheet.create({
   },
   activeTabPill: {
     backgroundColor: 'rgba(16, 163, 127, 0.12)',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     borderRadius: 16,
   },
 });

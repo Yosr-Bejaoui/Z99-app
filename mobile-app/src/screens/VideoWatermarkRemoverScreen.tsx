@@ -76,7 +76,7 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
         
           <View style={styles.headerButton}>
             <View style={styles.coinBadge}>
-              <Text style={styles.coinIcon}>🪙</Text>
+              <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
               <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
             </View>
           </View>
@@ -135,15 +135,15 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
                 <View style={styles.sliderHandle}>
                   <View style={styles.sliderLine} />
                   <View style={styles.sliderButton}>
-                    <Ionicons name="swap-horizontal" size={16} color="#000" />
+                    <Ionicons name="swap-horizontal" size={16} color={colors.black} />
                   </View>
                 </View>
 
-                <Ionicons name="play-circle" size={64} color="#ffffff" style={styles.playIcon} />
+                <Ionicons name="play-circle" size={64} color={colors.white} style={styles.playIcon} />
                 <View style={styles.timeBadge}><Text style={styles.timeText}>0:15</Text></View>
                 <View style={styles.previewPill}><Text style={styles.previewText}>Preview</Text></View>
                 <TouchableOpacity style={styles.fullscreenIcon}>
-                  <Ionicons name="expand" size={20} color="#ffffff" />
+                  <Ionicons name="expand" size={20} color={colors.white} />
                 </TouchableOpacity>
               </View>
               {step === 'result' && (
@@ -173,7 +173,7 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
                 style={styles.ctaButton}
               >
                 <Text style={styles.ctaText}>Generate</Text>
-                {step === 'upload' && <Text style={styles.badgeText}>🪙 20 Coin</Text>}
+                {step === 'upload' && <Text style={styles.badgeText}>{"\uD83E\uDE99"} 20 Credits</Text>}
               </LinearGradient>
             </TouchableOpacity>
           ) : (
@@ -219,13 +219,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textPrimary,
   },
-  content: { padding: 20, alignItems: 'center', flexGrow: 1 },
+  content: { padding: spacing.lg, alignItems: 'center', flexGrow: 1 },
   
   uploadCard: {
     width: '100%',
     backgroundColor: colors.card,
     borderRadius: 20,
-    padding: 24,
+    padding: spacing.xl,
     borderWidth: 1,
     borderColor: colors.backgroundTertiary,
     shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 10,
@@ -237,14 +237,14 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     backgroundColor: colors.backgroundTertiary
   },
-  uploadText: { marginTop: 12, color: colors.textSecondary, fontSize: 16, fontWeight: '500' },
+  uploadText: { marginTop: spacing.md, color: colors.textSecondary, fontSize: 16, fontWeight: '500' },
   mockMedia: { alignItems: 'center', justifyContent: 'center' },
-  uploadTextDark: { marginTop: 8, color: '#10b981', fontSize: 16, fontWeight: '600' },
+  uploadTextDark: { marginTop: spacing.sm, color: '#10b981', fontSize: 16, fontWeight: '600' },
   
-  dropdownContainer: { width: '100%', marginTop: 24 },
-  dropdownLabel: { color: '#ffffff', fontSize: 14, fontWeight: '600', marginBottom: 12 },
+  dropdownContainer: { width: '100%', marginTop: spacing.xl },
+  dropdownLabel: { color: colors.foreground, fontSize: 14, fontWeight: '600', marginBottom: spacing.md },
   resolutionRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  resOption: { flex: 1, marginHorizontal: 4, paddingVertical: 10, borderRadius: 8, backgroundColor: colors.backgroundTertiary, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
+  resOption: { flex: 1, marginHorizontal: spacing.xs, paddingVertical: 10, borderRadius: 8, backgroundColor: colors.backgroundTertiary, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
   resOptionActive: { borderColor: colors.primary, backgroundColor: colors.cardHover },
   resText: { color: colors.textSecondary, fontWeight: '600' },
   resTextActive: { color: colors.primaryLight, fontWeight: '700' },
@@ -253,9 +253,9 @@ const styles = StyleSheet.create({
     width: '100%', height: 220,
     alignItems: 'center', justifyContent: 'center'
   },
-  processingText: { marginTop: 16, color: colors.primary, fontSize: 16, fontWeight: '600' },
+  processingText: { marginTop: spacing.lg, color: colors.primary, fontSize: 16, fontWeight: '600' },
 
-  resultCard: { width: '100%', alignItems: 'center', marginBottom: 20 },
+  resultCard: { width: '100%', alignItems: 'center', marginBottom: spacing.lg },
   videoPreview: {
     width: '100%', height: 250,
     backgroundColor: '#000000',
@@ -265,54 +265,54 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: colors.backgroundTertiary,
     flexDirection: 'row'
   },
-    splitLeft: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: 12 },
-    splitRight: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: 12, alignItems: 'flex-end' },
-  splitLabel: { color: '#fff', fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, borderRadius: 4, marginTop: 40 },
-  splitLabelRight: { color: '#fff', fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, borderRadius: 4, marginTop: 40 },
+    splitLeft: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: spacing.md },
+    splitRight: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: spacing.md, alignItems: 'flex-end' },
+  splitLabel: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, borderRadius: 4, marginTop: 40 },
+  splitLabelRight: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, borderRadius: 4, marginTop: 40 },
   
   sliderHandle: { position: 'absolute', top: 0, bottom: 0, left: '50%', width: 2, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
-  sliderLine: { width: 2, height: '100%', backgroundColor: '#ffffff' },
-  sliderButton: { position: 'absolute', width: 28, height: 28, borderRadius: 14, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } },
+  sliderLine: { width: 2, height: '100%', backgroundColor: colors.foreground },
+  sliderButton: { position: 'absolute', width: 28, height: 28, borderRadius: 14, backgroundColor: colors.foreground, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } },
 
   playIcon: { position: 'absolute', top: '50%', left: '50%', transform: [{ translateX: -32 }, { translateY: -32 }], opacity: 0.8, zIndex: 20 },
   
-  timeBadge: { position: 'absolute', bottom: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, zIndex: 20 },
-  timeText: { color: '#ffffff', fontSize: 12, fontWeight: '600' },
-  previewPill: { position: 'absolute', top: 12, left: 12, backgroundColor: colors.primary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, zIndex: 20 },
-  previewText: { color: '#ffffff', fontSize: 12, fontWeight: '700' },
+  timeBadge: { position: 'absolute', bottom: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6, zIndex: 20 },
+  timeText: { color: colors.foreground, fontSize: 12, fontWeight: '600' },
+  previewPill: { position: 'absolute', top: 12, left: 12, backgroundColor: colors.primary, paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: 20, zIndex: 20 },
+  previewText: { color: colors.foreground, fontSize: 12, fontWeight: '700' },
   fullscreenIcon: { position: 'absolute', bottom: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.4)', padding: 6, borderRadius: 8, zIndex: 20 },
 
-  toggleOptions: { marginTop: 16, paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, backgroundColor: colors.backgroundTertiary },
+  toggleOptions: { marginTop: spacing.lg, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: 20, backgroundColor: colors.backgroundTertiary },
   toggleOptionsText: { color: colors.textSecondary, fontWeight: '600' },
 
   optionsCard: {
     width: '100%',
     backgroundColor: colors.card,
     borderRadius: 20,
-    padding: 20,
+    padding: spacing.lg,
     borderWidth: 1, borderColor: colors.backgroundTertiary,
     marginTop: 10
   },
-  optionsHeader: { color: '#ffffff', fontSize: 16, fontWeight: '600', marginBottom: 16 },
-  actionBtn: { backgroundColor: colors.backgroundTertiary, paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
-  actionBtnText: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
+  optionsHeader: { color: colors.foreground, fontSize: 16, fontWeight: '600', marginBottom: spacing.lg },
+  actionBtn: { backgroundColor: colors.backgroundTertiary, paddingVertical: spacing.md, borderRadius: 10, alignItems: 'center' },
+  actionBtnText: { color: colors.foreground, fontSize: 16, fontWeight: '600' },
 
-  bottomBar: { padding: 20, paddingBottom: 30, backgroundColor: 'transparent' },
+  bottomBar: { padding: spacing.lg, paddingBottom: 30, backgroundColor: 'transparent' },
   ctaButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     height: 56, borderRadius: 28, position: 'relative'
   },
-  ctaText: { color: '#ffffff', fontSize: 18, fontWeight: '700' },
-  badgeText: { position: 'absolute', right: 16, color: '#fcd34d', fontSize: 14, fontWeight: '700', backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  ctaText: { color: colors.foreground, fontSize: 18, fontWeight: '700' },
+  badgeText: { position: 'absolute', right: 16, color: '#fcd34d', fontSize: 14, fontWeight: '700', backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: 10, paddingVertical: spacing.xs, borderRadius: 12 },
   coinBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: spacing.xs,
     flexShrink: 0,
   },
   coinIcon: { fontSize: 12 },

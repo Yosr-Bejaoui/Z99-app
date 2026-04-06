@@ -1,3 +1,4 @@
+import { spacing } from '../theme';
 import React from 'react';
 import { Text } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
@@ -57,7 +58,7 @@ describe('UI Components', () => {
     });
 
     it('should apply custom styles', () => {
-      const customStyle = { padding: 20 };
+      const customStyle = { padding: spacing.lg };
       const { getByText } = render(
         <GlassCard style={customStyle}>
           <Text>Content</Text>

@@ -18,6 +18,7 @@ import {
   spacing,
   borderRadius,
   typography,
+  BRAND_NAME,
 } from '../theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -44,7 +45,7 @@ const slides: SlideItem[] = [
     icon: 'sparkles',
     iconColor: '#2dd4bf',
     title: 'Welcome to',
-    subtitle: 'Z99',
+    subtitle: BRAND_NAME,
     description: 'Access the world\'s most powerful AI models in one place. Chat, create images, generate videos, and more.',
   },
   {
@@ -337,7 +338,7 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: colors.primary,
-    marginHorizontal: 4,
+    marginHorizontal: spacing.xs,
   },
   nextButton: {
     width: '100%',

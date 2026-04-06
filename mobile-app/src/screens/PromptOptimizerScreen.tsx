@@ -162,7 +162,7 @@ const PromptOptimizerScreen: React.FC = () => {
         <Text style={styles.headerTitle}>Prompt Optimizer</Text>
           <View style={styles.headerButton}>
             <View style={styles.coinBadge}>
-              <Text style={styles.coinIcon}>🪙</Text>
+              <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
               <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
             
       </View>
@@ -187,7 +187,7 @@ const PromptOptimizerScreen: React.FC = () => {
                 onPress={processPrompt}
                 disabled={isProcessing || !prompt.trim()}
                 style={{ marginTop: spacing.lg, width: '100%' }}
-                icon={isProcessing ? <ActivityIndicator color="#fff" /> : <Ionicons name="flash-outline" size={20} color="#fff" />}
+                icon={isProcessing ? <ActivityIndicator color={colors.white} /> : <Ionicons name="flash-outline" size={20} color={colors.white} />}
             />
 
             {resultText !== null && (
@@ -197,8 +197,8 @@ const PromptOptimizerScreen: React.FC = () => {
                          <Text style={styles.resultText}>{resultText}</Text>
                      </View>
                      <TouchableOpacity style={styles.copyBtn} onPress={copyResult} disabled={isProcessing}>
-                         <Ionicons name="copy-outline" size={20} color="#fff" />
-                         <Text style={{color: '#fff', fontWeight: 'bold'}}>Copy Prompt</Text>
+                         <Ionicons name="copy-outline" size={20} color={colors.white} />
+                         <Text style={{color: colors.foreground, fontWeight: 'bold'}}>Copy Prompt</Text>
                      </TouchableOpacity>
                 </View>
             )}
@@ -233,16 +233,16 @@ const styles = StyleSheet.create({
       borderRadius: borderRadius.md, padding: spacing.md, minHeight: 100
   },
   resultText: { color: colors.textPrimary, fontSize: 16, lineHeight: 24 },
-  copyBtn: { flexDirection: 'row', backgroundColor: colors.primary, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: spacing.md },
+  copyBtn: { flexDirection: 'row', backgroundColor: colors.primary, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
   coinBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: spacing.xs,
     flexShrink: 0,
   },
   coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },

@@ -137,7 +137,7 @@ const ReferralScreen: React.FC = () => {
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.primaryButton} onPress={shareCode}>
-            <Ionicons name="share-outline" size={20} color="#fff" />
+            <Ionicons name="share-outline" size={20} color={colors.white} />
             <Text style={styles.primaryButtonText}>Share Code</Text>
           </TouchableOpacity>
         </GlassCard>
@@ -189,7 +189,7 @@ const ReferralScreen: React.FC = () => {
               disabled={!codeToApply.trim() || isApplying}
             >
               {isApplying ? (
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color={colors.white} />
               ) : (
                 <Text style={styles.applyButtonText}>Apply</Text>
               )}
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   primaryButtonText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.textPrimary,
     marginTop: spacing.sm,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   statLabel: {
     fontSize: 12,
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.textMuted,
   },
   applyButtonText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
   },

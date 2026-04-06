@@ -328,7 +328,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
                     ]}
                   >
                     {agreeToTerms && (
-                      <Ionicons name="checkmark" size={14} color="#fff" />
+                      <Ionicons name="checkmark" size={14} color={colors.white} />
                     )}
                   </View>
                   <Text style={styles.termsText}>
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 24,
+    padding: spacing.xl,
     paddingTop: 60,
   },
   content: {
@@ -403,16 +403,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    padding: 8,
+    padding: spacing.sm,
     zIndex: 10,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 24,
-    marginTop: 24,
+    marginBottom: spacing.xl,
+    marginTop: spacing.xl,
   },
   logoContainer: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   logoGradient: {
     width: 70,
@@ -426,22 +426,22 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitle: {
     fontSize: 16,
     color: colors.textMuted,
   },
   formCard: {
-    padding: 24,
+    padding: spacing.xl,
   },
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   inputLabel: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     fontWeight: '500',
   },
   inputWrapper: {
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surface,
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -457,14 +457,14 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     color: colors.textPrimary,
-    marginLeft: 12,
+    marginLeft: spacing.md,
     fontSize: 16,
   },
   termsContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 24,
-    marginTop: 8,
+    marginBottom: spacing.xl,
+    marginTop: spacing.sm,
   },
   checkbox: {
     width: 22,
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   checkboxChecked: {
     backgroundColor: colors.primary,
@@ -495,22 +495,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255, 107, 107, 0.1)',
     borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
   },
   errorText: {
     color: '#ff6b6b',
     fontSize: 14,
-    marginLeft: 8,
+    marginLeft: spacing.sm,
     flex: 1,
   },
   signUpButton: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   dividerLine: {
     flex: 1,
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
   dividerText: {
     color: colors.textMuted,
     fontSize: 14,
-    marginHorizontal: 16,
+    marginHorizontal: spacing.lg,
   },
   socialButton: {
     flexDirection: 'row',
@@ -536,13 +536,13 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '500',
-    marginLeft: 12,
+    marginLeft: spacing.md,
   },
   signInContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
-    marginBottom: 32,
+    marginTop: spacing.xl,
+    marginBottom: spacing.xxl,
   },
   signInText: {
     color: colors.textMuted,

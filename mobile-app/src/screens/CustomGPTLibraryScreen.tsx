@@ -86,9 +86,9 @@ const CustomGPTLibraryScreen: React.FC = ({ navigation }: any) => {
                    <TouchableOpacity style={styles.useBtn} onPress={() => useGPT(gpt)}>
                       <Text style={styles.useBtnText}>Use</Text>
                    </TouchableOpacity>
-                   <View style={{flexDirection: 'row', gap: 8}}>
+                   <View style={{flexDirection: 'row', gap: spacing.sm}}>
                        <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('CustomGPTCreate', { gpt })}>
-                          <Ionicons name="pencil" size={18} color="#fff" />
+                          <Ionicons name="pencil" size={18} color={colors.white} />
                        </TouchableOpacity>
                        <TouchableOpacity style={[styles.iconBtn, {backgroundColor: colors.error}]} onPress={() => {
                            Alert.alert('Delete', 'Are you sure?', [
@@ -96,7 +96,7 @@ const CustomGPTLibraryScreen: React.FC = ({ navigation }: any) => {
                                { text: 'Delete', style: 'destructive', onPress: () => deleteGPT(gpt.id) }
                            ])
                        }}>
-                          <Ionicons name="trash" size={18} color="#fff" />
+                          <Ionicons name="trash" size={18} color={colors.white} />
                        </TouchableOpacity>
                    </View>
                </View>
@@ -126,8 +126,8 @@ const styles = StyleSheet.create({
   cardDesc: { color: colors.textMuted, marginBottom: spacing.md },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   useBtn: { backgroundColor: colors.primary, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: borderRadius.md },
-  useBtnText: { color: '#fff', fontWeight: 'bold' },
-  iconBtn: { backgroundColor: colors.card, padding: 8, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border },
+  useBtnText: { color: colors.foreground, fontWeight: 'bold' },
+  iconBtn: { backgroundColor: colors.card, padding: spacing.sm, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border },
   empty: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl }
 });
 

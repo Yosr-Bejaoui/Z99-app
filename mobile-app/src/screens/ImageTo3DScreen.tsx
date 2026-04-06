@@ -260,7 +260,7 @@ const ImageTo3DScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={28} color={colors.textPrimary || '#fff'} />
+          <Ionicons name="menu-outline" size={28} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>Image to 3D</Text>
         <View style={styles.iconButton}>
@@ -402,7 +402,7 @@ const ImageTo3DScreen: React.FC = () => {
             title={isGenerating ? 'Generating...' : 'Generate 3D Model'}
             onPress={handleGenerate}
             disabled={isGenerating || !selectedImage}
-            icon={isGenerating ? undefined : <Ionicons name="cube" size={20} color="#fff" />}
+            icon={isGenerating ? undefined : <Ionicons name="cube" size={20} color={colors.white} />}
           />
         </View>
 
@@ -482,29 +482,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingBottom: 100,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     paddingVertical: 15,
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.foreground,
   },
   iconButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   coinBadge: {
     backgroundColor: '#fff20',
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -519,22 +519,22 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   imageCard: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   sectionSubtitle: {
     fontSize: 13,
     color: colors.textMuted,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   imageButtons: {
     flexDirection: 'row',
-    gap: 16,
+    gap: spacing.lg,
   },
   imageButton: {
     flex: 1,
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 16,
-    padding: 24,
+    padding: spacing.xl,
     borderWidth: 2,
     borderColor: colors.border,
     borderStyle: 'dashed',
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   selectedImageContainer: {
     position: 'relative',
@@ -570,15 +570,15 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   optionScroll: {
     gap: 10,
-    paddingTop: 8,
+    paddingTop: spacing.sm,
   },
   modelButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -599,7 +599,7 @@ const styles = StyleSheet.create({
   qualityRow: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   qualityButton: {
     flex: 1,
@@ -630,12 +630,12 @@ const styles = StyleSheet.create({
   formatRow: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   formatButton: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: spacing.lg,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: 8,
+    marginTop: spacing.sm,
     marginBottom: 2,
   },
   formatLabelSelected: {
@@ -661,10 +661,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   generateButtonContainer: {
-    marginVertical: 20,
+    marginVertical: spacing.lg,
   },
   resultCard: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     overflow: 'hidden',
   },
   generatingContainer: {
@@ -690,12 +690,12 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   generatingSubtext: {
     color: colors.textMuted,
     fontSize: 13,
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   modelPreview: {
     width: '100%',
@@ -717,13 +717,13 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   resultInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   resultFormat: {
     color: colors.primary,
@@ -738,8 +738,8 @@ const styles = StyleSheet.create({
   modelActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingTop: 16,
-    marginTop: 12,
+    paddingTop: spacing.lg,
+    marginTop: spacing.md,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
@@ -747,8 +747,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   actionButtonText: {
     color: colors.primary,

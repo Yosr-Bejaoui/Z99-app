@@ -137,7 +137,7 @@ export default function VoiceCloningScreen() {
         
         <View style={styles.headerButton}>
           <View style={styles.coinBadge}>
-            <Text style={styles.coinIcon}>🪙</Text>
+            <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
               <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
           
       </View>
@@ -276,7 +276,7 @@ export default function VoiceCloningScreen() {
           onPress={generateVoice}
           disabled={isGenerating}
           icon={isGenerating ? <ActivityIndicator color={colors.white} size="small" /> : undefined}
-          badge="🪙 50"
+          badge={"\uD83E\uDE99 50 Credits"}
         />
       </View>
     </View>
@@ -507,13 +507,13 @@ const styles = StyleSheet.create({
   },
   coinBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: spacing.xs,
     flexShrink: 0,
   },
   coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },

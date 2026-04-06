@@ -475,30 +475,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingBottom: 100,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
   },
   textCard: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   textHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   sectionTitle: {
     fontSize: 16,
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
   textInput: {
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 12,
-    padding: 16,
+    padding: spacing.lg,
     color: colors.foreground,
     fontSize: 15,
     minHeight: 140,
@@ -520,15 +520,15 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   optionScroll: {
     gap: 10,
-    paddingTop: 12,
+    paddingTop: spacing.md,
   },
   modelButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -548,16 +548,16 @@ const styles = StyleSheet.create({
   },
   genderRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 12,
+    gap: spacing.md,
+    marginTop: spacing.md,
   },
   genderButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 16,
+    gap: spacing.sm,
+    paddingVertical: spacing.lg,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -579,15 +579,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   styleButton: {
     width: '48%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
     paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -618,28 +618,28 @@ const styles = StyleSheet.create({
   slider: {
     width: '100%',
     height: 40,
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   sliderLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 4,
+    paddingHorizontal: spacing.xs,
   },
   sliderLabel: {
     color: colors.textMuted,
     fontSize: 12,
   },
   generateButtonContainer: {
-    marginVertical: 20,
+    marginVertical: spacing.lg,
   },
   audioCard: {
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   generatingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    padding: 8,
+    gap: spacing.md,
+    padding: spacing.sm,
   },
   generatingText: {
     color: colors.textMuted,
@@ -648,7 +648,7 @@ const styles = StyleSheet.create({
   audioItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.md,
   },
   playButton: {
     width: 48,
@@ -664,7 +664,7 @@ const styles = StyleSheet.create({
   audioText: {
     color: colors.foreground,
     fontSize: 14,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   audioVoice: {
     color: colors.textMuted,
@@ -673,10 +673,10 @@ const styles = StyleSheet.create({
   audioActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: spacing.xs,
   },
   actionButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
 });
 

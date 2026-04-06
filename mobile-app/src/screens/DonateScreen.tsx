@@ -79,7 +79,7 @@ const DonateScreen: React.FC = () => {
         <Text style={styles.headerTitle}>Donate Credits</Text>
           <View style={styles.headerButton}>
             <View style={styles.coinBadge}>
-              <Text style={styles.coinIcon}>🪙</Text>
+              <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
               <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
             </View>
           </View>
@@ -165,13 +165,13 @@ const styles = StyleSheet.create({
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: 20, fontWeight: '600', color: colors.textPrimary },    coinBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: spacing.xs,
     flexShrink: 0,
   },
     coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },

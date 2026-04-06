@@ -258,7 +258,7 @@ const ImageEditorScreen: React.FC = () => {
         {/* Header */}
         <View style={styles.header}>
         <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={28} color={colors.textPrimary || '#fff'} />
+          <Ionicons name="menu-outline" size={28} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>Image Editor</Text>
         <View style={styles.iconButton}>
@@ -453,44 +453,44 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingBottom: 100,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     paddingVertical: 15,
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.foreground,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
   },
   imageCard: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   imageButtons: {
     flexDirection: 'row',
-    gap: 16,
+    gap: spacing.lg,
   },
   imageButton: {
     flex: 1,
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 16,
-    padding: 24,
+    padding: spacing.xl,
     borderWidth: 2,
     borderColor: colors.border,
     borderStyle: 'dashed',
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   selectedImageContainer: {
     position: 'relative',
@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   toolGrid: {
     flexDirection: 'row',
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundTertiary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   toolIconSelected: {
     backgroundColor: colors.primary + '30',
@@ -568,12 +568,12 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   promptCard: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   promptInput: {
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 12,
-    padding: 16,
+    padding: spacing.lg,
     color: colors.foreground,
     fontSize: 15,
     minHeight: 60,
@@ -584,8 +584,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   modelButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -604,10 +604,10 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   processButtonContainer: {
-    marginVertical: 20,
+    marginVertical: spacing.lg,
   },
   resultCard: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     overflow: 'hidden',
   },
   processingContainer: {
@@ -619,7 +619,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   resultImage: {
     width: '100%',
@@ -631,7 +631,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   resultTool: {
     color: colors.primary,
@@ -641,8 +641,8 @@ const styles = StyleSheet.create({
   imageActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingTop: 16,
-    marginTop: 12,
+    paddingTop: spacing.lg,
+    marginTop: spacing.md,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
@@ -650,8 +650,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   actionButtonText: {
     color: colors.primary,
@@ -661,14 +661,14 @@ const styles = StyleSheet.create({
 
   coinBadge: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   coinBadgeText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 12,
     fontWeight: 'bold',
   },

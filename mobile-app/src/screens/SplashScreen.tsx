@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, typography } from '../theme';
+import { colors, typography, BRAND_NAME, spacing } from '../theme';
 
 const { width } = Dimensions.get('window');
 
@@ -75,7 +75,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       </Animated.View>
 
       <Animated.View style={[styles.textContainer, { opacity: textFadeAnim }]}>
-        <Text style={styles.appName}>Z99</Text>
+        <Text style={styles.appName}>BRAND_NAME</Text>
         <Text style={styles.tagline}>Powered by AI</Text>
       </Animated.View>
 
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     height: 80,
   },
   textContainer: {
-    marginTop: 32,
+    marginTop: spacing.xxl,
     alignItems: 'center',
   },
   appName: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: typography.fontSizes.md,
     color: colors.foregroundMuted,
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   loadingContainer: {
     position: 'absolute',

@@ -68,7 +68,7 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ navigation }) => {
     { name: 'Gemini', icon: 'sparkles', color: '#d1d5db', type: t('landing.aiModels.typeChat') },
     { name: 'Claude', icon: 'cube', color: '#9ca3af', type: t('landing.aiModels.typeChat') },
     { name: 'DeepSeek', icon: 'analytics', color: '#6b7280', type: t('landing.aiModels.typeChat') },
-    { name: 'DALL·E', icon: 'image', color: '#ffffff', type: t('landing.aiModels.typeImage') },
+    { name: 'DALL·E', icon: 'image', color: colors.foreground, type: t('landing.aiModels.typeImage') },
     { name: 'Stable Diffusion', icon: 'color-palette', color: '#10b981', type: t('landing.aiModels.typeImage') },
   ];
 
@@ -233,7 +233,7 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ navigation }) => {
         <View style={styles.footer}>
           <View style={styles.footerBrand}>
             <Ionicons name="sparkles" size={24} color={colors.primary} />
-            <Text style={styles.footerBrandName}>Z99</Text>
+            <Text style={styles.footerBrandName}>BRAND_NAME</Text>
           </View>
           <Text style={styles.footerCopyright}>
             © 2026 Z99. All rights reserved.

@@ -461,9 +461,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
   },
   backButton: {
     width: 44,
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
   headerTextContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 16,
+    marginLeft: spacing.lg,
     gap: 10,
   },
   headerTitle: {
@@ -487,32 +487,32 @@ const styles = StyleSheet.create({
   unreadBadge: {
     backgroundColor: colors.error,
     borderRadius: 12,
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     minWidth: 24,
     alignItems: 'center',
   },
   unreadBadgeText: {
-    color: '#fff',
+    color: colors.foreground,
     fontSize: 12,
     fontWeight: '700',
   },
   tabContainer: {
     flexDirection: 'row',
-    marginHorizontal: 20,
+    marginHorizontal: spacing.lg,
     backgroundColor: colors.card,
     borderRadius: 12,
-    padding: 4,
-    marginBottom: 16,
+    padding: spacing.xs,
+    marginBottom: spacing.lg,
   },
   tab: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderRadius: 10,
-    gap: 8,
+    gap: spacing.sm,
   },
   tabActive: {
     backgroundColor: colors.primary + '15',
@@ -529,19 +529,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     paddingBottom: 40,
   },
   actionsBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    padding: 8,
+    padding: spacing.sm,
   },
   actionText: {
     fontSize: 14,
@@ -549,10 +549,10 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   notificationsList: {
-    gap: 12,
+    gap: spacing.md,
   },
   notificationCard: {
-    padding: 16,
+    padding: spacing.lg,
   },
   notificationCardUnread: {
     borderLeftWidth: 3,
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   notificationHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   notificationTitle: {
     fontSize: 16,
@@ -592,28 +592,28 @@ const styles = StyleSheet.create({
   notificationMessage: {
     fontSize: 14,
     color: colors.textMuted,
-    marginTop: 4,
+    marginTop: spacing.xs,
     lineHeight: 20,
   },
   notificationTime: {
     fontSize: 12,
     color: colors.textMuted,
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 60,
-    gap: 12,
+    gap: spacing.md,
   },
   loadingText: {
     fontSize: 14,
     color: colors.textMuted,
   },
   retryButton: {
-    marginTop: 16,
-    paddingHorizontal: 20,
+    marginTop: spacing.lg,
+    paddingHorizontal: spacing.lg,
     paddingVertical: 10,
     backgroundColor: colors.surface,
     borderRadius: 8,
@@ -632,32 +632,32 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: colors.foreground,
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   emptySubtitle: {
     fontSize: 14,
     color: colors.textMuted,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
     lineHeight: 20,
   },
   settingsContainer: {
-    gap: 16,
+    gap: spacing.lg,
   },
   settingsSection: {
-    padding: 16,
+    padding: spacing.lg,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
     color: colors.foreground,
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 12,
+    gap: spacing.md,
   },
   settingTextContainer: {
     flex: 1,

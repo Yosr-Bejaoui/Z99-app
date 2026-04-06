@@ -375,30 +375,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingBottom: 100,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
   },
   videoCard: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   uploadButton: {
     alignItems: 'center',
@@ -414,12 +414,12 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   uploadSubtext: {
     color: colors.textMuted,
     fontSize: 12,
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   selectedVideoContainer: {
     position: 'relative',
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   effectGrid: {
     flexDirection: 'row',
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   effectButton: {
     width: '48%',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundTertiary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   effectIconSelected: {
     backgroundColor: colors.primary + '30',
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   effectLabelSelected: {
     color: colors.primary,
@@ -485,10 +485,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   processButtonContainer: {
-    marginVertical: 20,
+    marginVertical: spacing.lg,
   },
   resultCard: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     overflow: 'hidden',
   },
   processingContainer: {
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   resultVideo: {
     width: '100%',
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   resultEffect: {
     color: colors.primary,
@@ -522,8 +522,8 @@ const styles = StyleSheet.create({
   videoActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingTop: 16,
-    marginTop: 12,
+    paddingTop: spacing.lg,
+    marginTop: spacing.md,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
@@ -531,8 +531,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   actionButtonText: {
     color: colors.primary,
