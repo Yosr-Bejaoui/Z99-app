@@ -356,11 +356,10 @@ const HistoryScreen: React.FC<HistoryScreenProps> = () => {
 
       {/* Loading State */}
       {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>{t('history.loading')}</Text>
-        </View>
-      )}
+          <View style={{ padding: 16 }}>
+            <SkeletonList count={5} height={120} spacing={16} />
+          </View>
+        )}
 
       {/* History List */}
       {!isLoading && (

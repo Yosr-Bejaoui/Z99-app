@@ -329,13 +329,12 @@ const ImageGenScreen: React.FC = () => {
 
   const renderModelSelector = () => {
     if (isLoadingModels) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={colors.primary} />
-          <Text style={styles.loadingText}>{t('imageGen.model.loading')}</Text>
-        </View>
-      );
-    }
+        return (
+          <View style={{ paddingVertical: 16, paddingHorizontal: 4 }}>
+            <SkeletonList count={3} height={60} spacing={12} />
+          </View>
+        );
+      }
 
     if (aiModels.length === 0) {
       return (

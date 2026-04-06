@@ -315,8 +315,8 @@ const VideoEffectsScreen: React.FC = () => {
               <GlassCard key={video.id} style={styles.resultCard}>
                 {video.status === 'processing' ? (
                   <View style={styles.processingContainer}>
-                    <ActivityIndicator size="large" color={colors.primary} />
-                    <Text style={styles.processingText}>Processing video...</Text>
+                    <Skeleton width="100%" height={140} borderRadius={12} style={{ marginBottom: 16 }} />
+                      <Text style={styles.processingText}>Processing video...</Text>
                   </View>
                 ) : (
                   <View>

@@ -1,4 +1,5 @@
 ﻿import React, { useState } from 'react';
+import { Skeleton } from '../components/ui/Skeleton';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator, Alert, SafeAreaView, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -120,8 +121,8 @@ const VideoUpscalerScreen: React.FC = () => {
           {step === 'processing' && (
             <View style={styles.uploadCard}>
               <View style={styles.processingBox}>
-                <ActivityIndicator size="large" color={colors.primary} />
-                <Text style={styles.processingText}>Processing...</Text>
+                <Skeleton width="100%" height={140} borderRadius={12} style={{ marginBottom: 16 }} />
+                  <Text style={styles.processingText}>Processing...</Text>
               </View>
             </View>
           )}

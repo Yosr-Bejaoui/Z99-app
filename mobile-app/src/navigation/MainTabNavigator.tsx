@@ -1,5 +1,6 @@
-import React from 'react';
-import { StyleSheet, Platform, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, Platform, View, Animated } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing } from '../theme';
@@ -19,14 +20,31 @@ interface TabIconProps {
 }
 
 const TabIcon: React.FC<TabIconProps> = ({ focused, iconName, iconOutline }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (focused) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Animated.spring(scaleAnim, {
+        toValue: 1.1,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [focused, scaleAnim]);
+
   return (
-    <View style={[focused && styles.activeTabPill]}>
+    <Animated.View style={[focused ? styles.activeTabPill : undefined, { transform: [{ scale: scaleAnim }] }]}>
       <Ionicons 
         name={focused ? iconName : iconOutline} 
         size={22} 
         color={focused ? colors.primary : colors.textMuted} 
       />
-    </View>
+    </Animated.View>
   );
 };
 

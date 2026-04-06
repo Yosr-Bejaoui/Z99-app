@@ -159,15 +159,15 @@ const CreditsScreen: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>{t('credits.loading')}</Text>
+      return (
+        <View style={[styles.container, { paddingTop: insets.top }]}>
+          <View style={{ padding: 16, gap: 16 }}>
+            <Skeleton width="100%" height={160} borderRadius={16} />
+            <Skeleton width="100%" height={240} borderRadius={16} />
+          </View>
         </View>
-      </View>
-    );
-  }
+      );
+    }
 
   const currentCredits = creditAccount?.credits || creditAccount?.total_credits || 0;
   const planName = currentPlan?.plan?.name || t('credits.freeTier');
