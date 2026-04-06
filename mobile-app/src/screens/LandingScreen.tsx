@@ -233,10 +233,10 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ navigation }) => {
         <View style={styles.footer}>
           <View style={styles.footerBrand}>
             <Ionicons name="sparkles" size={24} color={colors.primary} />
-            <Text style={styles.footerBrandName}>BRAND_NAME</Text>
+            <Text style={styles.footerBrandName}>{t('app.name')}</Text>
           </View>
           <Text style={styles.footerCopyright}>
-            © 2026 Z99. All rights reserved.
+            © 2026 {t('app.name')}. All rights reserved.
           </Text>
         </View>
       </ScrollView>

@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { colors, typography, BRAND_NAME, spacing } from '../theme';
 
 const { width } = Dimensions.get('window');
@@ -17,6 +18,7 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
+  const { t } = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const textFadeAnim = useRef(new Animated.Value(0)).current;
@@ -75,7 +77,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       </Animated.View>
 
       <Animated.View style={[styles.textContainer, { opacity: textFadeAnim }]}>
-        <Text style={styles.appName}>BRAND_NAME</Text>
+        <Text style={styles.appName}>{t('app.name')}</Text>
         <Text style={styles.tagline}>Powered by AI</Text>
       </Animated.View>
 
