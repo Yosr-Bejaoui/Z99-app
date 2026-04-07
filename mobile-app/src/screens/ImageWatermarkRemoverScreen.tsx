@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator, Alert, ScrollView, Image } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator, Alert, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
@@ -8,6 +8,7 @@ import { useDrawer, useCredits } from '../context';
 import { colors, spacing, borderRadius } from '../theme';
 import GradientButton from '../components/GradientButton';
 import { GlassCard } from '../components/GlassCard';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 
 const { width } = Dimensions.get('window');
 
@@ -28,8 +29,7 @@ const ImageWatermarkRemoverScreen: React.FC = () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 1,
-    });
+      quality: 1});
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setMediaUri(result.assets[0].uri);
     }
@@ -66,18 +66,8 @@ const ImageWatermarkRemoverScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={28} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Image Watermark</Text>
-        <View style={styles.iconButton}>
-          <View style={styles.coinBadge}>
-             <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
-          </View>
-        </View>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Image Watermark" />
       <ScrollView contentContainerStyle={styles.content}>
           {step === 'upload' && (
             <GlassCard style={styles.uploadCard}>
@@ -183,42 +173,38 @@ const ImageWatermarkRemoverScreen: React.FC = () => {
           )}
         </View>
 
-      </View>
+      </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    marginBottom: spacing.sm,
-  },
+    },
   headerButton: {
     width: 40,
     height: 40,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   headerTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  content: { padding: spacing.lg, alignItems: 'center', flexGrow: 1 },
+    color: colors.textPrimary},
+  content: {
+    gap: spacing.lg, padding: spacing.lg, alignItems: 'center', flexGrow: 1 },
   
   uploadCard: {
     width: '100%',
     padding: spacing.xl,
     alignItems: 'center',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)',
-  },
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)'},
   uploadBox: {
     width: '100%', height: 220,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', borderStyle: 'solid', borderRadius: 16,
@@ -230,7 +216,7 @@ const styles = StyleSheet.create({
   uploadTextDark: { marginTop: spacing.sm, color: colors.success, fontSize: 16, fontWeight: '600' },
   
   dropdownContainer: { width: '100%', marginTop: spacing.xl },
-  dropdownLabel: { color: colors.white, fontSize: 14, fontWeight: '600', marginBottom: spacing.md },
+  dropdownLabel: { color: colors.white, fontSize: 14, fontWeight: '600',  },
   resolutionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   resOption: { flex: 1, marginHorizontal: spacing.xs, paddingVertical: 10, borderRadius: 8, backgroundColor: colors.backgroundTertiary, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
   resOptionActive: { borderColor: colors.primary, backgroundColor: colors.cardHover },
@@ -243,7 +229,7 @@ const styles = StyleSheet.create({
   },
   processingText: { marginTop: spacing.lg, color: colors.primary, fontSize: 16, fontWeight: '600' },
 
-  resultCard: { width: '100%', alignItems: 'center', marginBottom: spacing.lg },
+  resultCard: { width: '100%', alignItems: 'center',  },
   videoPreview: {
     width: '100%', height: 250,
     backgroundColor: '#000000',
@@ -281,7 +267,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: colors.backgroundTertiary,
     marginTop: 10
   },
-  optionsHeader: { color: colors.white, fontSize: 16, fontWeight: '600', marginBottom: spacing.lg },
+  optionsHeader: { color: colors.white, fontSize: 16, fontWeight: '600',  },
   actionBtn: { backgroundColor: colors.backgroundTertiary, paddingVertical: spacing.md, borderRadius: 10, alignItems: 'center' },
   actionBtnText: { color: colors.white, fontSize: 16, fontWeight: '600' },
 
@@ -293,31 +279,27 @@ const styles = StyleSheet.create({
   ctaText: { color: colors.white, fontSize: 18, fontWeight: '700' },
   badgeText: { position: 'absolute', right: 16, color: colors.warning, fontSize: 14, fontWeight: '700', backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: 10, paddingVertical: spacing.xs, borderRadius: 12 },
   coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    flexShrink: 0,
-  },
-  coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },
+    justifyContent: 'center'},
+  coinBadgeText: {
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: 'bold'},
   coinIcon: { fontSize: 12 },
 
   iconButton: {
     padding: spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: 40,
-  },
+    minWidth: 40},
 
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-});
+    color: colors.textPrimary}});
 
 export default ImageWatermarkRemoverScreen;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   View,
@@ -11,7 +12,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Alert,
-} from 'react-native';
+SafeAreaView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius } from '../theme';
@@ -49,7 +50,7 @@ interface AIModel {
 }
 
 const ImageEditorScreen: React.FC = () => {
-  const insets = useSafeAreaInsets();
+  
   const { credits, hasEnoughCredits, deductCredits } = useCredits();
   const { openDrawer } = useDrawer();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -91,8 +92,7 @@ const ImageEditorScreen: React.FC = () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.9,
-      base64: true,
-    });
+      base64: true});
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
@@ -112,8 +112,7 @@ const ImageEditorScreen: React.FC = () => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 0.9,
-      base64: true,
-    });
+      base64: true});
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
@@ -137,8 +136,7 @@ const ImageEditorScreen: React.FC = () => {
       ws.send(JSON.stringify({
         message: prompt || `Apply ${selectedTool} to this image`,
         images: [selectedImageBase64 || selectedImage],
-        tool: selectedTool,
-      }));
+        tool: selectedTool}));
     };
 
     ws.onmessage = (event) => {
@@ -153,8 +151,7 @@ const ImageEditorScreen: React.FC = () => {
               url: imageUrl,
               tool: selectedTool,
               prompt: prompt,
-              status: 'completed',
-            },
+              status: 'completed'},
             ...prev.filter(i => i.status !== 'processing'),
           ]);
           setIsProcessing(false);
@@ -197,8 +194,7 @@ const ImageEditorScreen: React.FC = () => {
         url: '',
         tool: selectedTool,
         prompt: prompt,
-        status: 'processing',
-      },
+        status: 'processing'},
       ...prev,
     ]);
 
@@ -240,8 +236,7 @@ const ImageEditorScreen: React.FC = () => {
           style: 'destructive',
           onPress: () => {
             setEditedImages(prev => prev.filter(i => i.id !== imageId));
-          },
-        },
+          }},
       ]
     );
   };
@@ -249,24 +244,16 @@ const ImageEditorScreen: React.FC = () => {
   const needsPrompt = ['inpaint'].includes(selectedTool);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Image Editor" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={28} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Image Editor</Text>
-        <View style={styles.iconButton}>
-          <View style={styles.coinBadge}>
-             <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
-          </View>
-        </View>
-      </View>
+        
+        
 
         {/* Image Selection */}
         <GlassCard style={styles.imageCard}>
@@ -440,58 +427,49 @@ const ImageEditorScreen: React.FC = () => {
           </View>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   scrollView: {
-    flex: 1,
-  },
+    flex: 1},
   scrollContent: {
+    gap: spacing.lg,
     padding: spacing.lg,
-    paddingBottom: 100,
-  },
+    paddingBottom: 120},
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingVertical: 15,
-    marginBottom: spacing.lg,
-  },
+    },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.foreground,
-  },
+    color: colors.foreground},
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginBottom: spacing.xs,
-  },
+    marginBottom: spacing.xs},
   headerSubtitle: {
     fontSize: 16,
-    color: colors.textMuted,
-  },
+    color: colors.textMuted},
   imageCard: {
-    marginBottom: spacing.lg,
-  },
+    },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: spacing.md,
-  },
+    },
   imageButtons: {
     flexDirection: 'row',
-    gap: spacing.lg,
-  },
+    gap: spacing.lg},
   imageButton: {
     flex: 1,
     alignItems: 'center',
@@ -501,38 +479,31 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     borderWidth: 2,
     borderColor: colors.border,
-    borderStyle: 'dashed',
-  },
+    borderStyle: 'dashed'},
   imageButtonText: {
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: spacing.sm,
-  },
+    marginTop: spacing.sm},
   selectedImageContainer: {
-    position: 'relative',
-  },
+    position: 'relative'},
   selectedImage: {
     width: '100%',
     height: 200,
     borderRadius: 12,
-    backgroundColor: colors.backgroundTertiary,
-  },
+    backgroundColor: colors.backgroundTertiary},
   removeImageButton: {
     position: 'absolute',
     top: 8,
     right: 8,
     backgroundColor: colors.background,
-    borderRadius: 14,
-  },
+    borderRadius: 14},
   section: {
-    marginBottom: spacing.lg,
-  },
+    },
   toolGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
-  },
+    gap: 10},
   toolButton: {
     width: '31%',
     alignItems: 'center',
@@ -540,12 +511,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   toolButtonSelected: {
     backgroundColor: colors.primary + '20',
-    borderColor: colors.primary,
-  },
+    borderColor: colors.primary},
   toolIcon: {
     width: 44,
     height: 44,
@@ -553,23 +522,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundTertiary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.sm,
-  },
+    },
   toolIconSelected: {
-    backgroundColor: colors.primary + '30',
-  },
+    backgroundColor: colors.primary + '30'},
   toolLabel: {
     color: colors.textMuted,
     fontSize: 12,
     fontWeight: '500',
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   toolLabelSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   promptCard: {
-    marginBottom: spacing.lg,
-  },
+    },
   promptInput: {
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 12,
@@ -578,107 +542,85 @@ const styles = StyleSheet.create({
     fontSize: 15,
     minHeight: 60,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   optionScroll: {
-    gap: 10,
-  },
+    gap: 10},
   modelButton: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   modelButtonSelected: {
     backgroundColor: colors.primary + '20',
-    borderColor: colors.primary,
-  },
+    borderColor: colors.primary},
   modelButtonText: {
     color: colors.textMuted,
     fontSize: 14,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   modelButtonTextSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   processButtonContainer: {
-    marginVertical: spacing.lg,
-  },
-  resultCard: {
-    marginBottom: spacing.lg,
-    overflow: 'hidden',
-  },
+    marginVertical: spacing.lg},
+  resultCard: {overflow: 'hidden'},
   processingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 40,
-  },
+    padding: 40},
   processingText: {
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.lg,
-  },
+    marginTop: spacing.lg},
   resultImage: {
     width: '100%',
     height: 200,
     borderRadius: 8,
-    backgroundColor: colors.backgroundTertiary,
-  },
+    backgroundColor: colors.backgroundTertiary},
   resultInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing.md,
-  },
+    marginTop: spacing.md},
   resultTool: {
     color: colors.primary,
     fontSize: 14,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   imageActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingTop: spacing.lg,
     marginTop: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
+    borderTopColor: colors.border},
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-  },
+    paddingHorizontal: spacing.md},
   actionButtonText: {
     color: colors.primary,
     fontSize: 14,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
 
   coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   coinBadgeText: {
-    color: colors.foreground,
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: 'bold'},
 
   iconButton: {
     padding: spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: 40,
-  },
-});
+    minWidth: 40}});
 
 export default ImageEditorScreen;

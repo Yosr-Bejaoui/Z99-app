@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
+  ScrollView, SafeAreaView,
   Image,
   ActivityIndicator,
   Alert,
@@ -90,8 +90,7 @@ const ImageTo3DScreen: React.FC = () => {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.9,
-      base64: true,
-    });
+      base64: true});
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
@@ -112,8 +111,7 @@ const ImageTo3DScreen: React.FC = () => {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.9,
-      base64: true,
-    });
+      base64: true});
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
@@ -138,8 +136,7 @@ const ImageTo3DScreen: React.FC = () => {
         message: 'Convert to 3D model',
         images: [selectedImageBase64 || selectedImage],
         format: selectedFormat,
-        quality: selectedQuality,
-      }));
+        quality: selectedQuality}));
     };
 
     ws.onmessage = (event) => {
@@ -155,8 +152,7 @@ const ImageTo3DScreen: React.FC = () => {
               previewUrl: data.preview_url,
               sourceImage: selectedImage!,
               format: selectedFormat,
-              status: 'completed',
-            },
+              status: 'completed'},
             ...prev.filter(m => m.status !== 'generating'),
           ]);
           setIsGenerating(false);
@@ -199,8 +195,7 @@ const ImageTo3DScreen: React.FC = () => {
         modelUrl: '',
         sourceImage: selectedImage,
         format: selectedFormat,
-        status: 'generating',
-      },
+        status: 'generating'},
       ...prev,
     ]);
 
@@ -242,8 +237,7 @@ const ImageTo3DScreen: React.FC = () => {
           style: 'destructive',
           onPress: () => {
             setGeneratedModels(prev => prev.filter(m => m.id !== modelId));
-          },
-        },
+          }},
       ]
     );
   };
@@ -258,17 +252,7 @@ const ImageTo3DScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={28} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Image to 3D</Text>
-        <View style={styles.iconButton}>
-          <View style={styles.coinBadge}>
-             <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
-          </View>
-        </View>
-      </View>
+      <ScreenHeader title="Image to 3D"  />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -476,66 +460,54 @@ const ImageTo3DScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   scrollView: {
-    flex: 1,
-  },
+    flex: 1},
   scrollContent: {
+    gap: spacing.lg,
     padding: spacing.lg,
-    paddingBottom: 100,
-  },
+    paddingBottom: 120},
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingVertical: 15,
-    marginBottom: spacing.lg,
-  },
+    },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.foreground,
-  },
+    color: colors.foreground},
   iconButton: {
-    padding: spacing.sm,
-  },
+    padding: spacing.sm},
   coinBadge: {
-    backgroundColor: '#fff20',
-    paddingHorizontal: 10,
-    paddingVertical: spacing.xs,
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
-  },
+    justifyContent: 'center'},
   coinBadgeText: {
-    color: '#fbbf24',
+    color: '#F59E0B',
     fontSize: 14,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   headerSubtitle: {
     fontSize: 16,
-    color: colors.textMuted,
-  },
+    color: colors.textMuted},
   imageCard: {
-    marginBottom: spacing.lg,
-  },
+    },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: spacing.xs,
-  },
+    marginBottom: spacing.xs},
   sectionSubtitle: {
     fontSize: 13,
     color: colors.textMuted,
-    marginBottom: spacing.md,
-  },
+    },
   imageButtons: {
     flexDirection: 'row',
-    gap: spacing.lg,
-  },
+    gap: spacing.lg},
   imageButton: {
     flex: 1,
     alignItems: 'center',
@@ -545,62 +517,50 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     borderWidth: 2,
     borderColor: colors.border,
-    borderStyle: 'dashed',
-  },
+    borderStyle: 'dashed'},
   imageButtonText: {
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: spacing.sm,
-  },
+    marginTop: spacing.sm},
   selectedImageContainer: {
-    position: 'relative',
-  },
+    position: 'relative'},
   selectedImage: {
     width: '100%',
     height: 200,
     borderRadius: 12,
-    backgroundColor: colors.backgroundTertiary,
-  },
+    backgroundColor: colors.backgroundTertiary},
   removeImageButton: {
     position: 'absolute',
     top: 8,
     right: 8,
     backgroundColor: colors.background,
-    borderRadius: 14,
-  },
+    borderRadius: 14},
   section: {
-    marginBottom: spacing.lg,
-  },
+    },
   optionScroll: {
     gap: 10,
-    paddingTop: spacing.sm,
-  },
+    paddingTop: spacing.sm},
   modelButton: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   modelButtonSelected: {
     backgroundColor: colors.primary + '20',
-    borderColor: colors.primary,
-  },
+    borderColor: colors.primary},
   modelButtonText: {
     color: colors.textMuted,
     fontSize: 14,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   modelButtonTextSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   qualityRow: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: spacing.sm,
-  },
+    marginTop: spacing.sm},
   qualityButton: {
     flex: 1,
     alignItems: 'center',
@@ -608,30 +568,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   qualityButtonSelected: {
     backgroundColor: colors.primary + '20',
-    borderColor: colors.primary,
-  },
+    borderColor: colors.primary},
   qualityLabel: {
     color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: 2,
-  },
+    marginBottom: 2},
   qualityLabelSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   qualityTime: {
     color: colors.textMuted,
-    fontSize: 11,
-  },
+    fontSize: 11},
   formatRow: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: spacing.sm,
-  },
+    marginTop: spacing.sm},
   formatButton: {
     flex: 1,
     alignItems: 'center',
@@ -639,42 +593,31 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   formatButtonSelected: {
     backgroundColor: colors.primary + '20',
-    borderColor: colors.primary,
-  },
+    borderColor: colors.primary},
   formatLabel: {
     color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
     marginTop: spacing.sm,
-    marginBottom: 2,
-  },
+    marginBottom: 2},
   formatLabelSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   formatDescription: {
     color: colors.textMuted,
     fontSize: 10,
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   generateButtonContainer: {
-    marginVertical: spacing.lg,
-  },
-  resultCard: {
-    marginBottom: spacing.lg,
-    overflow: 'hidden',
-  },
+    marginVertical: spacing.lg},
+  resultCard: {overflow: 'hidden'},
   generatingContainer: {
-    position: 'relative',
-  },
+    position: 'relative'},
   processingImage: {
     width: '100%',
     height: 180,
-    borderRadius: 8,
-  },
+    borderRadius: 8},
   generatingOverlay: {
     position: 'absolute',
     top: 0,
@@ -684,77 +627,63 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.7)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-  },
+    borderRadius: 8},
   generatingText: {
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.md,
-  },
+    marginTop: spacing.md},
   generatingSubtext: {
     color: colors.textMuted,
     fontSize: 13,
-    marginTop: spacing.xs,
-  },
+    marginTop: spacing.xs},
   modelPreview: {
     width: '100%',
     height: 180,
     borderRadius: 8,
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'},
   previewImage: {
     width: '100%',
-    height: '100%',
-  },
+    height: '100%'},
   previewPlaceholder: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.backgroundTertiary,
-  },
+    backgroundColor: colors.backgroundTertiary},
   previewText: {
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: spacing.sm,
-  },
+    marginTop: spacing.sm},
   resultInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing.md,
-  },
+    marginTop: spacing.md},
   resultFormat: {
     color: colors.primary,
     fontSize: 14,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   resultSize: {
     color: colors.textMuted,
     fontSize: 12,
-    marginTop: 2,
-  },
+    marginTop: 2},
   modelActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingTop: spacing.lg,
     marginTop: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
+    borderTopColor: colors.border},
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-  },
+    paddingHorizontal: spacing.md},
   actionButtonText: {
     color: colors.primary,
     fontSize: 14,
-    fontWeight: '500',
-  },
-});
+    fontWeight: '500'}});
 
 export default ImageTo3DScreen;

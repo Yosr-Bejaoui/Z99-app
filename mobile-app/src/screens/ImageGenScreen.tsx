@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 import {
   View,
   Text,
@@ -13,7 +14,7 @@ import {
   RefreshControl,
   StatusBar,
   Modal,
-} from 'react-native';
+SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -27,6 +28,7 @@ import { chatService, mediaService, getErrorMessage } from '../services';
 import { WS_BASE_URL, STORAGE_KEYS } from '../services/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
+import { SkeletonList } from '../components/ui/Skeleton';
 
 const { width } = Dimensions.get('window');
 const imageWidth = (width - 48 - 12) / 2;
@@ -64,7 +66,7 @@ interface GeneratedImage {
 const ImageGenScreen: React.FC = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
-  const insets = useSafeAreaInsets();
+  
   const { openDrawer } = useDrawer();
   
   const { credits, hasEnoughCredits, refreshCredits } = useCredits();
@@ -109,8 +111,7 @@ const ImageGenScreen: React.FC = () => {
         name: m.name,
         provider: m.provider || 'AI',
         color: modelColors[idx % modelColors.length],
-        base_cost: m.base_cost || 10,
-      }));
+        base_cost: m.base_cost || 10}));
       
       setAIModels(formattedModels);
       if (formattedModels.length > 0 && !selectedModel) {
@@ -186,8 +187,7 @@ const ImageGenScreen: React.FC = () => {
             onPress: () => {
               // Navigate to subscription plan screen
               // navigation.navigate('SubscriptionPlans');
-            },
-          },
+            }},
         ]
       );
       return;
@@ -226,8 +226,7 @@ const ImageGenScreen: React.FC = () => {
                 id: Date.now().toString(),
                 url: imageUrl,
                 prompt: prompt,
-                created_at: new Date().toISOString(),
-              };
+                created_at: new Date().toISOString()};
               setGeneratedImages((prev) => [newImage, ...prev]);
 
               // Show cost toast
@@ -257,8 +256,7 @@ const ImageGenScreen: React.FC = () => {
                 id: String(data.message.id ?? Date.now().toString()),
                 url: imageUrl,
                 prompt: prompt,
-                created_at: data.message.created_at || new Date().toISOString(),
-              };
+                created_at: data.message.created_at || new Date().toISOString()};
               setGeneratedImages((prev) => [newImage, ...prev]);
 
               // Show cost toast
@@ -292,8 +290,7 @@ const ImageGenScreen: React.FC = () => {
         width: resWidth,
         height: resHeight,
         style: selectedStyle,
-        num_images: 1,
-      }));
+        num_images: 1}));
 
     } catch (err) {
       console.error('Generation error:', err);
@@ -376,21 +373,13 @@ const ImageGenScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Image Gen" />
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={28} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.title}>{t('imageGen.title')}</Text>
-        <View style={styles.iconButton}>
-          <View style={styles.coinBadge}>
-             <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
-          </View>
-        </View>
-      </View>
+      
+        
       
       <ScrollView
         style={styles.scrollView}
@@ -626,59 +615,50 @@ const ImageGenScreen: React.FC = () => {
           )}
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    marginBottom: spacing.sm,
-  },
+    },
   headerButton: {
     width: 40,
     height: 40,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: colors.textPrimary,
-  },
+    color: colors.textPrimary},
   scrollView: {
-    flex: 1,
-  },
+    flex: 1},
   scrollContent: {
+    gap: spacing.lg,
     padding: spacing.lg,
-    paddingBottom: spacing.xxl,
-  },
+    paddingBottom: 120},
   errorCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
-    marginBottom: spacing.lg,
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderColor: colors.error,
-    gap: spacing.sm,
-  },
+    gap: spacing.sm},
   errorText: {
     flex: 1,
     color: colors.error,
-    fontSize: 14,
-  },
+    fontSize: 14},
   promptCard: {
     padding: spacing.lg,
-    marginBottom: spacing.lg,
-  },
+    },
   promptInput: {
     backgroundColor: colors.backgroundSecondary,
     borderRadius: borderRadius.md,
@@ -688,40 +668,32 @@ const styles = StyleSheet.create({
     minHeight: 100,
     borderWidth: 1,
     borderColor: colors.border,
-    marginTop: spacing.md,
-  },
+    marginTop: spacing.md},
   section: {
-    marginBottom: spacing.lg,
-  },
+    },
   sectionTitle: {
     fontSize: 15,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
+    },
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    padding: spacing.md,
-  },
+    padding: spacing.md},
   loadingText: {
     color: colors.textMuted,
-    fontSize: 14,
-  },
+    fontSize: 14},
   retryButton: {
     padding: spacing.md,
     backgroundColor: colors.card,
-    borderRadius: borderRadius.sm,
-  },
+    borderRadius: borderRadius.sm},
   retryText: {
     color: colors.primary,
     fontSize: 14,
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   modelScroll: {
-    gap: spacing.sm,
-  },
+    gap: spacing.sm},
   modelButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -731,30 +703,24 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
-    gap: spacing.sm,
-  },
+    gap: spacing.sm},
   modelButtonSelected: {
     borderColor: colors.primary,
-    backgroundColor: colors.surfaceHover,
-  },
+    backgroundColor: colors.surfaceHover},
   modelDot: {
     width: 10,
     height: 10,
-    borderRadius: 5,
-  },
+    borderRadius: 5},
   modelButtonText: {
     color: colors.textMuted,
     fontSize: 14,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   modelButtonTextSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   styleGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
+    gap: spacing.sm},
   styleButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -764,24 +730,19 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    gap: spacing.sm,
-  },
+    gap: spacing.sm},
   styleButtonSelected: {
     borderColor: colors.primary,
-    backgroundColor: colors.surfaceHover,
-  },
+    backgroundColor: colors.surfaceHover},
   styleButtonText: {
     color: colors.textMuted,
     fontSize: 13,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   styleButtonTextSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   resolutionRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
-  },
+    gap: spacing.sm},
   resolutionButton: {
     flex: 1,
     alignItems: 'center',
@@ -789,162 +750,132 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     paddingVertical: spacing.md,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   resolutionButtonSelected: {
     borderColor: colors.primary,
-    backgroundColor: colors.surfaceHover,
-  },
+    backgroundColor: colors.surfaceHover},
   resolutionText: {
     color: colors.textMuted,
     fontSize: 13,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   resolutionTextSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   progressContainer: {
-    marginBottom: spacing.lg,
-  },
+    },
   progressBarBackground: {
     height: 4,
     backgroundColor: colors.card,
     borderRadius: 2,
     overflow: 'hidden',
-    marginBottom: spacing.sm,
-  },
+    },
   progressBar: {
     height: '100%',
     backgroundColor: colors.primary,
-    borderRadius: 2,
-  },
+    borderRadius: 2},
   progressText: {
     color: colors.textMuted,
     fontSize: 12,
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   generateButton: {
-    marginBottom: spacing.xl,
-  },
+    },
   imageGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
-  },
+    gap: spacing.md},
   imageContainer: {
     width: imageWidth,
     height: imageWidth,
     borderRadius: borderRadius.lg,
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'},
   generatedImage: {
     width: '100%',
-    height: '100%',
-  },
+    height: '100%'},
   imageOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     padding: spacing.md,
-    paddingTop: spacing.xl,
-  },
+    paddingTop: spacing.xl},
   imageActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: spacing.sm,
-    marginBottom: spacing.sm,
-  },
+    },
   imageActionButton: {
     width: 28,
     height: 28,
     borderRadius: 14,
     backgroundColor: 'rgba(0,0,0,0.5)',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   imagePrompt: {
     color: colors.foreground,
     fontSize: 11,
-    lineHeight: 14,
-  },
+    lineHeight: 14},
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.xxxl,
-  },
+    paddingVertical: spacing.xxxl},
   emptyStateText: {
     color: colors.textSecondary,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.lg,
-  },
+    marginTop: spacing.lg},
   emptyStateSubtext: {
     color: colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
     marginTop: spacing.sm,
-    paddingHorizontal: spacing.xxl,
-  },
+    paddingHorizontal: spacing.xxl},
   imageViewerOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.95)',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   imageViewerClose: {
     position: 'absolute',
     top: 50,
     right: 20,
     zIndex: 10,
-    padding: 10,
-  },
+    padding: 10},
   imageViewerImage: {
     width: width - 40,
     height: width - 40,
-    borderRadius: borderRadius.lg,
-  },
+    borderRadius: borderRadius.lg},
   imageViewerActions: {
     flexDirection: 'row',
     gap: spacing.xl,
-    marginTop: spacing.xl,
-  },
+    marginTop: spacing.xl},
   imageViewerButton: {
     alignItems: 'center',
-    gap: spacing.sm,
-  },
+    gap: spacing.sm},
   imageViewerButtonText: {
     color: colors.foreground,
     fontSize: 14,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
 
   coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   coinBadgeText: {
-    color: colors.foreground,
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: 'bold'},
 
   iconButton: {
     padding: spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: 40,
-  },
+    minWidth: 40},
 
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-});
+    color: colors.textPrimary}});
 
 export default ImageGenScreen;

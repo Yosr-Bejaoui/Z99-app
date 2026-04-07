@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 import {
   View,
   Text,
@@ -81,8 +82,7 @@ const ImageToVideoScreen: React.FC = () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.8,
-      base64: true,
-    });
+      base64: true});
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
@@ -102,8 +102,7 @@ const ImageToVideoScreen: React.FC = () => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 0.8,
-      base64: true,
-    });
+      base64: true});
 
     if (!result.canceled && result.assets[0]) {
       setSelectedImage(result.assets[0].uri);
@@ -127,8 +126,7 @@ const ImageToVideoScreen: React.FC = () => {
       ws.send(JSON.stringify({
         message: prompt || 'Animate this image',
         images: [selectedImageBase64 || selectedImage],
-        motion_intensity: selectedMotion,
-      }));
+        motion_intensity: selectedMotion}));
     };
 
     ws.onmessage = (event) => {
@@ -144,8 +142,7 @@ const ImageToVideoScreen: React.FC = () => {
               url: videoUrl,
               sourceImage: selectedImage!,
               prompt: prompt,
-              status: 'completed',
-            },
+              status: 'completed'},
             ...prev.filter(v => v.status !== 'generating'),
           ]);
           setIsGenerating(false);
@@ -194,8 +191,7 @@ const ImageToVideoScreen: React.FC = () => {
         url: '',
         sourceImage: selectedImage,
         prompt: prompt,
-        status: 'generating',
-      },
+        status: 'generating'},
       ...prev,
     ]);
 
@@ -237,24 +233,21 @@ const ImageToVideoScreen: React.FC = () => {
           style: 'destructive',
           onPress: () => {
             setGeneratedVideos(prev => prev.filter(v => v.id !== videoId));
-          },
-        },
+          }},
       ]
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Image to Video" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Image to Video</Text>
-          <Text style={styles.headerSubtitle}>Bring your images to life</Text>
-        </View>
+        
 
         {/* Image Selection */}
         <GlassCard style={styles.imageCard}>
@@ -303,7 +296,8 @@ const ImageToVideoScreen: React.FC = () => {
         {models.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>AI Model</Text>
-            <ScrollView
+            <ScreenHeader title="Image to Video" />
+      <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.optionScroll}
@@ -433,41 +427,33 @@ const ImageToVideoScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   scrollView: {
-    flex: 1,
-  },
+    flex: 1},
   scrollContent: {
+    gap: spacing.lg,
     padding: spacing.lg,
-    paddingBottom: 100,
-  },
+    paddingBottom: 120},
   header: {
-    marginBottom: spacing.xl,
-  },
+    },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.foreground,
-    marginBottom: spacing.xs,
-  },
+    marginBottom: spacing.xs},
   headerSubtitle: {
     fontSize: 16,
-    color: colors.textMuted,
-  },
+    color: colors.textMuted},
   imageCard: {
-    marginBottom: spacing.lg,
-  },
+    },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: spacing.md,
-  },
+    },
   imageButtons: {
     flexDirection: 'row',
-    gap: spacing.lg,
-  },
+    gap: spacing.lg},
   imageButton: {
     flex: 1,
     alignItems: 'center',
@@ -477,33 +463,27 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     borderWidth: 2,
     borderColor: colors.border,
-    borderStyle: 'dashed',
-  },
+    borderStyle: 'dashed'},
   imageButtonText: {
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: spacing.sm,
-  },
+    marginTop: spacing.sm},
   selectedImageContainer: {
-    position: 'relative',
-  },
+    position: 'relative'},
   selectedImage: {
     width: '100%',
     height: 200,
     borderRadius: 12,
-    backgroundColor: colors.backgroundTertiary,
-  },
+    backgroundColor: colors.backgroundTertiary},
   removeImageButton: {
     position: 'absolute',
     top: 8,
     right: 8,
     backgroundColor: colors.background,
-    borderRadius: 14,
-  },
+    borderRadius: 14},
   promptCard: {
-    marginBottom: spacing.lg,
-  },
+    },
   promptInput: {
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 12,
@@ -512,38 +492,30 @@ const styles = StyleSheet.create({
     fontSize: 15,
     minHeight: 80,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   section: {
-    marginBottom: spacing.lg,
-  },
+    },
   optionScroll: {
-    gap: 10,
-  },
+    gap: 10},
   optionButton: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   optionButtonSelected: {
     backgroundColor: colors.primary + '20',
-    borderColor: colors.primary,
-  },
+    borderColor: colors.primary},
   optionButtonText: {
     color: colors.textMuted,
     fontSize: 14,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   optionButtonTextSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   motionRow: {
     flexDirection: 'row',
-    gap: 10,
-  },
+    gap: 10},
   motionButton: {
     flex: 1,
     alignItems: 'center',
@@ -552,41 +524,30 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
+    borderColor: colors.border},
   motionButtonSelected: {
     backgroundColor: colors.primary + '20',
-    borderColor: colors.primary,
-  },
+    borderColor: colors.primary},
   motionLabel: {
     color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: spacing.xs,
-  },
+    marginBottom: spacing.xs},
   motionLabelSelected: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   motionDescription: {
     color: colors.textMuted,
     fontSize: 11,
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   generateButtonContainer: {
-    marginVertical: spacing.lg,
-  },
-  videoCard: {
-    marginBottom: spacing.lg,
-    overflow: 'hidden',
-  },
+    marginVertical: spacing.lg},
+  videoCard: {overflow: 'hidden'},
   generatingContainer: {
-    position: 'relative',
-  },
+    position: 'relative'},
   thumbnailImage: {
     width: '100%',
     height: 200,
-    borderRadius: 8,
-  },
+    borderRadius: 8},
   generatingOverlay: {
     position: 'absolute',
     top: 0,
@@ -596,45 +557,37 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.7)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-  },
+    borderRadius: 8},
   generatingText: {
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.md,
-  },
+    marginTop: spacing.md},
   videoPlayer: {
     width: '100%',
     height: 200,
     borderRadius: 8,
-    backgroundColor: colors.backgroundTertiary,
-  },
+    backgroundColor: colors.backgroundTertiary},
   videoPrompt: {
     color: colors.textMuted,
     fontSize: 13,
-    marginTop: spacing.md,
-  },
+    marginTop: spacing.md},
   videoActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingTop: spacing.lg,
     marginTop: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
+    borderTopColor: colors.border},
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-  },
+    paddingHorizontal: spacing.md},
   actionButtonText: {
     color: colors.primary,
     fontSize: 14,
-    fontWeight: '500',
-  },
-});
+    fontWeight: '500'}});
 
 export default ImageToVideoScreen;
