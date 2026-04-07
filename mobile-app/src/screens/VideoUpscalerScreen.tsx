@@ -235,7 +235,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textPrimary,
   },
-  content: { padding: spacing.lg, alignItems: 'center', flexGrow: 1 },
+  content: {
+    gap: spacing.lg, padding: spacing.lg, alignItems: 'center', flexGrow: 1 },
   
   uploadCard: {
     width: '100%',
@@ -258,7 +259,7 @@ const styles = StyleSheet.create({
   uploadTextDark: { marginTop: spacing.sm, color: '#10b981', fontSize: 16, fontWeight: '600' },
   
   dropdownContainer: { width: '100%', marginTop: spacing.xl },
-  dropdownLabel: { color: colors.foreground, fontSize: 14, fontWeight: '600', marginBottom: spacing.md },
+  dropdownLabel: { color: colors.foreground, fontSize: 14, fontWeight: '600', },
   resolutionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   resOption: { flex: 1, marginHorizontal: spacing.xs, paddingVertical: 10, borderRadius: 8, backgroundColor: colors.backgroundTertiary, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
   resOptionActive: { borderColor: colors.primary, backgroundColor: colors.cardHover },
@@ -271,7 +272,7 @@ const styles = StyleSheet.create({
   },
   processingText: { marginTop: spacing.lg, color: colors.primary, fontSize: 16, fontWeight: '600' },
 
-  resultCard: { width: '100%', alignItems: 'center', marginBottom: spacing.lg },
+  resultCard: { width: '100%', alignItems: 'center', },
   videoPreview: {
     width: '100%', height: 250,
     backgroundColor: '#000000',
@@ -309,7 +310,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: colors.backgroundTertiary,
     marginTop: 10
   },
-  optionsHeader: { color: colors.foreground, fontSize: 16, fontWeight: '600', marginBottom: spacing.lg },
+  optionsHeader: { color: colors.foreground, fontSize: 16, fontWeight: '600', },
   actionBtn: { backgroundColor: colors.backgroundTertiary, paddingVertical: spacing.md, borderRadius: 10, alignItems: 'center' },
   actionBtnText: { color: colors.foreground, fontSize: 16, fontWeight: '600' },
 

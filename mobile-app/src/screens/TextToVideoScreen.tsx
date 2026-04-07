@@ -360,11 +360,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    gap: spacing.lg,
     padding: spacing.lg,
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   header: {
-    marginBottom: spacing.xl,
+    
   },
   headerTitle: {
     fontSize: 28,
@@ -377,13 +378,13 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   promptCard: {
-    marginBottom: spacing.lg,
+    
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: spacing.md,
+    
   },
   promptInput: {
     backgroundColor: colors.backgroundTertiary,
@@ -396,7 +397,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   section: {
-    marginBottom: spacing.lg,
+    
   },
   optionScroll: {
     gap: 10,
@@ -474,7 +475,7 @@ const styles = StyleSheet.create({
     marginVertical: spacing.lg,
   },
   videoCard: {
-    marginBottom: spacing.lg,
+    
     overflow: 'hidden',
   },
   generatingContainer: {

@@ -11,7 +11,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Video, ResizeMode } from 'expo-av';
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { Skeleton } from "../components/ui/Skeleton";
 import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
@@ -375,11 +376,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    gap: spacing.lg,
     padding: spacing.lg,
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   header: {
-    marginBottom: spacing.xl,
+    
   },
   headerTitle: {
     fontSize: 28,
@@ -392,13 +394,13 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   videoCard: {
-    marginBottom: spacing.lg,
+    
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: spacing.md,
+    
   },
   uploadButton: {
     alignItems: 'center',
@@ -438,7 +440,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   section: {
-    marginBottom: spacing.lg,
+    
   },
   effectGrid: {
     flexDirection: 'row',
@@ -465,7 +467,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundTertiary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.sm,
+    
   },
   effectIconSelected: {
     backgroundColor: colors.primary + '30',
@@ -488,7 +490,7 @@ const styles = StyleSheet.create({
     marginVertical: spacing.lg,
   },
   resultCard: {
-    marginBottom: spacing.lg,
+    
     overflow: 'hidden',
   },
   processingContainer: {
