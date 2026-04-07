@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
 import api from '../services/api';
@@ -62,15 +63,14 @@ const CustomGPTLibraryScreen: React.FC = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Custom GPTs</Text>
-        <TouchableOpacity style={styles.headerButton} onPress={() => navigation.navigate('CustomGPTCreate')}>
-          <Ionicons name="add" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+      <ScreenHeader 
+          title="My Custom GPTs" 
+          rightAction={
+            <TouchableOpacity style={styles.headerButton} onPress={() => navigation.navigate('CustomGPTCreate')}>
+              <Ionicons name="add" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          } 
+        />
       <ScrollView contentContainerStyle={styles.list}>
         {gpts.length === 0 ? (
            <Text style={styles.empty}>You haven't created any Custom GPTs yet.</Text>
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   card: { padding: spacing.md },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
   cardTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, flex: 1 },
-  publicTag: { fontSize: 10, color: colors.primary, borderColor: colors.primary, borderWidth: 1, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10 },
+  publicTag: { fontSize: 10, color: colors.primary, borderColor: colors.primary, borderWidth: 1, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: 10 },
   cardDesc: { color: colors.textMuted, marginBottom: spacing.md },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   useBtn: { backgroundColor: colors.primary, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: borderRadius.md },

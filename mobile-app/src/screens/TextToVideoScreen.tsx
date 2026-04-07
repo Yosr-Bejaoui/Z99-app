@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { ScreenHeader } from "../components/ui/ScreenHeader";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Video, ResizeMode } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
@@ -185,16 +186,13 @@ const TextToVideoScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Text to Video" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Text to Video</Text>
-          <Text style={styles.headerSubtitle}>Transform your ideas into videos</Text>
-        </View>
+        
 
         {/* Prompt Input */}
         <GlassCard style={styles.promptCard}>
@@ -453,7 +451,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -481,7 +479,7 @@ const styles = StyleSheet.create({
   generatingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 40,
+    padding: spacing.xxl,
   },
   generatingText: {
     color: colors.foreground,

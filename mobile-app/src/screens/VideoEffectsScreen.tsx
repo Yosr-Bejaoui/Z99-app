@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { ScreenHeader } from "../components/ui/ScreenHeader";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Video, ResizeMode } from 'expo-av';
 import * as ImagePicker from 'expo-image-picker';
@@ -222,16 +223,13 @@ const VideoEffectsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Video Effects" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Video Effects</Text>
-          <Text style={styles.headerSubtitle}>Apply AI-powered effects to your videos</Text>
-        </View>
+        
 
         {/* Video Selection */}
         <GlassCard style={styles.videoCard}>
@@ -316,7 +314,7 @@ const VideoEffectsScreen: React.FC = () => {
               <GlassCard key={video.id} style={styles.resultCard}>
                 {video.status === 'processing' ? (
                   <View style={styles.processingContainer}>
-                    <Skeleton width="100%" height={140} borderRadius={12} style={{ marginBottom: 16 }} />
+                    <Skeleton width="100%" height={140} borderRadius={12} style={{ marginBottom: spacing.lg }} />
                       <Text style={styles.processingText}>Processing video...</Text>
                   </View>
                 ) : (
@@ -407,7 +405,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.backgroundTertiary,
     borderRadius: 16,
-    padding: 40,
+    padding: spacing.xxl,
     borderWidth: 2,
     borderColor: colors.border,
     borderStyle: 'dashed',
@@ -496,7 +494,7 @@ const styles = StyleSheet.create({
   processingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 40,
+    padding: spacing.xxl,
   },
   processingText: {
     color: colors.foreground,

@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: 40,
+    paddingBottom: spacing.xxl,
   },
   actionsBar: {
     flexDirection: 'row',
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
   retryButton: {
     marginTop: spacing.lg,
     paddingHorizontal: spacing.lg,
-    paddingVertical: 10,
+    paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
     borderRadius: 8,
   },
@@ -626,7 +626,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
-    paddingHorizontal: 40,
+    paddingHorizontal: spacing.xxl,
   },
   emptyTitle: {
     fontSize: 20,

@@ -1,17 +1,23 @@
-﻿import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator, Alert, SafeAreaView, ScrollView, Image } from 'react-native';
+import React, { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicator, Alert, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { useDrawer, useCredits } from '../context';
 import { colors, spacing, borderRadius } from '../theme';
+import GradientButton from '../components/GradientButton';
+import { GlassCard } from '../components/GlassCard';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 
 const { width } = Dimensions.get('window');
 
 type StepState = 'upload' | 'processing' | 'result' | 'options';
 
 const VideoWatermarkRemoverScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const { openDrawer } = useDrawer();
+  
   const { credits, hasEnoughCredits, deductCredits } = useCredits();
   
   const [step, setStep] = useState<StepState>('upload');
@@ -23,8 +29,7 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
-      quality: 1,
-    });
+      quality: 1});
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setMediaUri(result.assets[0].uri);
     }
@@ -32,7 +37,7 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
 
   const handleGenerate = () => {
     if (!mediaUri) {
-      Alert.alert('Error', 'Please upload a video first.');
+      Alert.alert('Error', 'Please upload an image first.');
       return;
     }
     if (!hasEnoughCredits(20)) {
@@ -48,7 +53,7 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
           text: 'Generate',
           style: 'default',
           onPress: async () => {
-            await deductCredits(20, 'Video Watermark Remover');
+            await deductCredits(20, 'Remove Watermark Remover');
             setStep('processing');
             setTimeout(() => {
               setResultUri('https://media.istockphoto.com/id/1321746200/photo/mockup-of-a-white-t-shirt-with-blank-copy-space.jpg?s=612x612&w=0&k=20&c=Jd24H12b4T089z_xG-yH9z4E0M2Bq-lR9Xn9V1t_MQQ=');
@@ -62,28 +67,10 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.headerButton} 
-          onPress={openDrawer}
-          accessibilityRole="button"
-          accessibilityLabel="Open Menu"
-        >
-          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
-        </TouchableOpacity>
-        
-        <Text style={styles.headerTitle}>Video Watermark</Text>
-        
-          <View style={styles.headerButton}>
-            <View style={styles.coinBadge}>
-              <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
-              <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
-            </View>
-          </View>
-        </View>
-        <ScrollView contentContainerStyle={styles.content}>
+      <ScreenHeader title="Remove Watermark" />
+      <ScrollView contentContainerStyle={styles.content}>
           {step === 'upload' && (
-            <View style={styles.uploadCard}>
+            <GlassCard style={styles.uploadCard}>
               <TouchableOpacity style={styles.uploadBox} onPress={handleUpload}>
                 {mediaUri ? (
                   <View style={styles.mockMedia}>
@@ -92,27 +79,27 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
                   </View>
                 ) : (
                   <>
-                    <Ionicons name="cloud-upload-outline" size={48} color="#94a3b8" />
-                    <Text style={styles.uploadText}>Upload an image or video</Text>
+                    <Ionicons name="image-outline" size={48} color="#94a3b8" />
+                    <Text style={styles.uploadText}>Tap to select a video</Text>
                   </>
                 )}
               </TouchableOpacity>
 
               
-            </View>
+            </GlassCard>
           )}
 
           {step === 'processing' && (
-            <View style={styles.uploadCard}>
+            <GlassCard style={styles.uploadCard}>
               <View style={styles.processingBox}>
                 <ActivityIndicator size="large" color={colors.primary} />
                 <Text style={styles.processingText}>Processing...</Text>
               </View>
-            </View>
+            </GlassCard>
           )}
 
           {(step === 'result' || step === 'options') && (
-            <View style={styles.resultCard}>
+            <GlassCard style={styles.resultCard}>
               <View style={styles.videoPreview}>
                 <View style={[StyleSheet.absoluteFill, { flexDirection: 'row' }]}>
                   <View style={{ flex: 1, overflow: 'hidden' }}>
@@ -139,7 +126,7 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
                   </View>
                 </View>
 
-                <Ionicons name="play-circle" size={64} color={colors.white} style={styles.playIcon} />
+                
                 <View style={styles.timeBadge}><Text style={styles.timeText}>0:15</Text></View>
                 <View style={styles.previewPill}><Text style={styles.previewText}>Preview</Text></View>
                 <TouchableOpacity style={styles.fullscreenIcon}>
@@ -151,41 +138,38 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
                   <Text style={styles.toggleOptionsText}>Show Options</Text>
                 </TouchableOpacity>
               )}
-            </View>
+            </GlassCard>
           )}
 
           {step === 'options' && (
-            <View style={styles.optionsCard}>
+            <GlassCard style={styles.optionsCard}>      
               <Text style={styles.optionsHeader}>Options</Text>
               <TouchableOpacity style={styles.actionBtn}>
-                <Text style={styles.actionBtnText}>⬇ Download</Text>
+                <Text style={styles.actionBtnText}>? Download</Text>
               </TouchableOpacity>
-            </View>
+            </GlassCard>
           )}
+
         </ScrollView>
 
         <View style={styles.bottomBar}>
           {(step === 'upload' || step === 'processing') ? (
-            <TouchableOpacity onPress={handleGenerate} disabled={step === 'processing'}>
-              <LinearGradient 
-                start={{x: 0, y: 0}} end={{x: 1, y: 0}}
-                colors={(step === 'processing' || !mediaUri) ? [colors.textSecondary, colors.border] : [colors.primary, colors.primaryDark]}
-                style={styles.ctaButton}
-              >
-                <Text style={styles.ctaText}>Generate</Text>
-                {step === 'upload' && <Text style={styles.badgeText}>{"\uD83E\uDE99"} 20 Credits</Text>}
-              </LinearGradient>
-            </TouchableOpacity>
+            
+            <GradientButton
+              onPress={handleGenerate}
+              title="Generate"
+              disabled={step === 'processing' || !mediaUri}
+              loading={step === 'processing'}
+              badge="20 Coins"
+              style={styles.ctaButton}
+            />
           ) : (
-            <TouchableOpacity>
-              <LinearGradient 
-                start={{x: 0, y: 0}} end={{x: 1, y: 0}}
-                colors={[colors.primary, colors.primaryDark]}
-                style={styles.ctaButton}
-              >
-                <Text style={styles.ctaText}>Share</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            
+            <GradientButton
+              onPress={() => {}}
+              title="Share"
+              style={styles.ctaButton}
+            />
           )}
         </View>
 
@@ -196,56 +180,45 @@ const VideoWatermarkRemoverScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.background,
-  },
+    },
   headerButton: {
     width: 40,
     height: 40,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   headerTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: colors.textPrimary,
-  },
+    color: colors.textPrimary},
   content: {
     gap: spacing.lg, padding: spacing.lg, alignItems: 'center', flexGrow: 1 },
   
   uploadCard: {
     width: '100%',
-    backgroundColor: colors.card,
-    borderRadius: 20,
     padding: spacing.xl,
-    borderWidth: 1,
-    borderColor: colors.backgroundTertiary,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 10,
     alignItems: 'center',
-  },
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)'},
   uploadBox: {
     width: '100%', height: 220,
-    borderWidth: 2, borderColor: colors.border, borderStyle: 'dashed', borderRadius: 16,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: colors.backgroundTertiary
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', borderStyle: 'solid', borderRadius: 16,
+    alignItems: 'center', justifyContent: 'center',     
+    backgroundColor: colors.surface
   },
   uploadText: { marginTop: spacing.md, color: colors.textSecondary, fontSize: 16, fontWeight: '500' },
   mockMedia: { alignItems: 'center', justifyContent: 'center' },
-  uploadTextDark: { marginTop: spacing.sm, color: '#10b981', fontSize: 16, fontWeight: '600' },
+  uploadTextDark: { marginTop: spacing.sm, color: colors.success, fontSize: 16, fontWeight: '600' },
   
   dropdownContainer: { width: '100%', marginTop: spacing.xl },
-  dropdownLabel: { color: colors.foreground, fontSize: 14, fontWeight: '600', },
+  dropdownLabel: { color: colors.white, fontSize: 14, fontWeight: '600',  },
   resolutionRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  resOption: { flex: 1, marginHorizontal: spacing.xs, paddingVertical: 10, borderRadius: 8, backgroundColor: colors.backgroundTertiary, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
+  resOption: { flex: 1, marginHorizontal: spacing.xs, paddingVertical: spacing.sm, borderRadius: 8, backgroundColor: colors.backgroundTertiary, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
   resOptionActive: { borderColor: colors.primary, backgroundColor: colors.cardHover },
   resText: { color: colors.textSecondary, fontWeight: '600' },
   resTextActive: { color: colors.primaryLight, fontWeight: '700' },
@@ -256,7 +229,7 @@ const styles = StyleSheet.create({
   },
   processingText: { marginTop: spacing.lg, color: colors.primary, fontSize: 16, fontWeight: '600' },
 
-  resultCard: { width: '100%', alignItems: 'center', },
+  resultCard: { width: '100%', alignItems: 'center',  },
   videoPreview: {
     width: '100%', height: 250,
     backgroundColor: '#000000',
@@ -268,22 +241,22 @@ const styles = StyleSheet.create({
   },
     splitLeft: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: spacing.md },
     splitRight: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: spacing.md, alignItems: 'flex-end' },
-  splitLabel: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, borderRadius: 4, marginTop: 40 },
-  splitLabelRight: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, borderRadius: 4, marginTop: 40 },
+  splitLabel: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: spacing.sm, borderRadius: 4, marginTop: spacing.xxl },
+  splitLabelRight: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: spacing.sm, borderRadius: 4, marginTop: spacing.xxl },
   
   sliderHandle: { position: 'absolute', top: 0, bottom: 0, left: '50%', width: 2, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
-  sliderLine: { width: 2, height: '100%', backgroundColor: colors.foreground },
-  sliderButton: { position: 'absolute', width: 28, height: 28, borderRadius: 14, backgroundColor: colors.foreground, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } },
+  sliderLine: { width: 2, height: '100%', backgroundColor: colors.white },
+  sliderButton: { position: 'absolute', width: 28, height: 28, borderRadius: 14, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } },
 
   playIcon: { position: 'absolute', top: '50%', left: '50%', transform: [{ translateX: -32 }, { translateY: -32 }], opacity: 0.8, zIndex: 20 },
   
   timeBadge: { position: 'absolute', bottom: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6, zIndex: 20 },
-  timeText: { color: colors.foreground, fontSize: 12, fontWeight: '600' },
-  previewPill: { position: 'absolute', top: 12, left: 12, backgroundColor: colors.primary, paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: 20, zIndex: 20 },
-  previewText: { color: colors.foreground, fontSize: 12, fontWeight: '700' },
-  fullscreenIcon: { position: 'absolute', bottom: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.4)', padding: 6, borderRadius: 8, zIndex: 20 },
+  timeText: { color: colors.white, fontSize: 12, fontWeight: '600' },
+  previewPill: { position: 'absolute', top: 12, left: 12, backgroundColor: colors.primary, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 20, zIndex: 20 },
+  previewText: { color: colors.white, fontSize: 12, fontWeight: '700' },
+  fullscreenIcon: { position: 'absolute', bottom: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.4)', padding: spacing.sm, borderRadius: 8, zIndex: 20 },
 
-  toggleOptions: { marginTop: spacing.lg, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: 20, backgroundColor: colors.backgroundTertiary },
+  toggleOptions: { marginTop: spacing.lg, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 20, backgroundColor: colors.backgroundTertiary },
   toggleOptionsText: { color: colors.textSecondary, fontWeight: '600' },
 
   optionsCard: {
@@ -292,32 +265,44 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: spacing.lg,
     borderWidth: 1, borderColor: colors.backgroundTertiary,
-    marginTop: 10
+    marginTop: spacing.sm
   },
-  optionsHeader: { color: colors.foreground, fontSize: 16, fontWeight: '600', },
+  optionsHeader: { color: colors.white, fontSize: 16, fontWeight: '600',  },
   actionBtn: { backgroundColor: colors.backgroundTertiary, paddingVertical: spacing.md, borderRadius: 10, alignItems: 'center' },
-  actionBtnText: { color: colors.foreground, fontSize: 16, fontWeight: '600' },
+  actionBtnText: { color: colors.white, fontSize: 16, fontWeight: '600' },
 
-  bottomBar: { padding: spacing.lg, paddingBottom: 30, backgroundColor: 'transparent' },
+  bottomBar: { padding: spacing.lg, paddingBottom: spacing.xxl, backgroundColor: 'transparent' },
   ctaButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     height: 56, borderRadius: 28, position: 'relative'
   },
-  ctaText: { color: colors.foreground, fontSize: 18, fontWeight: '700' },
-  badgeText: { position: 'absolute', right: 16, color: '#fcd34d', fontSize: 14, fontWeight: '700', backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: 10, paddingVertical: spacing.xs, borderRadius: 12 },
-  coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+  ctaText: { color: colors.white, fontSize: 18, fontWeight: '700' },
+  badgeText: { position: 'absolute', right: 16, color: colors.warning, fontSize: 14, fontWeight: '700', backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 12 },
+    coinBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs,
-    flexShrink: 0,
+    flexDirection: 'row',
+  },
+  coinBadgeText: {
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   coinIcon: { fontSize: 12 },
-  coinBadgeText: { color: '#fcd34d', fontSize: 12, fontWeight: '700' }
-});
+
+  iconButton: {
+    padding: spacing.xs,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 40},
+
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.textPrimary}});
 
 export default VideoWatermarkRemoverScreen;

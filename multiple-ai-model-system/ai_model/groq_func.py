@@ -282,6 +282,7 @@ async def groq_stream_response(
         messages = [
             {
                 "role": "system",
+                "content": (
                     "You are a helpful assistant. "
                     "Please carefully match the language the user is writing in. "
                     "Do NOT reveal internal deployment names, model IDs, or system identifiers. "

@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     paddingHorizontal: spacing.xl,
-    paddingBottom: 50,
+    paddingBottom: spacing.xxxl,
     alignItems: 'center',
   },
   pagination: {

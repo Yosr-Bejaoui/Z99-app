@@ -1,0 +1,1030 @@
+﻿PS C:\Users\user\Desktop\multiple-ai-model-system-20260204T220529Z-1-001> 
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "user": 1,
+      "plan": {
+        "id": 1,
+        "name": "Basic Plan",
+        "price": 9.99
+      },
+      "amount": 9.99,
+      "status": "paid",
+      "created_at": "2026-01-17T10:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### 2. Get Single Invoice
+**Endpoint:** `GET /api/v1/invoices/list/{invoice_id}/`
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response (200):**
+```json
+{
+  "id": 1,
+  "user": 1,
+  "plan": {
+    "id": 1,
+    "name": "Basic Plan",
+    "price": 9.99
+  },
+  "amount": 9.99,
+  "status": "paid",
+  "created_at": "2026-01-17T10:00:00Z",
+  "invoice_number": "INV-2026-001"
+}
+```
+
+---
+
+## Ads & Rewards
+
+### 1. List Reward History
+**Endpoint:** `GET /api/v1/ads/rewards/`
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response (200):**
+```json
+{
+  "count": 10,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "user": 1,
+      "reward_type": "ad_watch",
+      "credits_earned": 100,
+      "created_at": "2026-01-17T10:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### 2. Claim Ad Reward
+**Endpoint:** `POST /api/v1/ads/rewards/`
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Request Body:**
+```json
+{
+  "ad_id": "ad_123456",
+  "reward_type": "ad_watch"
+}
+```
+
+**Response (201):**
+```json
+{
+  "id": 2,
+  "user": 1,
+  "reward_type": "ad_watch",
+  "credits_earned": 100,
+  "created_at": "2026-01-17T10:30:00Z",
+  "message": "100 credits added to your account"
+}
+```
+
+---
+
+## Model-Specific Parameters Summary
+
+### Chat Models
+**Providers:** OpenAI (GPT-4, GPT-3.5), Google (Gemini), DeepSeek
+
+**Parameters:**
+- `message` (required): Text message
+- `images` (optional): Array of image URLs for multimodal chat
+
+---
+
+### Image Generation
+**Providers:** OpenAI (DALL-E), Wavespeed AI
+
+**Parameters:**
+- `message` (required): Image description
+- `num_images` (optional): 1-10
+- `width` (optional): Image width in pixels
+- `height` (optional): Image height in pixels
+
+---
+
+### Video Generation
+**Providers:** OpenAI (Sora), Google (Veo), Wavespeed AI
+
+**Parameters:**
+- `message` (required): Video description
+- `duration` (optional): 1-10 seconds
+- `width` (optional): Video width
+- `height` (optional): Video height
+- `resolution` (optional): "480p", "720p", "1080p"
+- `aspect_ratio` (optional): "16:9", "9:16", "1:1"
+- `generate_audio` (optional): true/false
+
+---
+
+### Image Editing
+**Provider:** Wavespeed AI
+
+**Parameters:**
+- `message` (required): Editing instruction
+- `images` (required): Input image URL
+- `aspect_ratio` (optional): Output aspect ratio
+- `output_format` (optional): "jpeg", "png", "webp"
+
+---
+
+### Image Tools
+**Provider:** Wavespeed AI
+
+**Parameters:**
+- `message` (required): Processing instruction
+- `images` (required): Input image URL
+- `style` (optional): Processing style
+- `target_language` (optional): Target language
+- `target_resolution` (optional): "1080p", "2k", "4k", "8k"
+
+---
+
+### Video Upscaling
+**Provider:** Wavespeed AI
+
+**Parameters:**
+- `images` (required): Input video URL
+- `target_resolution` (optional): "1080p", "2k", "4k", "8k"
+
+---
+
+### Image to 3D
+**Provider:** Wavespeed AI
+
+**Parameters:**
+- `images` (required): Input image URL
+
+---
+
+### Video Effects
+**Provider:** Wavespeed AI
+
+**Parameters:**
+- `images` (required): Input image URL
+- `resolution` (optional): 480, 720, 1080
+- `effect` (optional): Effect type
+- `duration` (optional): 1-10 seconds
+- `bgm` (optional): true/false
+- `template` (optional): Effect template name
+- `sound_effect_switch` (optional): true/false
+- `seed` (optional): Random seed
+
+---
+
+### Text-to-Speech
+**Provider:** Wavespeed AI
+
+**Parameters:**
+- `message` (required): Text to convert
+- `voice_id` (optional): Voice identifier
+- `speed` (optional): 0.5-2.0
+- `pitch` (optional): 0.5-2.0
+- `volume` (optional): 0.0-1.0
+- `format` (optional): "mp3", "wav", "ogg"
+- `bitrate` (optional): Audio bitrate
+- `sample_rate` (optional): Sample rate
+- `emotion` (optional): Voice emotion
+- `english_normalization` (optional): true/false
+- `language_boost` (optional): "auto" or language code
+- `channel` (optional): Channel configuration
+
+---
+
+## Status Codes
+
+- `200 OK` - Request successful
+- `201 Created` - Resource created successfully
+- `204 No Content` - Resource deleted successfully
+- `400 Bad Request` - Invalid request parameters
+- `401 Unauthorized` - Authentication required
+- `403 Forbidden` - Insufficient permissions
+- `404 Not Found` - Resource not found
+- `500 Internal Server Error` - Server error
+
+---
+
+## Rate Limiting
+
+- **Free Users:** 100 requests per day (DeepSeek only)
+- **Subscribed Users:** Unlimited requests (based on credits)
+
+---
+
+## Credits System
+
+- Credits are deducted based on:
+  - Input text (words Ãƒâ€” base_cost)
+  - Input images (count Ãƒâ€” base_cost)
+  - Output text (words Ãƒâ€” base_cost)
+  - Generated images/videos (count Ãƒâ€” base_cost)
+
+- **Base Costs:**
+  - OpenAI: 500 credits per unit
+  - Google: 500 credits per unit
+  - Wavespeed AI: 500 credits per unit
+  - DeepSeek: 1 credit per unit
+
+---
+
+## Notes
+
+1. All timestamps are in ISO 8601 format (UTC)
+2. Image URLs in responses are publicly accessible
+3. WebSocket connections require JWT token in query parameter
+4. API keys are never exposed in API responses
+5. Free users can only access DeepSeek models
+6. Subscribed users have access to all models based on credits
+
+---
+
+**Last Updated:** January 17, 2026
+
+
+---================---
+
+
+# Admin API Documentation
+
+Base URL: `/api/v1/`
+
+All admin endpoints require admin authentication.
+**Header:** `Authorization: Bearer <access_token>`
+**Required:** User must have `is_admin = true` or `is_superuser = true`
+
+---
+
+## Rate Limiting
+
+The API implements rate limiting to prevent abuse:
+
+| Throttle Type | Anonymous | Authenticated | Admin |
+|--------------|-----------|---------------|-------|
+| Burst Rate | 20/min | 60/min | 200/min |
+| Sustained Rate | 100/hour | 1000/hour | 5000/hour |
+| AI Generation | N/A | 30/hour | 100/hour |
+
+Response when rate limited:
+```json
+{
+  "detail": "Request was throttled. Expected available in X seconds."
+}
+```
+
+---
+
+## Plan Administration
+
+### List All Plans
+**Endpoint:** `GET /plan/admin/plans/`
+**Description:** Get all plans with optional filtering
+
+**Query Parameters:**
+- `is_active` (boolean): Filter by active status
+- `search` (string): Search in name and description
+
+**Output:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Basic Plan",
+      "plan_code": "BASIC_001",
+      "description": "Basic subscription plan",
+      "words_or_credits": 1000,
+      "amount": "9.99",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+### Create Plan
+**Endpoint:** `POST /plan/admin/plans/`
+**Input:**
+```json
+{
+  "name": "string",
+  "plan_code": "string (unique)",
+  "description": "string",
+  "words_or_credits": 1000,
+  "amount": "9.99",
+  "is_active": true
+}
+```
+**Output:**
+```json
+{
+  "success": true,
+  "message": "Plan created successfully",
+  "data": { ... }
+}
+```
+
+### Update Plan
+**Endpoint:** `PATCH /plan/admin/plans/{id}/`
+**Input:** Any plan fields to update
+
+### Delete Plan
+**Endpoint:** `DELETE /plan/admin/plans/{id}/`
+
+### Activate Plan
+**Endpoint:** `POST /plan/admin/plans/{id}/activate/`
+
+### Deactivate Plan
+**Endpoint:** `POST /plan/admin/plans/{id}/deactivate/`
+
+### Plan Statistics
+**Endpoint:** `GET /plan/admin/plans/stats/`
+**Output:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_plans": 10,
+    "active_plans": 8,
+    "inactive_plans": 2,
+    "plans_by_price_range": {
+      "low": 5,
+      "medium": 3,
+      "high": 2
+    }
+  }
+}
+```
+
+---
+
+## Subscription Administration
+
+### List All Subscriptions
+**Endpoint:** `GET /plan/admin/subscriptions/`
+**Query Parameters:**
+- `status` (string): active, cancelled, expired
+- `user` (integer): Filter by user ID
+- `plan` (integer): Filter by plan ID
+
+### Cancel Subscription
+**Endpoint:** `POST /plan/admin/subscriptions/{id}/cancel/`
+**Output:**
+```json
+{
+  "success": true,
+  "message": "Subscription cancelled successfully"
+}
+```
+
+### Extend Subscription
+**Endpoint:** `POST /plan/admin/subscriptions/{id}/extend/`
+**Input:**
+```json
+{
+  "days": 7
+}
+```
+
+### Subscription Statistics
+**Endpoint:** `GET /plan/admin/subscriptions/stats/`
+**Output:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_subscriptions": 100,
+    "active_subscriptions": 80,
+    "cancelled_subscriptions": 15,
+    "expired_subscriptions": 5,
+    "monthly_revenue": "999.99"
+  }
+}
+```
+
+### Expiring Subscriptions
+**Endpoint:** `GET /plan/admin/subscriptions/expiring/`
+**Query Parameters:**
+- `days` (integer, default: 7): Days until expiration
+
+---
+
+## Revenue Analytics
+
+### Get Revenue Data
+**Endpoint:** `GET /plan/admin/revenue/`
+**Query Parameters:**
+- `period` (string): daily, weekly, monthly, yearly
+- `start_date` (date): YYYY-MM-DD
+- `end_date` (date): YYYY-MM-DD
+
+**Output:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_revenue": "9999.99",
+    "revenue_by_period": [
+      {"period": "2024-01", "amount": "1000.00"},
+      {"period": "2024-02", "amount": "1200.00"}
+    ],
+    "top_plans": [
+      {"plan": "Pro Plan", "revenue": "5000.00"}
+    ]
+  }
+}
+```
+
+---
+
+## Invoice Administration
+
+### List All Invoices
+**Endpoint:** `GET /invoices/admin/invoices/`
+**Query Parameters:**
+- `status` (string): pending, paid, refunded, cancelled
+- `user` (integer): Filter by user ID
+- `start_date` (date): YYYY-MM-DD
+- `end_date` (date): YYYY-MM-DD
+
+### Create Invoice
+**Endpoint:** `POST /invoices/admin/invoices/`
+**Input:**
+```json
+{
+  "user": 1,
+  "amount": "29.99",
+  "status": "pending",
+  "invoice_number": "INV-001",
+  "description": "string"
+}
+```
+
+### Update Invoice
+**Endpoint:** `PATCH /invoices/admin/invoices/{id}/`
+
+### Delete Invoice
+**Endpoint:** `DELETE /invoices/admin/invoices/{id}/`
+
+### Mark Invoice as Paid
+**Endpoint:** `POST /invoices/admin/invoices/{id}/mark_paid/`
+
+### Mark Invoice as Refunded
+**Endpoint:** `POST /invoices/admin/invoices/{id}/mark_refunded/`
+**Input:**
+```json
+{
+  "reason": "Customer request"
+}
+```
+
+### Invoice Statistics
+**Endpoint:** `GET /invoices/admin/invoices/stats/`
+**Output:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_invoices": 500,
+    "pending_invoices": 50,
+    "paid_invoices": 400,
+    "refunded_invoices": 30,
+    "total_revenue": "15000.00",
+    "total_refunded": "1000.00"
+  }
+}
+```
+
+### Export Invoices to CSV
+**Endpoint:** `GET /invoices/admin/invoices/export/`
+**Response:** CSV file download
+
+### Search Invoices
+**Endpoint:** `GET /invoices/admin/search/`
+**Query Parameters:**
+- `q` (string): Search query
+- `status` (string): Filter by status
+- `user` (integer): Filter by user ID
+
+---
+
+## Ad Rewards Administration
+
+### List All Rewards
+**Endpoint:** `GET /ads_rewards/admin/rewards/`
+**Query Parameters:**
+- `user` (integer): Filter by user ID
+- `ad_type` (string): video, banner, interstitial
+- `start_date` (date): YYYY-MM-DD
+- `end_date` (date): YYYY-MM-DD
+
+### Grant Manual Reward
+**Endpoint:** `POST /ads_rewards/admin/rewards/grant/`
+**Input:**
+```json
+{
+  "user_id": 1,
+  "credits": 100,
+  "reason": "Bonus reward"
+}
+```
+
+### Reward Statistics
+**Endpoint:** `GET /ads_rewards/admin/rewards/stats/`
+**Output:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_rewards": 1000,
+    "total_credits_given": 50000,
+    "rewards_today": 50,
+    "rewards_by_type": {
+      "video": 800,
+      "banner": 150,
+      "interstitial": 50
+    }
+  }
+}
+```
+
+### User Reward History
+**Endpoint:** `GET /ads_rewards/admin/rewards/user_history/`
+**Query Parameters:**
+- `user_id` (integer, required): User ID
+
+### Reward Configuration
+**Endpoint:** `GET /ads_rewards/admin/config/`
+**Output:**
+```json
+{
+  "success": true,
+  "data": {
+    "credits_per_video_ad": 10,
+    "credits_per_banner_ad": 2,
+    "daily_limit": 50,
+    "cooldown_seconds": 30
+  }
+}
+```
+
+**Endpoint:** `PUT /ads_rewards/admin/config/`
+**Input:**
+```json
+{
+  "credits_per_video_ad": 15,
+  "credits_per_banner_ad": 3,
+  "daily_limit": 60,
+  "cooldown_seconds": 20
+}
+```
+
+---
+
+## System Configuration
+
+### List System Configs
+**Endpoint:** `GET /auth/admin/config/`
+**Output:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "key": "site_name",
+      "value": "AI Model System",
+      "description": "Site display name",
+      "is_encrypted": false,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+### Create System Config
+**Endpoint:** `POST /auth/admin/config/`
+**Input:**
+```json
+{
+  "key": "string (unique)",
+  "value": "string",
+  "description": "string",
+  "is_encrypted": false
+}
+```
+
+### Update System Config
+**Endpoint:** `PATCH /auth/admin/config/{id}/`
+
+### Delete System Config
+**Endpoint:** `DELETE /auth/admin/config/{id}/`
+
+---
+
+## API Provider Configuration
+
+### List Providers
+**Endpoint:** `GET /auth/admin/providers/`
+
+### Create Provider
+**Endpoint:** `POST /auth/admin/providers/`
+**Input:**
+```json
+{
+  "name": "openai",
+  "display_name": "OpenAI",
+  "api_key": "sk-...",
+  "base_url": "https://api.openai.com/v1",
+  "is_enabled": true,
+  "settings": {
+    "default_model": "gpt-4",
+    "max_tokens": 4096
+  }
+}
+```
+
+### Test Provider Connection
+**Endpoint:** `POST /auth/admin/providers/{id}/test/`
+**Output:**
+```json
+{
+  "success": true,
+  "message": "Connection successful",
+  "response_time_ms": 250
+}
+```
+
+---
+
+## Webhook Configuration
+
+### List Webhooks
+**Endpoint:** `GET /auth/admin/webhooks/`
+
+### Create Webhook
+**Endpoint:** `POST /auth/admin/webhooks/`
+**Input:**
+```json
+{
+  "name": "stripe_webhook",
+  "url": "https://example.com/webhook",
+  "secret": "whsec_...",
+  "events": ["payment.success", "payment.failed"],
+  "is_enabled": true
+}
+```
+
+### Test Webhook
+**Endpoint:** `POST /auth/admin/webhooks/{id}/test/`
+
+---
+
+## System Logs (Read-Only)
+
+### List Logs
+**Endpoint:** `GET /auth/admin/logs/`
+**Query Parameters:**
+- `level` (string): debug, info, warning, error, critical
+- `source` (string): Filter by source
+- `start_date` (datetime): ISO 8601 format
+- `end_date` (datetime): ISO 8601 format
+
+**Output:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "level": "info",
+      "message": "User login successful",
+      "source": "auth",
+      "user_id": 1,
+      "details": {"ip": "192.168.1.1"},
+      "created_at": "2024-01-01T12:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+## WebSocket Chat
+
+### Connection
+**URL:** `ws://host/ws/chat/{session_id}/?token={jwt_token}`
+
+### Message Types
+
+#### Ping/Pong (Heartbeat)
+Client sends:
+```json
+{"type": "pong"}
+```
+
+Server sends:
+```json
+{
+  "type": "ping",
+  "timestamp": "2024-01-01T12:00:00Z"
+}
+```
+
+#### Chat Message
+Client sends:
+```json
+{
+  "message": "Hello, AI!",
+  "images": ["base64_or_url"],
+  "voice": "base64_audio_data"
+}
+```
+
+Server responds:
+```json
+{
+  "type": "new_message",
+  "message": {
+    "id": 1,
+    "sender": "ai",
+    "content": "Hello! How can I help?",
+    "images": [],
+    "timestamp": "2024-01-01T12:00:00Z"
+  },
+  "remaining_credits": 950.0
+}
+```
+
+### Error Responses
+```json
+{
+  "type": "error",
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Too many messages. Please wait 30 seconds.",
+    "retry_after": 30
+  }
+}
+```
+
+### Error Codes
+| Code | Name | Description |
+|------|------|-------------|
+| 4001 | INVALID_JSON | Invalid JSON format in message |
+| 4002 | UNAUTHORIZED | Authentication required or expired |
+| 4003 | SESSION_NOT_FOUND | Chat session not found |
+| 4004 | RATE_LIMIT_EXCEEDED | Too many messages |
+| 4005 | INSUFFICIENT_CREDITS | Not enough credits |
+| 4006 | MODEL_NOT_AVAILABLE | AI model unavailable |
+| 4007 | INTERNAL_ERROR | Server error |
+| 4008 | CONNECTION_TIMEOUT | No activity timeout |
+| 4009 | INVALID_MESSAGE | Invalid message format |
+
+---
+
+## Standard Response Format
+
+### Success Response
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully",
+  "data": { ... }
+}
+```
+
+### Error Response
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable message",
+    "details": { ... }
+  }
+}
+```
+
+### Paginated Response
+```json
+{
+  "success": true,
+  "data": [ ... ],
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total_pages": 5,
+    "total_items": 100
+  }
+}
+```
+
+
+---================---
+
+
+# Multi-AI Platform - Testing Guide
+
+## Running Tests
+
+### Quick Start
+
+```bash
+# Run all tests
+python manage.py test
+
+# Run tests with test settings (recommended - faster & isolated)
+$env:DJANGO_SETTINGS_MODULE="AIModelBackend.test_settings"
+python manage.py test
+
+# Run specific app tests
+python manage.py test accounts
+python manage.py test plan
+python manage.py test ai_model
+
+# Run with verbosity
+python manage.py test --verbosity=2
+```
+
+### Test Coverage
+
+```bash
+# Install coverage
+pip install coverage
+
+# Run with coverage
+coverage run --source='.' manage.py test
+coverage report
+coverage html  # Generate HTML report
+```
+
+## Test Structure
+
+### Accounts App (`accounts/tests.py`)
+- **UserModelTests** - User creation, superuser, validation
+- **OTPModelTests** - OTP creation, expiration
+- **CreditAccountTests** - Auto-creation via signals, transactions
+- **RegisterSerializerTests** - Password validation rules
+- **RegisterAPITests** - Registration endpoint
+- **LoginAPITests** - Login endpoint
+
+### Plan App (`plan/tests.py`)
+- **PlanModelTests** - Plan creation, uniqueness
+- **SubscriptionModelTests** - Subscription lifecycle, expiration
+- **RevenueModelTests** - Revenue tracking
+- **PlanSerializerTests** - Serialization
+- **SubscriptionSerializerTests** - Validation rules
+- **PlanAPITests** - API endpoints
+
+### AI Model App (`ai_model/tests.py`)
+- **AIModelInfoTests** - Model creation, uniqueness
+- **ChatSessionTests** - Session management
+- **ChatMessageTests** - Message handling
+- **AIModelSerializerTests** - Public vs admin serializers
+- **ChatSessionSerializerTests** - Type compatibility validation
+- **AIModelAPITests** - API authentication
+- **ChatSessionAPITests** - Session isolation
+
+## Test Configuration
+
+### Test Settings (`AIModelBackend/test_settings.py`)
+
+The test settings provide:
+- **In-memory SQLite** - Faster database operations
+- **Eager Celery** - Tasks run synchronously without broker
+- **Disabled throttling** - No rate limiting during tests
+- **Null logging** - Clean test output
+- **Fast password hashing** - MD5 for speed
+
+### Test Utilities (`AIModelBackend/test_utils.py`)
+
+Helper classes available:
+- `TestUserFactory` - Creates test users
+- `AuthenticatedAPIClient` - Auto-authentication
+- `TestDataFactory` - Creates test plans, models, sessions
+- `get_auth_header()` - JWT header helper
+- `assert_error_response()` - Error format validation
+
+## Writing New Tests
+
+### Example Test
+
+```python
+from django.test import TestCase
+from rest_framework.test import APITestCase
+from rest_framework import status
+from AIModelBackend.test_utils import TestUserFactory, TestDataFactory
+
+class MyFeatureTests(APITestCase):
+    def setUp(self):
+        self.user = TestUserFactory.create_user(
+            email='test@example.com',
+            is_active=True
+        )
+        self.ai_model = TestDataFactory.create_ai_model(
+            name='Test Model',
+            model_type='chat'
+        )
+
+    def test_my_feature(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/v1/my-endpoint/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+```
+
+### Mocking Celery Tasks
+
+```python
+from unittest.mock import patch
+
+def test_with_celery_task(self):
+    with patch('myapp.views.my_task.delay') as mock_task:
+        response = self.client.post('/api/v1/endpoint/', data)
+        self.assertTrue(mock_task.called)
+```
+
+## API Endpoints Reference
+
+### Authentication
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/accounts/register/` | POST | User registration |
+| `/api/v1/accounts/activate/` | POST | Activate account |
+| `/api/v1/accounts/login/` | POST | Login (JWT tokens) |
+| `/api/v1/accounts/logout/` | POST | Logout (blacklist token) |
+| `/api/v1/accounts/forgot-password/` | POST | Request password reset |
+| `/api/v1/accounts/reset-password/` | POST | Reset password |
+
+### AI Models
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/list/` | GET | List AI models |
+| `/api/v1/list/{id}/` | GET | Get model details |
+| `/api/v1/chat/session/list/` | GET | List user sessions |
+| `/api/v1/chat/session/list/` | POST | Create session |
+| `/api/v1/chat/session/list/{id}/` | GET | Get session |
+
+### Plans
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/plan/list/` | GET | List plans |
+| `/api/v1/plan/list/{id}/` | GET | Get plan details |
+| `/api/v1/plan/webhook/` | POST | Stripe webhook |
+| `/api/v1/plan/revenue/` | GET | Revenue stats |
+
+### User Profile
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/accounts/profile/` | GET | List profiles |
+| `/api/v1/accounts/credit-account/` | GET | Get credit balance |
+| `/api/v1/accounts/transactions/` | GET | Transaction history |
+
+## Continuous Integration
+
+Recommended CI configuration:
+
+```yaml
+# .github/workflows/test.yml
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: |
+          export DJANGO_SETTINGS_MODULE=AIModelBackend.test_settings
+          python manage.py test
+```

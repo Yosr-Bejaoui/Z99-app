@@ -60,7 +60,7 @@ const GPTToolsScreen: React.FC = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title="GPT Tools" showBack />
+      <ScreenHeader title="GPT Tools" />
       <View style={styles.categories}>
         
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catScroll}>
@@ -122,17 +122,20 @@ const styles = StyleSheet.create({
   useBtn: { backgroundColor: colors.primary, padding: spacing.sm, borderRadius: borderRadius.md, alignItems: 'center' },
   useBtnText: { color: colors.foreground, fontWeight: 'bold' },
   empty: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
-  coinBadge: {
+    coinBadge: {
     backgroundColor: 'rgba(245, 158, 11, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center'},
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
   coinBadgeText: {
     color: '#F59E0B',
     fontSize: 14,
-    fontWeight: 'bold'},
+    fontWeight: 'bold',
+  },
   coinIcon: { fontSize: 12 }
 });
 

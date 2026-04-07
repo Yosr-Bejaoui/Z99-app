@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textPrimary,
   },
-  scrollContent: { padding: spacing.lg },
+  scrollContent: { gap: spacing.lg, padding: spacing.lg },
   card: { padding: spacing.lg, alignItems: 'center' },
                                                                                              
   desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
@@ -252,20 +252,18 @@ const styles = StyleSheet.create({
   resultTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.sm },
   downloadBtn: { flexDirection: 'row', backgroundColor: colors.success, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
 
-  coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    coinBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs,
-    flexShrink: 0,
+    flexDirection: 'row',
   },
   coinBadgeText: {
-    color: colors.foreground,
-    fontSize: 12,
+    color: '#F59E0B',
+    fontSize: 14,
     fontWeight: 'bold',
   },
     coinIcon: { fontSize: 12 },

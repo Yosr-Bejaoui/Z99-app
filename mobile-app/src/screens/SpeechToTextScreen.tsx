@@ -83,7 +83,7 @@ export default function SpeechToTextScreen() {
         <View style={styles.headerButton}>
           <View style={styles.coinBadge}>
             <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
-              <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
+              <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
           
       </View>
       </View>
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textPrimary,
   },
-  scrollContent: { padding: spacing.lg, paddingBottom: 100 },
+  scrollContent: { gap: spacing.lg, padding: spacing.lg, paddingBottom: 100 },
   
   segmentedControl: {
     flexDirection: 'row', backgroundColor: 'transparent',
@@ -282,18 +282,20 @@ segmentTextActive: { color: '#10a37f' },
   transcriptText: { fontSize: 16, color: colors.textPrimary, lineHeight: 26, marginBottom: spacing.lg },
   transcriptActions: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.md, gap: spacing.lg },
   actionBtn: { flexDirection: 'row', alignItems: 'center' },
-  actionBtnText: { marginLeft: 6, fontSize: 14, fontWeight: '600', color: colors.primary },
-  coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+  actionBtnText: { marginLeft: spacing.sm, fontSize: 14, fontWeight: '600', color: colors.primary },
+    coinBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs,
-    flexShrink: 0,
+    flexDirection: 'row',
   },
-  coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },
+  coinBadgeText: {
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   coinIcon: { fontSize: 12 }
 });

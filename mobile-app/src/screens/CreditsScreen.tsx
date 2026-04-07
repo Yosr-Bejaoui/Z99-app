@@ -23,6 +23,8 @@ import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import { creditsService, planService, getErrorMessage } from '../services';
 import type { CreditAccount, Transaction, CreditPackage } from '../services/types';
+import { Skeleton } from '../components/ui/Skeleton';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 
 interface UsageStat {
   icon: keyof typeof Ionicons.glyphMap;
@@ -161,7 +163,7 @@ const CreditsScreen: React.FC = () => {
   if (isLoading) {
       return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
-          <View style={{ padding: 16, gap: 16 }}>
+          <View style={{ padding: spacing.lg, gap: 16 }}>
             <Skeleton width="100%" height={160} borderRadius={16} />
             <Skeleton width="100%" height={240} borderRadius={16} />
           </View>
@@ -519,7 +521,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     backgroundColor: 'rgba(45, 212, 191, 0.15)',
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingVertical: spacing.sm,
     borderRadius: 20,
   },
   planBadgeText: {

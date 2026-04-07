@@ -391,13 +391,11 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  scrollContent: {
-    flexGrow: 1,
+  scrollContent: { gap: spacing.lg, flexGrow: 1,
     padding: spacing.xl,
     paddingTop: 60,
   },
-  content: {
-    flex: 1,
+  content: { gap: spacing.lg, flex: 1,
   },
   backButton: {
     position: 'absolute',
@@ -528,7 +526,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.surface,
     borderRadius: 12,
-    paddingVertical: 14,
+    paddingVertical: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
   },

@@ -138,7 +138,7 @@ export default function VoiceCloningScreen() {
         <View style={styles.headerButton}>
           <View style={styles.coinBadge}>
             <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
-              <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
+              <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
           
       </View>
       </View>
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textPrimary,
   },
-  scrollContent: {
+  scrollContent: { gap: spacing.lg,
     padding: spacing.lg,
     paddingBottom: 100,
   },
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: spacing.md,
-    marginBottom: spacing.md,
+    
   },
   uploadArea: {
     alignItems: 'center',
@@ -413,10 +413,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    
   },
   sliderContainer: {
-    marginBottom: spacing.md,
+    
   },
   sliderHeader: {
     flexDirection: 'row',
@@ -448,12 +448,12 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: spacing.md,
+    
   },
   playerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    
   },
   playButton: {
     width: 48,
@@ -505,17 +505,19 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    coinBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs,
-    flexShrink: 0,
+    flexDirection: 'row',
   },
-  coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },
+  coinBadgeText: {
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   coinIcon: { fontSize: 12 },
 });

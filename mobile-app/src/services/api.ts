@@ -60,8 +60,8 @@ const buildFallbackApiBaseUrls = (currentBaseUrl: string): string[] => {
     currentOrigin,
     bundleHost ? `http://${bundleHost}:8000` : null,
     webHost ? `http://${webHost}:8000` : null,
-    'http://10.0.2.2:8000',
-    'http://127.0.0.1:8000',
+    'http://10.214.117.121:8000',
+    'http://10.214.117.121:8000',
     'http://localhost:8000',
   ].filter((v): v is string => !!v);
 

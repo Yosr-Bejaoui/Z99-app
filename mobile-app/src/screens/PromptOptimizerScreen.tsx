@@ -156,7 +156,7 @@ const PromptOptimizerScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <ScreenHeader title="Prompt Optimizer" showBack />
+      <ScreenHeader title="Prompt Optimizer" />
         <ScrollView contentContainerStyle={styles.scrollContent}>
          <GlassCard style={styles.card}>
             <Text style={styles.title}>AI Prompt Optimizer</Text>
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   },
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: 20, fontWeight: '600', color: colors.textPrimary },
-  scrollContent: { padding: spacing.lg },
+  scrollContent: { gap: spacing.lg, padding: spacing.lg },
   card: { padding: spacing.lg, alignItems: 'center' },
   title: { fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.sm },
   desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
@@ -223,18 +223,20 @@ const styles = StyleSheet.create({
   },
   resultText: { color: colors.textPrimary, fontSize: 16, lineHeight: 24 },
   copyBtn: { flexDirection: 'row', backgroundColor: colors.primary, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
-  coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    coinBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs,
-    flexShrink: 0,
+    flexDirection: 'row',
   },
-  coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },
+  coinBadgeText: {
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   coinIcon: { fontSize: 12 }
 });
 export default PromptOptimizerScreen;

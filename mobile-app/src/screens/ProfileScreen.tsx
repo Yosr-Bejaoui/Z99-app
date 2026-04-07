@@ -715,7 +715,7 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    padding: spacing.md,
   },
   infoIcon: {
     width: 36,
@@ -724,7 +724,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(45, 212, 191, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: spacing.md,
   },
   infoContent: {
     flex: 1,
@@ -746,8 +746,8 @@ const styles = StyleSheet.create({
   },
   upgradeButton: {
     backgroundColor: 'rgba(45, 212, 191, 0.15)',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderRadius: 16,
   },
   upgradeButtonText: {
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
   settingsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    padding: spacing.md,
   },
   settingsIcon: {
     width: 36,
@@ -769,7 +769,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: spacing.md,
   },
   settingsLabel: {
     flex: 1,
@@ -799,7 +799,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderRadius: 16,
-    paddingVertical: 14,
+    paddingVertical: spacing.md,
     gap: spacing.sm,
     marginBottom: spacing.lg,
   },
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderRadius: 12,
     paddingHorizontal: spacing.lg,
-    paddingVertical: 14,
+    paddingVertical: spacing.md,
     fontSize: 16,
     color: colors.textPrimary,
     borderWidth: 1,
@@ -861,7 +861,7 @@ const styles = StyleSheet.create({
   saveButton: {
     backgroundColor: colors.primary,
     borderRadius: 12,
-    paddingVertical: 14,
+    paddingVertical: spacing.md,
     alignItems: 'center',
     marginTop: spacing.sm,
   },
@@ -910,7 +910,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     backgroundColor: colors.surface,
     borderRadius: 12,
-    paddingVertical: 14,
+    paddingVertical: spacing.md,
     alignItems: 'center',
     marginTop: spacing.sm,
     borderWidth: 1,
@@ -925,7 +925,7 @@ const styles = StyleSheet.create({
   languageOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    padding: spacing.md,
     borderRadius: 12,
     marginBottom: spacing.xs,
   },
@@ -934,7 +934,7 @@ const styles = StyleSheet.create({
   },
   languageFlag: {
     fontSize: 24,
-    marginRight: 14,
+    marginRight: spacing.md,
   },
   languageTextContainer: {
     flex: 1,

@@ -249,7 +249,7 @@ const TextToSpeechScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title="Text To Speech" showBack />
+      <ScreenHeader title="Text To Speech" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
+  scrollContent: { gap: spacing.lg,
     padding: spacing.lg,
     paddingBottom: 100,
   },
@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    paddingVertical: 14,
+    paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderRadius: 12,
     backgroundColor: colors.card,

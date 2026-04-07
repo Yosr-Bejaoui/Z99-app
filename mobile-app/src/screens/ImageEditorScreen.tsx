@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
-    paddingVertical: 15,
+    paddingVertical: spacing.md,
     },
   title: {
     fontSize: 20,
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
   toolButton: {
     width: '31%',
     alignItems: 'center',
-    padding: 14,
+    padding: spacing.md,
     borderRadius: 12,
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
   processingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 40},
+    padding: spacing.xxl},
   processingText: {
     color: colors.foreground,
     fontSize: 16,
@@ -605,17 +605,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500'},
 
-  coinBadge: {
+    coinBadge: {
     backgroundColor: 'rgba(245, 158, 11, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center'},
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
   coinBadgeText: {
     color: '#F59E0B',
     fontSize: 14,
-    fontWeight: 'bold'},
+    fontWeight: 'bold',
+  },
 
   iconButton: {
     padding: spacing.xs,

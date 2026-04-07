@@ -387,7 +387,7 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
         return <CustomGPTLibraryScreen />;
       case 'GPTToolsScreen':
         return <GPTToolsScreen />;
-            case 'VideoUpscalerScreen':
+      case 'VideoUpscalerScreen':
         return <VideoUpscalerScreen />;
       case 'ImageUpscalerScreen':
         return <ImageUpscalerScreen />;
@@ -399,6 +399,16 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
         return <VoiceCloningScreen />;
       case 'TextToVideoScreen':
         return <TextToVideoScreen />;
+      case 'ImageToVideoScreen':
+        return <ImageToVideoScreen />;
+      case 'ImageWatermarkRemoverScreen':
+        return <ImageWatermarkRemoverScreen />;
+      case 'TextRemoverScreen':
+        return <TextRemoverScreen />;
+      case 'BackgroundGenScreen':
+        return <BackgroundGenScreen />;
+      case 'VideoWatermarkRemoverScreen':
+        return <VideoWatermarkRemoverScreen />;
       case 'ProfileScreen':
         return <ProfileScreen navigation={navigation} />;
       default:

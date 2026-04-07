@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
   languageOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    padding: spacing.md,
     borderRadius: 12,
     marginBottom: spacing.xs,
   },
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   },
   languageFlag: {
     fontSize: 24,
-    marginRight: 14,
+    marginRight: spacing.md,
   },
   languageTextContainer: {
     flex: 1,

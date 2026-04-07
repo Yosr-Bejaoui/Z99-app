@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   dropdownContainer: { width: '100%', marginTop: spacing.xl },
   dropdownLabel: { color: colors.white, fontSize: 14, fontWeight: '600',  },
   resolutionRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  resOption: { flex: 1, marginHorizontal: spacing.xs, paddingVertical: 10, borderRadius: 8, backgroundColor: colors.backgroundTertiary, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
+  resOption: { flex: 1, marginHorizontal: spacing.xs, paddingVertical: spacing.sm, borderRadius: 8, backgroundColor: colors.backgroundTertiary, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
   resOptionActive: { borderColor: colors.primary, backgroundColor: colors.cardHover },
   resText: { color: colors.textSecondary, fontWeight: '600' },
   resTextActive: { color: colors.primaryLight, fontWeight: '700' },
@@ -241,8 +241,8 @@ const styles = StyleSheet.create({
   },
     splitLeft: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: spacing.md },
     splitRight: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: spacing.md, alignItems: 'flex-end' },
-  splitLabel: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, borderRadius: 4, marginTop: 40 },
-  splitLabelRight: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, borderRadius: 4, marginTop: 40 },
+  splitLabel: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: spacing.sm, borderRadius: 4, marginTop: spacing.xxl },
+  splitLabelRight: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: spacing.sm, borderRadius: 4, marginTop: spacing.xxl },
   
   sliderHandle: { position: 'absolute', top: 0, bottom: 0, left: '50%', width: 2, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
   sliderLine: { width: 2, height: '100%', backgroundColor: colors.white },
@@ -252,9 +252,9 @@ const styles = StyleSheet.create({
   
   timeBadge: { position: 'absolute', bottom: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6, zIndex: 20 },
   timeText: { color: colors.white, fontSize: 12, fontWeight: '600' },
-  previewPill: { position: 'absolute', top: 12, left: 12, backgroundColor: colors.primary, paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: 20, zIndex: 20 },
+  previewPill: { position: 'absolute', top: 12, left: 12, backgroundColor: colors.primary, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 20, zIndex: 20 },
   previewText: { color: colors.white, fontSize: 12, fontWeight: '700' },
-  fullscreenIcon: { position: 'absolute', bottom: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.4)', padding: 6, borderRadius: 8, zIndex: 20 },
+  fullscreenIcon: { position: 'absolute', bottom: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.4)', padding: spacing.sm, borderRadius: 8, zIndex: 20 },
 
   toggleOptions: { marginTop: spacing.lg, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 20, backgroundColor: colors.backgroundTertiary },
   toggleOptionsText: { color: colors.textSecondary, fontWeight: '600' },
@@ -265,30 +265,33 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: spacing.lg,
     borderWidth: 1, borderColor: colors.backgroundTertiary,
-    marginTop: 10
+    marginTop: spacing.sm
   },
   optionsHeader: { color: colors.white, fontSize: 16, fontWeight: '600',  },
   actionBtn: { backgroundColor: colors.backgroundTertiary, paddingVertical: spacing.md, borderRadius: 10, alignItems: 'center' },
   actionBtnText: { color: colors.white, fontSize: 16, fontWeight: '600' },
 
-  bottomBar: { padding: spacing.lg, paddingBottom: 30, backgroundColor: 'transparent' },
+  bottomBar: { padding: spacing.lg, paddingBottom: spacing.xxl, backgroundColor: 'transparent' },
   ctaButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     height: 56, borderRadius: 28, position: 'relative'
   },
   ctaText: { color: colors.white, fontSize: 18, fontWeight: '700' },
-  badgeText: { position: 'absolute', right: 16, color: colors.warning, fontSize: 14, fontWeight: '700', backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: 10, paddingVertical: spacing.xs, borderRadius: 12 },
-  coinBadge: {
+  badgeText: { position: 'absolute', right: 16, color: colors.warning, fontSize: 14, fontWeight: '700', backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 12 },
+    coinBadge: {
     backgroundColor: 'rgba(245, 158, 11, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center'},
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
   coinBadgeText: {
     color: '#F59E0B',
     fontSize: 14,
-    fontWeight: 'bold'},
+    fontWeight: 'bold',
+  },
   coinIcon: { fontSize: 12 },
 
   iconButton: {

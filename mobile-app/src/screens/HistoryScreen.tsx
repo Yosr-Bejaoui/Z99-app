@@ -23,6 +23,8 @@ import { HistoryEmptyState } from '../components/EmptyState';
 import { historyService, mediaService, getErrorMessage } from '../services';
 import type { HistoryItem } from '../services/types';
 import GlassCard from '../components/GlassCard';
+import { SkeletonList } from '../components/ui/Skeleton';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 
 type FilterType = 'all' | 'chat' | 'image' | 'video' | 'audio' | '3d';
 
@@ -356,7 +358,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = () => {
 
       {/* Loading State */}
       {isLoading && (
-          <View style={{ padding: 16 }}>
+          <View style={{ padding: spacing.lg }}>
             <SkeletonList count={5} height={120} spacing={16} />
           </View>
         )}
@@ -505,8 +507,8 @@ const styles = StyleSheet.create({
   filterTab: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
     borderRadius: 14,
     backgroundColor: colors.surface,
     gap: spacing.xs,
@@ -560,7 +562,7 @@ const styles = StyleSheet.create({
   },
   itemContent: {
     flex: 1,
-    marginLeft: 14,
+    marginLeft: spacing.md,
   },
   itemTitle: {
     fontSize: 15,

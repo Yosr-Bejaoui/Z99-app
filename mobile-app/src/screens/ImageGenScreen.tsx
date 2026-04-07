@@ -327,7 +327,7 @@ const ImageGenScreen: React.FC = () => {
   const renderModelSelector = () => {
     if (isLoadingModels) {
         return (
-          <View style={{ paddingVertical: 16, paddingHorizontal: 4 }}>
+          <View style={{ paddingVertical: spacing.lg, paddingHorizontal: spacing.xs }}>
             <SkeletonList count={3} height={60} spacing={12} />
           </View>
         );
@@ -838,7 +838,7 @@ const styles = StyleSheet.create({
     top: 50,
     right: 20,
     zIndex: 10,
-    padding: 10},
+    padding: spacing.sm},
   imageViewerImage: {
     width: width - 40,
     height: width - 40,
@@ -855,17 +855,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500'},
 
-  coinBadge: {
+    coinBadge: {
     backgroundColor: 'rgba(245, 158, 11, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center'},
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
   coinBadgeText: {
     color: '#F59E0B',
     fontSize: 14,
-    fontWeight: 'bold'},
+    fontWeight: 'bold',
+  },
 
   iconButton: {
     padding: spacing.xs,

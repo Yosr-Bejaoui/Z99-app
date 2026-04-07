@@ -382,11 +382,11 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  scrollContent: {
+  scrollContent: { gap: spacing.lg,
     flexGrow: 1,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.lg,
-    paddingBottom: 40,
+    paddingBottom: spacing.xxl,
   },
   backButton: {
     width: 44,
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   progressLineActive: {
     backgroundColor: colors.primary,
   },
-  content: {
+  content: { gap: spacing.lg,
     flex: 1,
     alignItems: 'center',
     paddingTop: spacing.lg,
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: spacing.xxl,
-    paddingHorizontal: 10,
+    paddingHorizontal: spacing.sm,
   },
   inputCard: {
     width: '100%',

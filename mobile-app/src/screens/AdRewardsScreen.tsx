@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
+  scrollContent: { gap: spacing.lg,
     padding: spacing.lg,
     paddingBottom: 100,
   },
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.xxl,
-    paddingVertical: 14,
+    paddingVertical: spacing.md,
     borderRadius: 25,
     minWidth: 180,
   },

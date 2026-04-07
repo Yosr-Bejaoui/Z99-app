@@ -162,8 +162,7 @@ const styles = StyleSheet.create({
   placeholder: {
     width: 40,
   },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
+  scrollContent: { gap: spacing.lg, paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxl,
   },
   sectionTitle: {

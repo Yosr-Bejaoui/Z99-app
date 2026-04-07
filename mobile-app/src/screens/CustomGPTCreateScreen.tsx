@@ -10,6 +10,7 @@ import {
   Switch,
   Alert,
 } from 'react-native';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCredits } from '../context';
@@ -62,18 +63,7 @@ const CustomGPTCreateScreen: React.FC = ({ route, navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{isEditing ? 'Edit Custom GPT' : 'Create Custom GPT'}</Text>
-        <View style={styles.headerButton}>
-          <View style={styles.coinBadge}>
-            <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
-              <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
-          </View>
-        </View>
-      </View>
+      <ScreenHeader title={isEditing ? "Edit Custom GPT" : "Create Custom GPT"} showBack={true} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
          <GlassCard style={styles.card}>

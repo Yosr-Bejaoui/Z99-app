@@ -292,8 +292,8 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
-    paddingBottom: 40,
+  scrollContent: { gap: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   loadingContainer: {
     flex: 1,
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingVertical: spacing.sm,
     borderRadius: 20,
     gap: spacing.xs,
   },
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
   period: {
     fontSize: 14,
     color: colors.textMuted,
-    marginBottom: 6,
+    marginBottom: spacing.sm,
     marginLeft: 2,
   },
   planDescription: {
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
-    paddingHorizontal: 40,
+    paddingHorizontal: spacing.xxl,
   },
   emptyTitle: {
     fontSize: 20,

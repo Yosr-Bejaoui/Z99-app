@@ -153,7 +153,7 @@ const TextRemoverScreen: React.FC = () => {
         <View style={styles.headerButton}>
           <View style={styles.coinBadge}>
             <Text style={styles.coinIcon}>??</Text>
-              <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
+              <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
           
       </View>
       </View>
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: 20, fontWeight: '600', color: colors.textPrimary },
-  scrollContent: { padding: spacing.lg },
+  scrollContent: { gap: spacing.lg, padding: spacing.lg },
   card: { padding: spacing.lg, alignItems: 'center' },
   title: { fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.sm },
   desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
@@ -227,20 +227,18 @@ const styles = StyleSheet.create({
   resultTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.sm },
   downloadBtn: { flexDirection: 'row', backgroundColor: colors.success, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
 
-  coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    coinBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs,
-    flexShrink: 0,
+    flexDirection: 'row',
   },
   coinBadgeText: {
-    color: colors.foreground,
-    fontSize: 12,
+    color: '#F59E0B',
+    fontSize: 14,
     fontWeight: 'bold',
   },
     coinIcon: { fontSize: 12 },
