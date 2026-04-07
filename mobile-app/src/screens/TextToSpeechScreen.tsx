@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { ScreenHeader } from "../components/ui/ScreenHeader";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
@@ -248,17 +249,12 @@ const TextToSpeechScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Text To Speech" showBack />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Text to Speech</Text>
-          <Text style={styles.headerSubtitle}>Convert text into natural voice</Text>
-        </View>
-
         {/* Text Input */}
         <GlassCard style={styles.textCard}>
           <View style={styles.textHeader}>

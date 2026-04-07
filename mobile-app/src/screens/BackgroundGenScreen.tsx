@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { ScreenHeader } from "../components/ui/ScreenHeader";
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -152,18 +153,8 @@ const BackgroundGenScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={28} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Generate Background</Text>
-        <View style={styles.iconButton}>
-          <View style={styles.coinBadge}>
-             <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
-          </View>
-        </View>
-      </View>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScreenHeader title="Background Generator" showBack />
+        <ScrollView contentContainerStyle={styles.scrollContent}>
          <GlassCard style={styles.card}>
             
             <Text style={styles.desc}>Replace the background of your image automatically.</Text>

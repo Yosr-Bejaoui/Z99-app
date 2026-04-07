@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { ScreenHeader } from "../components/ui/ScreenHeader";
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
@@ -155,20 +156,8 @@ const PromptOptimizerScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Prompt Optimizer</Text>
-          <View style={styles.headerButton}>
-            <View style={styles.coinBadge}>
-              <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
-              <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
-            
-      </View>
-      </View>
-      </View>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScreenHeader title="Prompt Optimizer" showBack />
+        <ScrollView contentContainerStyle={styles.scrollContent}>
          <GlassCard style={styles.card}>
             <Text style={styles.title}>AI Prompt Optimizer</Text>
             <Text style={styles.desc}>Enhance your simple ideas into highly detailed prompts.</Text>

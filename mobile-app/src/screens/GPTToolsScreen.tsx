@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
+  ScrollView, SafeAreaView,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { ScreenHeader } from "../components/ui/ScreenHeader";
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius } from '../theme';
 import GlassCard from '../components/GlassCard';
@@ -60,19 +60,7 @@ const GPTToolsScreen: React.FC = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>GPT Tools</Text>
-          <View style={styles.headerButton}>
-            <View style={styles.coinBadge}>
-              <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
-              <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
-            </View>
-          </View>
-      </View>
-
+      <ScreenHeader title="GPT Tools" showBack />
       <View style={styles.categories}>
         
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catScroll}>
@@ -116,8 +104,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
-    borderBottomWidth: 1, borderBottomColor: colors.border,
-  },
+    borderBottomWidth: 1, borderBottomColor: colors.border},
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: 20, fontWeight: '600', color: colors.textPrimary },
   categories: { borderBottomWidth: 1, borderBottomColor: colors.border, paddingVertical: spacing.sm },
@@ -136,17 +123,16 @@ const styles = StyleSheet.create({
   useBtnText: { color: colors.foreground, fontWeight: 'bold' },
   empty: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
   coinBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    flexShrink: 0,
-  },
-  coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },
+    justifyContent: 'center'},
+  coinBadgeText: {
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: 'bold'},
   coinIcon: { fontSize: 12 }
 });
 
