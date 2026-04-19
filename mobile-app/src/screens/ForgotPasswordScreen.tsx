@@ -273,7 +273,7 @@ const ForgotPasswordScreen: React.FC = () => {
         </View>
       </GlassCard>
 
-      <GlassCard style={[styles.inputCard, { marginTop: spacing.md }]}>
+      <GlassCard style={[styles.inputCard, { marginTop: spacing.sm }]}>
         <View style={styles.inputContainer}>
           <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
           <TextInput
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -441,19 +441,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.foreground,
     textAlign: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   subtitle: {
     fontSize: 16,
     color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.sm,
     paddingHorizontal: spacing.sm,
   },
   inputCard: {
     width: '100%',
-    marginBottom: 0,
+    marginBottom: spacing.xs,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontSize: 14,
     textAlign: 'center',
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     marginBottom: spacing.sm,
   },
   button: {
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textMuted,
     textAlign: 'center',
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
   },
   resendLink: {
     color: colors.primary,

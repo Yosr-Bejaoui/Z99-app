@@ -119,7 +119,7 @@ export const DrawerContent: React.FC<DrawerContentProps> = ({
       {/* Brand Header */}
       <View style={styles.brandHeader}>
         <Ionicons name="sparkles" size={24} color={colors.primary} />
-        <Text style={styles.brandName}>{t('app.name')}</Text>
+        <Text style={styles.brandName}>Z99</Text>
       </View>
 
       {/* Primary Section */}

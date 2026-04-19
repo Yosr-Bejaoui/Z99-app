@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
   cardTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, flex: 1 },
   cost: { fontSize: 12, color: colors.warning, fontWeight: 'bold' },
-  cardDesc: { color: colors.textMuted, marginBottom: spacing.md },
+  cardDesc: { color: colors.textMuted, marginBottom: spacing.sm },
   useBtn: { backgroundColor: colors.primary, padding: spacing.sm, borderRadius: borderRadius.md, alignItems: 'center' },
   useBtnText: { color: colors.foreground, fontWeight: 'bold' },
   empty: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },

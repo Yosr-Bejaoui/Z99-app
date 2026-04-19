@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import * as Haptics from 'expo-haptics';
 import {
   View,
   Text,
@@ -57,7 +58,10 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   return (
     <Animated.View style={{ transform: [{ scale: scaleValue }], width: style?.width }}>
       <TouchableOpacity 
-        onPress={onPress} 
+        onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onPress();
+      }} 
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         activeOpacity={0.85} 

@@ -191,8 +191,29 @@ export const creditsService = {
     total_used: number;
   }> {
     try {
-      const response = await api.get('/accounts/transactions/');
-      const transactions = Array.isArray(response.data) ? response.data : response.data.results || [];
+      let allTransactions: any[] = [];
+      let url = '/accounts/transactions/';
+      let pagesFetched = 0;
+      const MAX_PAGES = 20;
+
+      while (url && pagesFetched < MAX_PAGES) {
+        // Use relative URL to avoid origin issues if backend returns full URL
+        if (url.startsWith('http')) {
+          const urlObj = new URL(url);
+          url = urlObj.pathname + urlObj.search;
+        }
+
+        const response = await api.get(url);
+        
+        if (Array.isArray(response.data)) {
+          allTransactions = allTransactions.concat(response.data);
+          url = '';
+        } else {
+          allTransactions = allTransactions.concat(response.data.results || []);
+          url = response.data.next || '';
+        }
+        pagesFetched++;
+      }
       
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -203,7 +224,7 @@ export const creditsService = {
 
       let today_used = 0, week_used = 0, month_used = 0, total_used = 0;
 
-      for (const tx of transactions) {
+      for (const tx of allTransactions) {
         const amount = Math.abs(tx.amount || 0);
         const isDebit = (tx.transaction_type === 'deduct' || tx.transaction_type === 'debit' || tx.type === 'debit' || tx.amount < 0);
         if (!isDebit) continue;
@@ -217,9 +238,10 @@ export const creditsService = {
 
       return { today_used, week_used, month_used, total_used };
     } catch (error) {
+      console.warn('Failed to fetch complete usage stats: ', error);
       return { today_used: 0, week_used: 0, month_used: 0, total_used: 0 };
     }
-  },
+  }
 };
 
 function transformTransaction(data: any): Transaction {

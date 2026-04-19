@@ -208,12 +208,13 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   dateLabel: {
     fontSize: 12,
     color: colors.textMuted,
     fontWeight: '500',
+    marginBottom: spacing.sm,
   },
   dateValue: {
     fontSize: 14,
@@ -222,10 +223,10 @@ const styles = StyleSheet.create({
   },
   contentCard: {
     padding: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   section: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   sectionTitle: {
     fontSize: 16,
@@ -246,8 +247,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textMuted,
     textAlign: 'center',
-    marginBottom: spacing.lg,
-    marginTop: spacing.md,
+    marginBottom: spacing.md,
+    marginTop: spacing.sm,
   },
 });
 

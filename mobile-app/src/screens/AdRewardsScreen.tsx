@@ -372,11 +372,12 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   mainCard: {
     alignItems: 'center',
     paddingVertical: spacing.xxl,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   rewardIconContainer: {
     width: 80,
@@ -385,7 +386,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary + '20',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   creditsPerAd: {
     fontSize: 32,
@@ -418,13 +419,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   progressCard: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   progressTitle: {
     fontSize: 16,
@@ -437,7 +438,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   progressBarContainer: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   progressBarBg: {
     height: 8,
@@ -488,6 +489,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 12,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   recentSection: {
     marginBottom: spacing.xl,
@@ -496,10 +498,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   recentList: {
-    padding: 0,
+    padding: spacing.xs,
     overflow: 'hidden',
   },
   recentItem: {
@@ -529,7 +531,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: colors.foreground,
-    marginBottom: 2,
+    marginBottom: spacing.xs,
   },
   recentDate: {
     fontSize: 12,
@@ -544,7 +546,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   stepsCard: {
-    padding: 0,
+    padding: spacing.xs,
   },
   step: {
     flexDirection: 'row',

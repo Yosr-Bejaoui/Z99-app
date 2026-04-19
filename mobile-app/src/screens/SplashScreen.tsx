@@ -77,7 +77,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       </Animated.View>
 
       <Animated.View style={[styles.textContainer, { opacity: textFadeAnim }]}>
-        <Text style={styles.appName}>{t('app.name')}</Text>
+        <Text style={styles.appName}>Z99</Text>
         <Text style={styles.tagline}>Powered by AI</Text>
       </Animated.View>
 

@@ -403,7 +403,7 @@ const ImageGenScreen: React.FC = () => {
 
         {/* Prompt Input */}
         <GlassCard style={styles.promptCard}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm }}>
             <Text style={styles.sectionTitle}>{t('imageGen.prompt.title')}</Text>
             <Text style={{ color: colors.textMuted, fontSize: 12 }}>{prompt.length}/2000</Text>
           </View>
@@ -675,7 +675,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: colors.textPrimary,
-    },
+    marginBottom: spacing.sm,
+  },
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -693,7 +694,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center'},
   modelScroll: {
-    gap: spacing.sm},
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
   modelButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -720,7 +723,9 @@ const styles = StyleSheet.create({
   styleGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm},
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
   styleButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -742,7 +747,9 @@ const styles = StyleSheet.create({
     color: colors.primary},
   resolutionRow: {
     flexDirection: 'row',
-    gap: spacing.sm},
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
   resolutionButton: {
     flex: 1,
     alignItems: 'center',
@@ -821,7 +828,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.lg},
+    marginTop: spacing.md},
   emptyStateSubtext: {
     color: colors.textMuted,
     fontSize: 14,

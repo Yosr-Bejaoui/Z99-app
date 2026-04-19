@@ -39,18 +39,23 @@ const faqData: FAQItem[] = [
   },
   {
     id: '2',
-    question: 'How does the credit system work?',
-    answer: 'Credits are used for AI responses and image generation. Free users get monthly credits, Pro users get unlimited access.',
+    question: 'How are my credit usages calculated?',
+    answer: 'Every action you take (text, images, audio, video) costs credits. Your Usage Statistics on the Credits screen track these deeply across your entire history natively.',
   },
   {
     id: '3',
-    question: 'How do I upgrade to Pro?',
-    answer: 'Go to Credits tab and tap "Upgrade to Pro". You can cancel anytime.',
+    question: 'How do I send credits to a friend?',
+    answer: 'Go to the Donate Credits screen, enter your friend’s registered email address, and securely transfer your credits to them instantly.',
   },
   {
     id: '4',
-    question: 'How do I reset my password?',
-    answer: 'Use "Forgot Password" on the login screen to receive a reset code via email.',
+    question: 'How do I earn referral bonuses?',
+    answer: 'Use the "Invite a Friend" tab inside the side menu. When people sign up using your referral link, you immediately earn bonus credits!',
+  },
+  {
+    id: '5',
+    question: 'How do I manage generated audio and video files?',
+    answer: 'All generated audio and video files are securely saved in your History. Use the filter tabs on the History screen to sort by Audio or Video at any time.',
   },
 ];
 
@@ -169,8 +174,8 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
     color: colors.foreground,
-    marginBottom: spacing.md,
-    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+    marginTop: spacing.sm,
   },
   faqCard: {
     marginBottom: spacing.sm,
@@ -191,7 +196,7 @@ const styles = StyleSheet.create({
   faqAnswer: {
     fontSize: typography.fontSizes.sm,
     color: colors.foregroundMuted,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     lineHeight: 20,
   },
   contactCard: {
@@ -219,7 +224,7 @@ const styles = StyleSheet.create({
   contactSubtitle: {
     fontSize: typography.fontSizes.sm,
     color: colors.foregroundMuted,
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
 });
 

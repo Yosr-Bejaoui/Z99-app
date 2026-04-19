@@ -153,7 +153,7 @@ const errorStyles = StyleSheet.create({
     flex: 1,
   },
   errorText: {
-    color: '#fff',
+    color: 'white',
     fontSize: 16,
     marginBottom: 20,
   },

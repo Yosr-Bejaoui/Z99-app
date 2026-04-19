@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,11 +21,50 @@ import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import { planService, Plan } from '../services/planService';
 
+// `react-native-iap` is native-only; importing it on web breaks bundling/runtime.
+// Load it lazily so the web build can run.
+const iap: any = Platform.OS === 'web' ? null : require('react-native-iap');
+
+const withIAPContext: any = iap?.withIAPContext ?? ((C: any) => C);
+const useIAP: any =
+  iap?.useIAP ??
+  (() => ({
+    connected: false,
+    products: [],
+    getProducts: async () => {},
+    finishTransaction: async () => {},
+  }));
+
+const requestPurchase: any =
+  iap?.requestPurchase ??
+  (async () => {
+    throw new Error('In-app purchases are not supported on web.');
+  });
+
+const purchaseErrorListener: any =
+  iap?.purchaseErrorListener ??
+  (() => ({
+    remove() {},
+  }));
+
+const purchaseUpdatedListener: any =
+  iap?.purchaseUpdatedListener ??
+  (() => ({
+    remove() {},
+  }));
+
 const { width } = Dimensions.get('window');
 
 const SubscriptionPlansScreen: React.FC = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const {
+    connected,
+    products,
+    getProducts,
+    finishTransaction,
+  } = useIAP();
+
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +74,47 @@ const SubscriptionPlansScreen: React.FC = () => {
     fetchPlans();
   }, []);
 
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      return;
+    }
+
+    // Setup listeners for IAP events
+    const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase: any) => {
+      const receipt = purchase.transactionReceipt;
+      if (receipt && selectedPlan) {
+        try {
+          setIsLoading(true);
+          // Backend verification
+          await planService.verifyGooglePurchase(
+             selectedPlan.id, 
+             purchase.purchaseToken || receipt, 
+             purchase.productId
+          );
+          // Tell Google we've processed the payment successfully
+          await finishTransaction({ purchase, isConsumable: true });
+          Alert.alert(t('subscription.success.title') || 'Success', t('subscription.success.message') || 'Credits added!');
+        } catch (err) {
+          console.error(err);
+          Alert.alert('Verification Failed', 'Could not verify the purchase with our server.');
+        } finally {
+          setIsLoading(false);
+          await fetchPlans();
+        }
+      }
+    });
+
+    const purchaseErrorSubscription = purchaseErrorListener((error: any) => {
+      console.warn('Purchase error', error);
+      setIsLoading(false);
+    });
+
+    return () => {
+      purchaseUpdateSubscription.remove();
+      purchaseErrorSubscription.remove();
+    };
+  }, [selectedPlan, connected, finishTransaction, t]);
+
   const fetchPlans = async () => {
     try {
       const fetchedPlans = await planService.getPlans();
@@ -42,6 +123,11 @@ const SubscriptionPlansScreen: React.FC = () => {
         // Select the middle plan (usually the "popular" one)
         const middleIndex = Math.floor(fetchedPlans.length / 2);
         setSelectedPlan(fetchedPlans[middleIndex] || fetchedPlans[0]);
+      }
+      // Fetch dynamic products from the stores matching your Django backend plan_codes
+      const skus = fetchedPlans.map(p => p.plan_code);
+      if (connected && skus.length > 0) {
+        await getProducts({ skus });
       }
     } catch (error) {
       console.error('Failed to fetch plans:', error);
@@ -60,15 +146,19 @@ const SubscriptionPlansScreen: React.FC = () => {
   const handlePurchase = async () => {
     if (!selectedPlan) return;
 
-    // In-app purchases require a native payment sheet (Google Play Billing / Apple IAP).
-    // Sending a fabricated token to the checkout endpoint is a security risk — the server
-    // could award credits without real payment if validation is not strict.
-    // Show an informational message until the payment SDK is integrated.
-    Alert.alert(
-      t('subscription.comingSoon.title') || 'Coming Soon',
-      t('subscription.comingSoon.message') ||
-        'In-app purchases are not yet available in this version. Please contact support to purchase credits.',
-    );
+    if (Platform.OS === 'web') {
+      Alert.alert('Not supported', 'In-app purchases are not available on web.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await requestPurchase({ skus: [selectedPlan.plan_code] });
+    } catch (err: any) {
+      console.error(err.code, err.message);
+      setIsLoading(false);
+      Alert.alert('Error', err.message || 'Failed to initialize purchase.');
+    }
   };
 
   const formatCredits = (credits: number): string => {
@@ -301,7 +391,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
     fontSize: 16,
     color: colors.textMuted,
   },
@@ -333,6 +423,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textMuted,
     marginTop: spacing.xs,
+    marginBottom: spacing.sm,
   },
   plansContainer: {
     paddingHorizontal: spacing.lg,
@@ -373,7 +464,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   planName: {
     fontSize: 22,
@@ -405,12 +496,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textMuted,
     marginBottom: spacing.sm,
-    marginLeft: 2,
+    marginLeft: spacing.xs,
   },
   planDescription: {
     fontSize: 14,
     color: colors.textMuted,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
     lineHeight: 20,
   },
   divider: {
@@ -452,7 +543,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: colors.foreground,
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
   },
   emptySubtitle: {
     fontSize: 14,
@@ -468,13 +559,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: 16,
     padding: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   ctaLabel: {
     fontSize: 12,
     color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+    marginBottom: spacing.sm,
   },
   ctaValue: {
     fontSize: 18,
@@ -483,7 +575,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   ctaButton: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   ctaDisclaimer: {
     fontSize: 12,
@@ -498,7 +590,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: colors.foreground,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     textAlign: 'center',
   },
   benefitsGrid: {
@@ -528,7 +620,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.foreground,
     textAlign: 'center',
+    marginBottom: spacing.sm,
   },
 });
 
-export default SubscriptionPlansScreen;
+export default withIAPContext(SubscriptionPlansScreen);

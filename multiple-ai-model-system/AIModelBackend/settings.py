@@ -24,13 +24,21 @@ BASE_URL = config('BASE_URL', default='http://localhost:8000')
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
+#for google authentication
+# You can set multiple client IDs based on your Expo config.
+GOOGLE_CLIENT_IDS = [
+    os.environ.get("EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID", "placeholder-web.apps.googleusercontent.com"),
+    os.environ.get("EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID", "placeholder-ios.apps.googleusercontent.com"),
+    os.environ.get("EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID", "placeholder-android.apps.googleusercontent.com"),
+]
+
 
 
 
 #for google pay billing 
 
 GOOGLE_SERVICE_ACCOUNT_FILE = os.path.join(BASE_DIR, "google_service_account.json")
-GOOGLE_PACKAGE_NAME = "com.yourapp.ai" # your app’s actual package name
+GOOGLE_PACKAGE_NAME = "com.aimodel.mobile" # your app's actual package name
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/

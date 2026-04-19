@@ -1,0 +1,144 @@
+# Z99 AI Model Platform - Developer Documentation
+
+> **Notice:** This document is intended for any new developer or freelancer taking over the project. It provides a complete overview of the system architecture, the three core applications, local setup instructions, and the roadmap of pending tasks.
+
+## 1. Project Overview
+Z99 is a comprehensive platform acting as a unified hub for multiple AI services (Chat, Image Generation, Voice tools, and Video Generation) using a credits-based monetization system.
+
+**Technology Stack:**
+- **Backend:** Python 3.10+, Django, Django REST Framework, Celery, Redis, Django Channels (WebSockets).
+- **Mobile App:** React Native (Expo), React Navigation, Axios, Native IAP (
+eact-native-iap).
+- **Admin Dashboard:** React, Vite, TailwindCSS.
+
+## 2. Architecture & Data Flow
+To protect the system and ensure a scalable billing model, the architecture operates under these strict rules:
+
+1. **AI Model API Keys:** The mobile app and dashboard *never* hold API keys (OpenAI, DeepSeek, Google, etc.).
+2. **The API Gateway (Django):** The mobile app makes REST or WebSocket requests back to our Django API.
+3. **Credit Checks:** Before any prompt is sent to an AI provider, Django intercepts it, checks if the user has enough "Credits", deducts the cost, and then executes the downstream AI request.
+4. **Asynchronous Generation:** For heavy tasks, the API returns a quick HTTP 202 Task Started. Background Python workers (Celery + Redis) handle the heavy lifting. The mobile app receives the completed URL via WebSockets or polling.
+
+**Purchasing Flow:**
+1. The Expo App uses 
+eact-native-iap to securely interact with Google Play/Apple.
+2. Upon success, the app receives a cryptographic receipt payload.
+3. The app sends this receipt via POST /api/plan/verify/ to the backend.
+4. The backend verifies the receipt with Google/Apple servers (google_service_account.json).
+5. Only then does the database add credits to the user's wallet.
+
+## 3. Repository Structure
+
+`	ext
+root/
+├── admin-dashboard/          # React Vite Admin Panel
+├── mobile-app/               # Expo React Native App
+└── multiple-ai-model-system/ # Django Backend
+    ├── AIModelBackend/       # Django Settings & URL configs
+    ├── accounts/             # User auth, profiles, wallet
+    ├── ads_rewards/          # Ad reward logic for free credits
+    ├── ai_model/             # AI API integration logic (Core logic)
+    ├── invoices/             # Billing & transaction records
+    └── plan/                 # Subscription plans definitions
+`
+
+## 4. Local Setup & Launch Guide
+
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- Redis (Required for Celery and WebSockets)
+
+### A. Network Setup (CRUCIAL for Mobile Testing)
+For the mobile app to talk to the local backend on your phone, both devices MUST be on the same WiFi network, and IPs must match.
+1. Find your PC's IP Address (e.g., 192.168.1.50).
+2. **Backend**: Open multiple-ai-model-system/.env and update:
+   ALLOWED_HOSTS=127.0.0.1,localhost,192.168.1.50
+   BASE_URL='http://192.168.1.50:8000'
+3. **Mobile**: Open mobile-app/src/services/config.ts and set:
+   const configuredApiBaseUrl = 'http://192.168.1.50:8000/api/v1';
+
+### B. Booting the Servers
+You need 4 terminals running concurrently:
+
+**Terminal 1: Redis**
+`ash
+docker run -p 6379:6379 -d redis:7.0-alpine
+`
+
+**Terminal 2: Django Backend**
+`ash
+cd multiple-ai-model-system
+.venv\Scripts\Activate
+python manage.py runserver 0.0.0.0:8000
+`
+
+**Terminal 3: Celery Workers**
+`ash
+cd multiple-ai-model-system
+.venv\Scripts\Activate
+celery -A AIModelBackend worker -l info
+`
+
+**Terminal 4: Expo App**
+`ash
+cd mobile-app
+npm install
+npx expo start --lan
+`
+
+**Terminal 5: Admin Dashboard (Optional)**
+`ash
+cd admin-dashboard
+npm run dev
+`
+
+### C. Test Accounts
+Use these credentials to test the system locally without creating new accounts:
+
+- **Mobile App (End User / IAP Testing):**
+  - **Email:** yosrbejaoui42@gmail.com
+  - **Password:** Z99Login@2026
+
+- **Admin Dashboard (Superuser):**
+  - **Email:** dmin@admin.com
+  - **Password:** Admin@123
+
+## 5. Pending Tasks & Roadmap
+
+**🚨 CRITICAL DESIGN CHANGE:**
+The client wants to change the mobile app's design to match this new Figma file:
+[Figma Link: Multi-Model-Ai](https://www.figma.com/design/MAisLt6A8OszHNWmeQ36YQ/Multi-Model-Ai?node-id=0-1&p=f&t=3JEYFY5fvljl8uWJ-0)
+
+1. **Payment Webhooks** (multiple-ai-model-system/ai_model/webhook.py): Complete the TODO inside webhook logic to handle callbacks from long-running AI generation services.
+2. **In-App Purchases Testing**: Run eas build --platform android --profile preview to test the payment flow on a physical device. Configure Google Play Console product SKUs to match Django's PlanModels.
+3. **Push Notifications**: Implement Expo Push Notifications. Send a push notification when a background Celery task completes.
+4. **Production CI/CD**: Move away from manage.py runserver. Setup Nginx, Gunicorn/Uvicorn, SSL, and a GitHub Actions pipeline.
+5. **API Error Handling**: External APIs rate-limit requests. Implement retry logic or silent failovers (e.g., OpenAI -> Google Gemini) so users receive a response after spending credits.
+6. **Testing**: Write unit tests for Django's wallet deduction logic and E2E tests for the React Native app.
+
+## 6. Common Issues & Troubleshooting
+
+- **Mobile App shows "Network Error" on login:**
+  Your PC's local IP address likely changed. Check and update multiple-ai-model-system/.env and mobile-app/src/services/config.ts with your new local IP, then restart the Expo bundler.
+
+- **Fast Crash / 500 Error in Metro (AppEntry.bundle missing):**
+  This happens due to a severe syntax error in the React Native code. Run this to see the Babel traceback:
+  curl -v "http://localhost:8081/node_modules/expo/AppEntry.bundle?platform=web&dev=true"
+
+- **"Redis Connection Error" in Django logs:**
+  Ensure Docker (or Redis) is running on port 6379. Without Redis, WebSockets and Celery will immediately fail.
+
+- **AI Generation timed out (HTTP 504):**
+  Ensure the separate Celery worker terminal is running. Long-running AI prompts must not run on the main Django HTTP threads. Sync requests will timeout after 30-60s on Nginx/Gunicorn.
+
+## 7. Deep Dive into Django Apps (Backend Breakdown)
+- **accounts/**: Handles Custom User models, Google OAuth (google_auth.py), user profiles, and the Wallet system.
+- **ads_rewards/**: Manages the reward logic when users watch Google AdMob ads. Grants 'free credits' in exchange for ad impressions.
+- **ai_model/**: The core core engine. Contains integrations for:
+  - openai_func.py, deepseek.py, al_ai.py, google_func.py, groq_func.py, leonardo.py, wavespeedai.py.
+  - Also contains separate folders for specific tasks: image_edit, 	ext_to_video, speech_to_text.py, etc.
+  - consumers.py & 
+outing.py: Django Channels logic for the WebSocket connections used to stream prompt results back to the app in real-time.
+- **invoices/**: Tracks users' billing history and transactions.
+- **plan/**: Holds the Subscription Plan tiers (Pro, Premium, etc.). Matches the SKUs configured in Apple/Google developer consoles.

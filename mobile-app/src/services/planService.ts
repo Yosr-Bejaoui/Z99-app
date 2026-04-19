@@ -51,9 +51,10 @@ export const planService = {
   },
 
   // Initiate Google Pay purchase
-  async verifyGooglePurchase(purchaseToken: string, productId: string): Promise<any> {
+  async verifyGooglePurchase(planId: number, purchaseToken: string, productId: string): Promise<any> {
     try {
       const response = await api.post('/plan/checkout/google-pay/', {
+        plan: planId,
         purchase_token: purchaseToken,
         product_id: productId,
       });

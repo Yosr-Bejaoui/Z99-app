@@ -177,7 +177,7 @@ const BackgroundGenScreen: React.FC = () => {
                     title={isProcessing ? "Processing..." : `Generate (${model?.base_cost || 20} credits)`}
                     onPress={processImage}
                     disabled={isProcessing}
-                    style={{ marginTop: spacing.lg }}
+                    style={{ marginTop: spacing.md }}
                     icon={isProcessing ? <ActivityIndicator color={colors.white} /> : <Ionicons name="color-palette" size={20} color={colors.white} />}
                 />
             )}
@@ -189,7 +189,7 @@ const BackgroundGenScreen: React.FC = () => {
                      <GradientButton
                          title="Download"
                          onPress={downloadResult}
-                         style={{ marginTop: spacing.md }}
+                         style={{ marginTop: spacing.sm }}
                          icon={<Ionicons name="download-outline" size={20} color={colors.white} />}
                      />
                 </View>
@@ -224,24 +224,25 @@ const styles = StyleSheet.create({
   scrollContent: { gap: spacing.lg, padding: spacing.lg },
   card: { padding: spacing.lg, alignItems: 'center' },
                                                                                              
-  desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
+  desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.sm },
   imageSelector: {
       width: '100%', aspectRatio: 1, borderRadius: borderRadius.lg,
       borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', borderStyle: 'solid',
       overflow: 'hidden', backgroundColor: colors.surface,
-      marginBottom: spacing.md
+      marginBottom: spacing.sm,
+    marginTop: spacing.sm,
   },
   previewImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   placeholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  placeholderText: { color: colors.textMuted, marginTop: spacing.md },
+  placeholderText: { color: colors.textMuted, marginTop: spacing.sm },
   input: {
       width: '100%', backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)',
       borderRadius: 20, padding: spacing.md, color: colors.textPrimary,
-      minHeight: 80, textAlignVertical: 'top', marginTop: spacing.md
+      minHeight: 80, textAlignVertical: 'top', marginTop: spacing.sm
   },
   resultContainer: { width: '100%', marginTop: spacing.xl },
   resultTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.sm },
-  downloadBtn: { flexDirection: 'row', backgroundColor: colors.success, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
+  downloadBtn: { flexDirection: 'row', backgroundColor: colors.success, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
 
     coinBadge: {
     backgroundColor: 'rgba(245, 158, 11, 0.1)',

@@ -314,7 +314,7 @@ const VideoEffectsScreen: React.FC = () => {
               <GlassCard key={video.id} style={styles.resultCard}>
                 {video.status === 'processing' ? (
                   <View style={styles.processingContainer}>
-                    <Skeleton width="100%" height={140} borderRadius={12} style={{ marginBottom: spacing.lg }} />
+                    <Skeleton width="100%" height={140} borderRadius={12} style={{ marginBottom: spacing.md }} />
                       <Text style={styles.processingText}>Processing video...</Text>
                   </View>
                 ) : (
@@ -390,6 +390,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   videoCard: {
     
@@ -398,7 +399,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    
+    marginBottom: spacing.sm,
   },
   uploadButton: {
     alignItems: 'center',
@@ -414,7 +415,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   uploadSubtext: {
     color: colors.textMuted,
@@ -444,6 +445,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
+    marginTop: spacing.md,
   },
   effectButton: {
     width: '48%',
@@ -474,7 +476,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
   effectLabelSelected: {
     color: colors.primary,
@@ -490,6 +492,7 @@ const styles = StyleSheet.create({
   resultCard: {
     
     overflow: 'hidden',
+    marginTop: spacing.sm,
   },
   processingContainer: {
     alignItems: 'center',
@@ -500,7 +503,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
   },
   resultVideo: {
     width: '100%',
@@ -512,7 +515,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   resultEffect: {
     color: colors.primary,
@@ -523,7 +526,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingTop: spacing.lg,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },

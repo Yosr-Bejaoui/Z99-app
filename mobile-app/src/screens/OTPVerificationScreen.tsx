@@ -280,6 +280,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 22,
+    marginBottom: spacing.sm,
   },
   email: {
     color: colors.primary,
@@ -318,7 +319,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderRadius: borderRadius.sm,
     padding: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   errorText: {
     color: colors.error,

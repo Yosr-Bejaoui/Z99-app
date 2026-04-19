@@ -585,7 +585,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: colors.textMuted,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     fontSize: 15,
   },
   // AUDIT FIX 4a - Connection banner styles
@@ -623,7 +623,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   bottomSheetTitle: {
     fontSize: 20,
@@ -698,7 +698,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   emptyTitle: {
     fontSize: 22,
@@ -744,7 +744,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     paddingHorizontal: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     gap: spacing.sm,
   },
   typingAvatar: {
@@ -762,7 +762,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
   typingDots: {
     flexDirection: 'row',

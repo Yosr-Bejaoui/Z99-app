@@ -459,17 +459,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs},
   headerSubtitle: {
     fontSize: 16,
-    color: colors.textMuted},
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+  },
   imageCard: {
     },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    },
+    marginBottom: spacing.sm,
+  },
   imageButtons: {
     flexDirection: 'row',
-    gap: spacing.lg},
+    gap: spacing.lg,
+    marginTop: spacing.sm,
+  },
   imageButton: {
     flex: 1,
     alignItems: 'center',
@@ -529,7 +534,9 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 12,
     fontWeight: '500',
-    textAlign: 'center'},
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+  },
   toolLabelSelected: {
     color: colors.primary},
   promptCard: {
@@ -542,7 +549,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     minHeight: 60,
     borderWidth: 1,
-    borderColor: colors.border},
+    borderColor: colors.border,
+    marginTop: spacing.md,
+  },
   optionScroll: {
     gap: 10},
   modelButton: {
@@ -563,7 +572,9 @@ const styles = StyleSheet.create({
     color: colors.primary},
   processButtonContainer: {
     marginVertical: spacing.lg},
-  resultCard: {overflow: 'hidden'},
+  resultCard: {overflow: 'hidden',
+    marginTop: spacing.sm,
+  },
   processingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -572,7 +583,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.lg},
+    marginTop: spacing.md},
   resultImage: {
     width: '100%',
     height: 200,
@@ -582,7 +593,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing.md},
+    marginTop: spacing.sm},
   resultTool: {
     color: colors.primary,
     fontSize: 14,
@@ -591,7 +602,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingTop: spacing.lg,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.border},
   actionButton: {

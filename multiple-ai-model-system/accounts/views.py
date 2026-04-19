@@ -225,6 +225,10 @@ class GoogleLoginAPIView(APIView):
         if not email:
             return Response({"error": "Email not found in Google token"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Verify audience (Client ID) against all authorized platforms
+        if google_data.get("aud") not in settings.GOOGLE_CLIENT_IDS:
+            return Response({"error": f"Invalid token audience. Expected one of our client IDs, got {google_data.get('aud')}"}, status=status.HTTP_400_BAD_REQUEST)
+
         # Get or create user
         user = get_or_create_google_user(google_data)
 

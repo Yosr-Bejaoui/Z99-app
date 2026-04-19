@@ -139,14 +139,16 @@ const styles = StyleSheet.create({
     coinBadgeText: { color: colors.warning, fontSize: 12, fontWeight: '700' },
   coinIcon: { fontSize: 12 },  scrollContent: { padding: spacing.lg },
   card: { padding: spacing.lg },
-  label: { fontSize: 14, fontWeight: '600', color: colors.textSecondary, marginBottom: spacing.xs, marginTop: spacing.md },
+  label: { fontSize: 14, fontWeight: '600', color: colors.textSecondary, marginBottom: spacing.sm, marginTop: spacing.sm },
   input: {
       backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border,
       borderRadius: borderRadius.md, padding: spacing.md, color: colors.textPrimary,
   },
   textArea: { minHeight: 120, textAlignVertical: 'top' },
-  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.lg },
-  switchLabel: { fontSize: 16, color: colors.textPrimary }
+  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.md },
+  switchLabel: { fontSize: 16, color: colors.textPrimary,
+    marginBottom: spacing.sm,
+  }
 });
 
 export default CustomGPTCreateScreen;

@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as DocumentPicker from 'expo-document-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius } from '../theme';
+import ScreenHeader from '../components/ui/ScreenHeader';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import { useCredits, useDrawer } from '../context';
@@ -68,27 +69,8 @@ export default function SpeechToTextScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.headerButton} 
-          onPress={openDrawer}
-          accessibilityRole="button"
-          accessibilityLabel="Open Menu"
-        >
-          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
-        </TouchableOpacity>
-        
-        <Text style={styles.headerTitle}>Speech to Text</Text>
-        
-        <View style={styles.headerButton}>
-          <View style={styles.coinBadge}>
-            <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
-              <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
-          
-      </View>
-      </View>
-      </View>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScreenHeader title="Speech to Text" />
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Toggle Mode */}
         <View style={styles.segmentedControl}>

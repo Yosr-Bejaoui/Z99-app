@@ -354,12 +354,13 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 15,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   formCard: {
     padding: spacing.xl,
   },
   inputContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   inputLabel: {
     fontSize: 14,
@@ -383,7 +384,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginLeft: spacing.md,
     fontSize: 16,
-    paddingVertical: 0,
+    paddingVertical: spacing.xs,
   },
   forgotPassword: {
     alignSelf: 'flex-end',
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderRadius: borderRadius.sm,
     padding: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   errorText: {
     color: colors.error,

@@ -38,7 +38,7 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({ title, showBack, rig
       
       <Text style={styles.title} numberOfLines={1}>{title}</Text>
       
-      <View style={[styles.iconButtonRight, {flexDirection: "row", gap: spacing.sm, width: "auto"}]}>
+      <View style={[styles.iconButtonRight, {flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: spacing.sm, width: "auto"}]}>
         {rightAction}
         <View style={styles.coinBadge}>
           <Text style={styles.coinBadgeText}>{"\uD83E\uDE99"} {credits?.credits || 0}</Text>

@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   warningIconContainer: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   warningTitle: {
     fontSize: 18,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   point: {
     flexDirection: 'row',
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   inputGroup: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   inputLabel: {
     fontSize: 14,
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ef444415',
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     gap: spacing.sm,
   },
   submitErrorText: {
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ef4444',
     borderRadius: borderRadius.md,
     paddingVertical: spacing.md,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
     gap: spacing.sm,
   },
   deleteButtonDisabled: {
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textMuted,
     textAlign: 'center',
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
 });
 

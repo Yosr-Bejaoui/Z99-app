@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     backgroundColor: `${colors.primary}20`,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   infoTitle: {
     fontSize: 18,
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   inputGroup: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   inputLabel: {
     fontSize: 14,
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ef444415',
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     gap: spacing.sm,
   },
   submitErrorText: {
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   submitButton: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   cancelButton: {
     backgroundColor: colors.surface,

@@ -80,14 +80,14 @@ const DonateScreen: React.FC = () => {
           <View style={styles.headerButton}>
             <View style={styles.coinBadge}>
               <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
-              <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
+              <Text style={styles.coinBadgeText}>{credits?.credits || 0}</Text>
             </View>
           </View>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
             <GlassCard style={styles.card}>
-                <View style={{ alignItems: 'center', marginBottom: spacing.lg }}>
+                <View style={{ alignItems: 'center', marginBottom: spacing.md }}>
                    <Ionicons name="gift-outline" size={48} color={colors.primary} />
                 </View>
             <Text style={styles.title}>Send Credits to a Friend</Text>
@@ -181,10 +181,10 @@ const styles = StyleSheet.create({
   card: { padding: spacing.xl, alignItems: 'center' },
   iconContainer: {
       width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(16, 185, 129, 0.1)',
-      alignItems: 'center', justifyContent: 'center', marginBottom: spacing.lg
+      alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md
   },
   title: { fontSize: 22, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.xs },
-  desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
+  desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.sm },
   balanceContainer: {
       flexDirection: 'row', justifyContent: 'space-between', width: '100%',
       backgroundColor: colors.backgroundSecondary, padding: spacing.md,
@@ -192,8 +192,8 @@ const styles = StyleSheet.create({
   },
   balanceText: { color: colors.textSecondary, fontSize: 16 },
   balanceValue: { color: colors.primary, fontWeight: 'bold', fontSize: 16 },
-  inputContainer: { width: '100%', marginBottom: spacing.lg },
-  inputLabel: { color: colors.textSecondary, fontSize: 14, marginBottom: spacing.xs, fontWeight: '500' },
+  inputContainer: { width: '100%', marginBottom: spacing.md },
+  inputLabel: { color: colors.textSecondary, fontSize: 14, marginBottom: spacing.sm, fontWeight: '500' },
   inputWrapper: {
       flexDirection: 'row', alignItems: 'center', backgroundColor: colors.backgroundSecondary,
       borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border,

@@ -48,18 +48,23 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ navigation }) => {
   const features: FeatureItem[] = [
     {
       icon: 'chatbubbles-outline',
-      label: t('landing.features.multiModelChat'),
-      desc: t('landing.features.multiModelChatDesc'),
+      label: t('landing.features.multiModelChat', 'Multi-Model Chat'),
+      desc: t('landing.features.multiModelChatDesc', 'Access top AI like GPT-4, Claude & Gemini.'),
     },
     {
       icon: 'image-outline',
-      label: t('landing.features.imageGeneration'),
-      desc: t('landing.features.imageGenerationDesc'),
+      label: t('landing.features.imageGeneration', 'Image Generation'),
+      desc: t('landing.features.imageGenerationDesc', 'Create stunning images with DALL·E.'),
     },
     {
-      icon: 'flash-outline',
-      label: t('landing.features.creditSystem'),
-      desc: t('landing.features.creditSystemDesc'),
+      icon: 'videocam-outline',
+      label: t('landing.features.videoAudio', 'Audio & Video AI'),
+      desc: t('landing.features.videoAudioDesc', 'Generate ultra-realistic voiceovers and videos.'),
+    },
+    {
+      icon: 'people-outline',
+      label: t('landing.features.community', 'Refer & Donate'),
+      desc: t('landing.features.communityDesc', 'Invite friends to earn credits and share them with the community.'),
     },
   ];
 
@@ -229,14 +234,33 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ navigation }) => {
           </View>
         </View>
 
+        {/* About Us Sub-Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About Us</Text>
+          <Text style={styles.description}>
+            Z99 is a robust multi-modal AI hub that democratizes access to cutting-edge models out there. 
+            From generating code with Claude to making ultra-realistic voice clips, we believe in community and shared artificial intelligence.
+          </Text>
+        </View>
+
+        {/* Small FAQ Sub-Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Need Help?</Text>
+          <Text style={[styles.featureDesc, {textAlign: 'center', marginBottom: spacing.sm, color: colors.foregroundSecondary, paddingHorizontal: spacing.md}]}>
+            - Want to earn credits? Use the Referral link when you register.{"\n"}
+            - Tracking credits? Use the comprehensive Credits history layout inside.{"\n"}
+            - More questions? Reach out to support from the Help center after logging in!
+          </Text>
+        </View>
+
         {/* Footer */}
         <View style={styles.footer}>
           <View style={styles.footerBrand}>
             <Ionicons name="sparkles" size={24} color={colors.primary} />
-            <Text style={styles.footerBrandName}>{t('app.name')}</Text>
+            <Text style={styles.footerBrandName}>Z99</Text>
           </View>
           <Text style={styles.footerCopyright}>
-            © 2026 {t('app.name')}. All rights reserved.
+            © 2026 Z99. All rights reserved.
           </Text>
         </View>
       </ScrollView>
@@ -270,7 +294,7 @@ const styles = StyleSheet.create({
   },
   heroContainer: {
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   heroTitle: {
     fontSize: typography.fontSizes['5xl'],
@@ -290,7 +314,7 @@ const styles = StyleSheet.create({
     color: colors.foregroundSecondary,
     textAlign: 'center',
     lineHeight: 28,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.sm,
     paddingHorizontal: spacing.md,
   },
   ctaContainer: {
@@ -325,7 +349,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
   featureDesc: {
     color: colors.foregroundMuted,
@@ -347,7 +371,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.md,
     color: colors.foregroundSecondary,
     textAlign: 'center',
-    marginBottom: spacing.xl,
+    marginBottom: spacing.sm,
   },
   modelsGrid: {
     flexDirection: 'row',
@@ -394,7 +418,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   footerBrandName: {
     fontSize: typography.fontSizes.lg,

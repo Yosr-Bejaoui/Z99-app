@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { colors, borderRadius, spacing } from '../theme';
 
 interface GlassCardProps {
@@ -14,20 +15,25 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   variant = 'default',
 }) => {
   return (
-    <View style={[
-      styles.card, 
-      variant === 'elevated' && styles.elevated,
-      variant === 'outlined' && styles.outlined,
-      style
-    ]}>
+    <BlurView
+      tint="dark"
+      intensity={variant === 'elevated' ? 40 : 25}
+      style={[
+        styles.card, 
+        variant === 'elevated' && styles.elevated,
+        variant === 'outlined' && styles.outlined,
+        style,
+        { overflow: 'hidden' }
+      ]}
+    >
       {children}
-    </View>
+    </BlurView>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.card,
+    backgroundColor: 'rgba(20, 20, 20, 0.4)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.07)',
     shadowColor: 'rgba(0,0,0,0.4)',

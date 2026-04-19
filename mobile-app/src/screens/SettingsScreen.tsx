@@ -395,12 +395,12 @@ const styles = StyleSheet.create({
     color: colors.foregroundMuted,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    marginTop: spacing.xl,
+    marginTop: spacing.md,
     marginBottom: spacing.md,
     marginLeft: spacing.xs,
   },
   section: {
-    padding: 0,
+    padding: spacing.xs,
     overflow: 'hidden',
   },
   settingItem: {
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   settingSubtitle: {
     fontSize: typography.fontSizes.sm,
     color: colors.foregroundMuted,
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
   divider: {
     height: 1,
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
   languageEnglishName: {
     fontSize: 13,
     color: colors.foregroundMuted,
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
   languageTextActive: {
     color: colors.primary,

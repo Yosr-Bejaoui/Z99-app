@@ -336,7 +336,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = () => {
         style={styles.filterScrollContainer}
         contentContainerStyle={styles.filterContainer}
       >
-        {(['all', 'chat', 'image'] as FilterType[]).map((f) => (
+        {(['all', 'chat', 'image', 'audio', 'video'] as FilterType[]).map((f) => (
           <TouchableOpacity
             key={f}
             style={[styles.filterTab, filter === f && styles.filterTabActive]}
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surface,
     marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     borderRadius: 12,
     paddingHorizontal: spacing.md,
     gap: spacing.sm,
@@ -476,13 +476,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     color: colors.textPrimary,
     fontSize: 15,
+    marginTop: spacing.sm,
   },
   errorCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
     marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderColor: colors.error,
     gap: spacing.sm,
@@ -620,7 +621,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   modalTitle: {
     fontSize: 18,
@@ -632,7 +633,7 @@ const styles = StyleSheet.create({
   previewImage: {
     width: '100%',
     height: 200,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   modalDetails: {
     paddingHorizontal: spacing.lg,
@@ -646,6 +647,7 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: 14,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   detailValue: {
     fontSize: 14,
@@ -666,7 +668,7 @@ const styles = StyleSheet.create({
   modalActions: {
     flexDirection: 'row',
     paddingHorizontal: spacing.lg,
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
     gap: spacing.md,
   },
   actionButton: {

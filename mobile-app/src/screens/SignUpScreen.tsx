@@ -429,12 +429,13 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   formCard: {
     padding: spacing.xl,
   },
   inputContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   inputLabel: {
     fontSize: 14,
@@ -494,7 +495,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 107, 107, 0.1)',
     borderRadius: 8,
     padding: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   errorText: {
     color: '#ff6b6b',

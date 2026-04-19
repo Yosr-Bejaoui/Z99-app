@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     paddingTop: spacing.sm,
   },
   headerTitle: {
@@ -630,7 +630,7 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   avatarGradient: {
     width: 90,
@@ -671,7 +671,7 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 14,
     color: colors.textMuted,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   quickStats: {
     flexDirection: 'row',
@@ -694,6 +694,7 @@ const styles = StyleSheet.create({
   quickStatLabel: {
     fontSize: 12,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   quickStatDivider: {
     width: 1,
@@ -707,7 +708,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   infoCard: {
     padding: spacing.xs,
@@ -732,7 +733,7 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: 12,
     color: colors.textMuted,
-    marginBottom: 2,
+    marginBottom: spacing.sm,
   },
   infoValue: {
     fontSize: 15,
@@ -776,6 +777,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.textPrimary,
     fontWeight: '500',
+    marginBottom: spacing.sm,
   },
   settingsDivider: {
     height: 1,
@@ -801,7 +803,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: spacing.md,
     gap: spacing.sm,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   signOutText: {
     fontSize: 16,
@@ -840,7 +842,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   inputContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   inputLabel: {
     fontSize: 14,
@@ -888,7 +890,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: 12,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   subscriptionText: {
     fontSize: 12,
@@ -947,7 +949,7 @@ const styles = StyleSheet.create({
   languageEnglishName: {
     fontSize: 13,
     color: colors.textMuted,
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
   languageTextActive: {
     color: colors.primary,

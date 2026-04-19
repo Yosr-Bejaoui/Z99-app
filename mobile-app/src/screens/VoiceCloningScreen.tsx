@@ -15,6 +15,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius } from '../theme';
+import ScreenHeader from '../components/ui/ScreenHeader';
 import GlassCard from '../components/GlassCard';
 import GradientButton from '../components/GradientButton';
 import { useCredits, useDrawer } from '../context';
@@ -123,27 +124,8 @@ export default function VoiceCloningScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.headerButton} 
-          onPress={openDrawer}
-          accessibilityRole="button"
-          accessibilityLabel="Open Menu"
-        >
-          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
-        </TouchableOpacity>
-        
-        <Text style={styles.headerTitle}>Voice Cloning</Text>
-        
-        <View style={styles.headerButton}>
-          <View style={styles.coinBadge}>
-            <Text style={styles.coinIcon}>{"\uD83E\uDE99"}</Text>
-              <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
-          
-      </View>
-      </View>
-      </View>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScreenHeader title="Voice Cloning" />
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Step 1: Upload */}
           <Text style={styles.sectionTitle}>Voice Sample</Text>
         <GlassCard style={styles.card}>
@@ -318,7 +300,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textPrimary,
     marginBottom: spacing.sm,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   card: {
     padding: spacing.md,
@@ -371,7 +353,7 @@ const styles = StyleSheet.create({
   fileSize: {
     color: colors.textSecondary,
     fontSize: 12,
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
   removeBtn: {
     padding: spacing.xs,
@@ -380,6 +362,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 16,
     minHeight: 120,
+    marginTop: spacing.md,
   },
   charCounter: {
     color: colors.textSecondary,
@@ -388,7 +371,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   horizontalScroll: { flexGrow: 0 },
-  chipContainer: { paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xs, marginBottom: spacing.md },
+  chipContainer: { paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xs, marginBottom: spacing.sm },
   chip: {
     paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
     backgroundColor: colors.surface, borderRadius: 20,
@@ -406,7 +389,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginTop: spacing.sm,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
     marginLeft: spacing.lg,
   },
   settingRow: {
@@ -427,6 +410,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 14,
     fontWeight: '500',
+    marginBottom: spacing.sm,
   },
   settingValue: {
     color: colors.primary,
@@ -439,7 +423,7 @@ const styles = StyleSheet.create({
   },
   resultCard: {
     padding: spacing.lg,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     backgroundColor: colors.surface + 'CC',
     borderColor: colors.primary + '40',
     borderWidth: 1,
@@ -481,6 +465,7 @@ const styles = StyleSheet.create({
   durationLabel: {
     color: colors.textSecondary,
     fontSize: 12,
+    marginBottom: spacing.sm,
   },
   actionRow: {
     flexDirection: 'row',

@@ -175,7 +175,7 @@ const PromptOptimizerScreen: React.FC = () => {
                 title={isProcessing ? "Optimizing..." : `Optimize Prompt (${model?.base_cost || 5} credits)`}
                 onPress={processPrompt}
                 disabled={isProcessing || !prompt.trim()}
-                style={{ marginTop: spacing.lg, width: '100%' }}
+                style={{ marginTop: spacing.md, width: '100%' }}
                 icon={isProcessing ? <ActivityIndicator color={colors.white} /> : <Ionicons name="flash-outline" size={20} color={colors.white} />}
             />
 
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   scrollContent: { gap: spacing.lg, padding: spacing.lg },
   card: { padding: spacing.lg, alignItems: 'center' },
   title: { fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.sm },
-  desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
+  desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.sm },
   input: {
       width: '100%', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border,
       borderRadius: borderRadius.md, padding: spacing.md, color: colors.textPrimary,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
       borderRadius: borderRadius.md, padding: spacing.md, minHeight: 100
   },
   resultText: { color: colors.textPrimary, fontSize: 16, lineHeight: 24 },
-  copyBtn: { flexDirection: 'row', backgroundColor: colors.primary, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
+  copyBtn: { flexDirection: 'row', backgroundColor: colors.primary, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
     coinBadge: {
     backgroundColor: 'rgba(245, 158, 11, 0.1)',
     paddingHorizontal: 8,

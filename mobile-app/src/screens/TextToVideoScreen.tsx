@@ -196,7 +196,7 @@ const TextToVideoScreen: React.FC = () => {
 
         {/* Prompt Input */}
         <GlassCard style={styles.promptCard}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm }}>
             <Text style={styles.sectionTitle}>Describe your video</Text>
             <Text style={{ color: colors.textMuted, fontSize: 12 }}>{prompt.length}/2000</Text>
           </View>
@@ -374,6 +374,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   promptCard: {
     
@@ -382,7 +383,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    
+    marginBottom: spacing.sm,
   },
   promptInput: {
     backgroundColor: colors.backgroundTertiary,
@@ -393,6 +394,7 @@ const styles = StyleSheet.create({
     minHeight: 100,
     borderWidth: 1,
     borderColor: colors.border,
+    marginTop: spacing.md,
   },
   section: {
     
@@ -403,6 +405,7 @@ const styles = StyleSheet.create({
   optionRow: {
     flexDirection: 'row',
     gap: 10,
+    marginTop: spacing.md,
   },
   optionButton: {
     paddingHorizontal: spacing.lg,
@@ -485,7 +488,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
   },
   generatingSubtext: {
     color: colors.textMuted,
@@ -501,7 +504,7 @@ const styles = StyleSheet.create({
   videoPrompt: {
     color: colors.textMuted,
     fontSize: 13,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
 });
 

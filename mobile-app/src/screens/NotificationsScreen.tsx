@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.error,
     borderRadius: 12,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: spacing.xs,
     minWidth: 24,
     alignItems: 'center',
   },
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: 12,
     padding: spacing.xs,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   tab: {
     flex: 1,
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
   actionsBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   actionButton: {
     flexDirection: 'row',
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   retryButton: {
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: colors.foreground,
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
   },
   emptySubtitle: {
     fontSize: 14,
@@ -651,7 +651,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: colors.foreground,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
   },
   settingRow: {
     flexDirection: 'row',
@@ -674,11 +674,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     color: colors.foreground,
+    marginBottom: spacing.sm,
   },
   settingDescription: {
     fontSize: 13,
     color: colors.textMuted,
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
 });
 

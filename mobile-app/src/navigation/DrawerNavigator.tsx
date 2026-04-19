@@ -27,6 +27,7 @@ import ReferralScreen from '../screens/ReferralScreen';
 import TextRemoverScreen from '../screens/TextRemoverScreen';
 import BackgroundGenScreen from '../screens/BackgroundGenScreen';
 import VideoUpscalerScreen from '../screens/VideoUpscalerScreen';
+import VideoEffectsScreen from '../screens/VideoEffectsScreen';
 import VideoWatermarkRemoverScreen from '../screens/VideoWatermarkRemoverScreen';
 import ImageWatermarkRemoverScreen from '../screens/ImageWatermarkRemoverScreen';
 import ImageUpscalerScreen from '../screens/ImageUpscalerScreen';
@@ -125,7 +126,7 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
   const videoTools = [
     { icon: 'videocam-outline' as const, label: 'Text to Video', route: 'TextToVideoScreen' },
     { icon: 'images-outline' as const, label: 'Image to Video', route: 'ImageToVideoScreen' },
-    { icon: 'cut-outline' as const, label: 'Background Remover', route: 'BackgroundRemoverScreen' },
+    { icon: 'flash-outline' as const, label: 'Video Effects', route: 'VideoEffectsScreen' },
     { icon: 'expand-outline' as const, label: 'Video Upscaler', route: 'VideoUpscalerScreen' },
     { icon: 'water-outline' as const, label: 'Watermark Remover', route: 'VideoWatermarkRemoverScreen' },
   ];
@@ -160,7 +161,7 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
       {/* Z99 Brand Header */}
       <View style={styles.brandHeader}>
         <Ionicons name="sparkles" size={24} color={colors.primary} />
-        <Text style={styles.brandName}>{t('app.name')}</Text>
+        <Text style={styles.brandName}>Z99</Text>
       </View>
 
       {/* Primary Section */}
@@ -387,6 +388,8 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ navigation }) => {
         return <CustomGPTLibraryScreen />;
       case 'GPTToolsScreen':
         return <GPTToolsScreen />;
+      case 'VideoEffectsScreen':
+        return <VideoEffectsScreen />;
       case 'VideoUpscalerScreen':
         return <VideoUpscalerScreen />;
       case 'ImageUpscalerScreen':

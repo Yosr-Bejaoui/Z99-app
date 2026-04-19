@@ -267,6 +267,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   summaryCard: {
     marginBottom: spacing.xl,
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontSize: 13,
     color: colors.textMuted,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
   summaryValue: {
     fontSize: 24,
@@ -302,7 +303,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.foreground,
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
     marginBottom: spacing.sm,
   },
   emptySubtitle: {
@@ -314,20 +315,20 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   invoiceCard: {
-    marginBottom: 0,
+    marginBottom: spacing.xs,
   },
   invoiceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   invoiceInfo: {},
   invoiceNumber: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: 2,
+    marginBottom: spacing.xs,
   },
   invoiceDate: {
     fontSize: 13,
@@ -373,7 +374,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     paddingVertical: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.border,

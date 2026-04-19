@@ -496,21 +496,26 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 16,
-    color: colors.textMuted},
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+  },
   imageCard: {
     },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    marginBottom: spacing.xs},
+    marginBottom: spacing.sm},
   sectionSubtitle: {
     fontSize: 13,
     color: colors.textMuted,
-    },
+    marginBottom: spacing.sm,
+  },
   imageButtons: {
     flexDirection: 'row',
-    gap: spacing.lg},
+    gap: spacing.lg,
+    marginTop: spacing.sm,
+  },
   imageButton: {
     flex: 1,
     alignItems: 'center',
@@ -563,7 +568,7 @@ const styles = StyleSheet.create({
   qualityRow: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: spacing.sm},
+    marginTop: spacing.md},
   qualityButton: {
     flex: 1,
     alignItems: 'center',
@@ -579,7 +584,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: 2},
+    marginBottom: spacing.sm},
   qualityLabelSelected: {
     color: colors.primary},
   qualityTime: {
@@ -588,7 +593,7 @@ const styles = StyleSheet.create({
   formatRow: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: spacing.sm},
+    marginTop: spacing.md},
   formatButton: {
     flex: 1,
     alignItems: 'center',
@@ -605,7 +610,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginTop: spacing.sm,
-    marginBottom: 2},
+    marginBottom: spacing.sm},
   formatLabelSelected: {
     color: colors.primary},
   formatDescription: {
@@ -614,7 +619,9 @@ const styles = StyleSheet.create({
     textAlign: 'center'},
   generateButtonContainer: {
     marginVertical: spacing.lg},
-  resultCard: {overflow: 'hidden'},
+  resultCard: {overflow: 'hidden',
+    marginTop: spacing.sm,
+  },
   generatingContainer: {
     position: 'relative'},
   processingImage: {
@@ -635,7 +642,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.md},
+    marginTop: spacing.sm},
   generatingSubtext: {
     color: colors.textMuted,
     fontSize: 13,
@@ -662,7 +669,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing.md},
+    marginTop: spacing.sm},
   resultFormat: {
     color: colors.primary,
     fontSize: 14,
@@ -670,12 +677,12 @@ const styles = StyleSheet.create({
   resultSize: {
     color: colors.textMuted,
     fontSize: 12,
-    marginTop: 2},
+    marginTop: spacing.xs},
   modelActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingTop: spacing.lg,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.border},
   actionButton: {

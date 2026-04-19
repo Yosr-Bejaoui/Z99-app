@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
+import { SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 import {
   View,
   Text,
@@ -144,20 +146,9 @@ const TextRemoverScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={openDrawer}>
-          <Ionicons name="menu-outline" size={24} color={colors.textSecondary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Text Remover</Text>
-        <View style={styles.headerButton}>
-          <View style={styles.coinBadge}>
-            <Text style={styles.coinIcon}>??</Text>
-              <Text style={styles.coinBadgeText}>🪙 {credits?.credits || 0}</Text>
-          
-      </View>
-      </View>
-      </View>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{flex: 1}}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+      <ScreenHeader title="Text Remover" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
          <GlassCard style={styles.card}>
             <Text style={styles.title}>Remove Text from Image</Text>
@@ -179,7 +170,7 @@ const TextRemoverScreen: React.FC = () => {
                     title={isProcessing ? "Processing..." : `Remove Text (${model?.base_cost || 20} credits)`}
                     onPress={processImage}
                     disabled={isProcessing}
-                    style={{ marginTop: spacing.lg }}
+                    style={{ marginTop: spacing.md }}
                     icon={isProcessing ? <ActivityIndicator color={colors.white} /> : <Ionicons name="color-wand" size={20} color={colors.white} />}
                 />
             )}
@@ -191,14 +182,15 @@ const TextRemoverScreen: React.FC = () => {
                      <GradientButton
                          title="Download"
                          onPress={downloadResult}
-                         style={{ marginTop: spacing.md }}
+                         style={{ marginTop: spacing.sm }}
                          icon={<Ionicons name="download-outline" size={20} color={colors.white} />}
                      />
                 </View>
             )}
          </GlassCard>
       </ScrollView>
-    </View>
+    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -214,18 +206,19 @@ const styles = StyleSheet.create({
   scrollContent: { gap: spacing.lg, padding: spacing.lg },
   card: { padding: spacing.lg, alignItems: 'center' },
   title: { fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.sm },
-  desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl },
+  desc: { fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.sm },
   imageSelector: {
       width: '100%', aspectRatio: 1, borderRadius: borderRadius.lg,
       borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', borderStyle: 'solid',
-      overflow: 'hidden', backgroundColor: colors.surface
+      overflow: 'hidden', backgroundColor: colors.surface,
+    marginTop: spacing.sm,
   },
   previewImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   placeholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  placeholderText: { color: colors.textMuted, marginTop: spacing.md },
+  placeholderText: { color: colors.textMuted, marginTop: spacing.sm },
   resultContainer: { width: '100%', marginTop: spacing.xl },
   resultTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.sm },
-  downloadBtn: { flexDirection: 'row', backgroundColor: colors.success, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
+  downloadBtn: { flexDirection: 'row', backgroundColor: colors.success, padding: spacing.md, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
 
     coinBadge: {
     backgroundColor: 'rgba(245, 158, 11, 0.1)',

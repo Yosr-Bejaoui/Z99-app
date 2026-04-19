@@ -62,7 +62,10 @@ const AboutScreen: React.FC<AboutScreenProps> = ({ navigation }) => {
         <GlassCard style={styles.descriptionCard}>
           <Text style={styles.sectionTitle}>{t('about.aboutTitle')}</Text>
           <Text style={styles.descriptionText}>
-            Your all-in-one AI assistant for image generation, video creation, text-to-speech, and more.
+            Z99 is a powerful multi-modal AI hub that connects you with cutting-edge models like GPT-4, Claude, Gemini, and Stable Diffusion.
+          </Text>
+          <Text style={[styles.descriptionText, { marginTop: spacing.sm }]}>
+            Beyond generating text, code, and stunning images, we believe in community-driven AI. You can generate ultra-realistic voice clips, create dynamic videos, earn rewards by inviting friends, and even donate credits to empower fellow creators.
           </Text>
         </GlassCard>
 
@@ -138,7 +141,7 @@ const styles = StyleSheet.create({
     backgroundColor: `${colors.primary}20`,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   appName: {
     fontSize: 24,
@@ -152,13 +155,13 @@ const styles = StyleSheet.create({
   },
   descriptionCard: {
     padding: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   descriptionText: {
     fontSize: 14,
@@ -167,7 +170,7 @@ const styles = StyleSheet.create({
   },
   linksCard: {
     padding: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   linkItem: {
     flexDirection: 'row',
@@ -191,7 +194,7 @@ const styles = StyleSheet.create({
   },
   legalCard: {
     padding: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     alignItems: 'center',
   },
   copyrightText: {

@@ -32,7 +32,7 @@ const ReferralScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [codeToApply, setCodeToApply] = useState('');
   const [isApplying, setIsApplying] = useState(false);
-  const { navigateTo } = useDrawer();
+  const { navigateTo, openDrawer } = useDrawer();
 
   useEffect(() => {
     fetchReferralData();
@@ -103,9 +103,9 @@ const ReferralScreen: React.FC = () => {
       <View style={styles.topHeader}>
         <TouchableOpacity 
           style={styles.backButton} 
-          onPress={() => navigateTo('ChatScreen')}
+          onPress={() => openDrawer()}
         >
-          <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
+          <Ionicons name="menu" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
       <ScrollView
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: spacing.xl,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   headerTitle: {
     fontSize: 28,
@@ -246,11 +246,12 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   card: {
     padding: spacing.xl,
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   iconContainer: {
     width: 80,
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary + '20',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   iconContainerSmall: {
     width: 60,
@@ -268,7 +269,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.warning + '20',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   cardTitle: {
     fontSize: 20,
@@ -323,7 +324,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     gap: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   statCard: {
     flex: 1,
@@ -340,6 +341,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 12,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -377,3 +379,4 @@ const styles = StyleSheet.create({
 });
 
 export default ReferralScreen;
+

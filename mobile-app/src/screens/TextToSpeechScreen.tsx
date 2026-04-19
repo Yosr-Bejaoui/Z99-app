@@ -486,20 +486,22 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   textCard: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   textHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
+    marginBottom: spacing.sm,
   },
   charCount: {
     fontSize: 12,
@@ -514,9 +516,10 @@ const styles = StyleSheet.create({
     minHeight: 140,
     borderWidth: 1,
     borderColor: colors.border,
+    marginTop: spacing.md,
   },
   section: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   optionScroll: {
     gap: 10,
@@ -545,7 +548,7 @@ const styles = StyleSheet.create({
   genderRow: {
     flexDirection: 'row',
     gap: spacing.md,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   genderButton: {
     flex: 1,
@@ -624,12 +627,14 @@ const styles = StyleSheet.create({
   sliderLabel: {
     color: colors.textMuted,
     fontSize: 12,
+    marginBottom: spacing.sm,
   },
   generateButtonContainer: {
     marginVertical: spacing.lg,
   },
   audioCard: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
+    marginTop: spacing.md,
   },
   generatingContainer: {
     flexDirection: 'row',

@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     paddingTop: spacing.sm,
   },
   notificationButton: {
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderColor: colors.error,
     gap: spacing.sm,
@@ -462,12 +462,12 @@ const styles = StyleSheet.create({
   },
   balanceCard: {
     padding: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   balanceHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   balanceIcon: {
     width: 44,
@@ -482,6 +482,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textMuted,
     fontWeight: '500',
+    marginBottom: spacing.sm,
   },
   balanceValue: {
     fontSize: 44,
@@ -492,10 +493,10 @@ const styles = StyleSheet.create({
   bonusCredits: {
     fontSize: 14,
     color: colors.success,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   progressContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   progressBar: {
     height: 8,
@@ -542,7 +543,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textPrimary,
     fontWeight: '600',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   promoRow: {
     flexDirection: 'row',
@@ -581,13 +582,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: spacing.md,
+    
   },
   statCard: {
     width: '48%',
@@ -595,7 +596,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.border,    marginBottom: spacing.md,
   },
   statIcon: {
     width: 40,
@@ -603,7 +604,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   statValue: {
     fontSize: 24,
@@ -614,6 +615,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 13,
     color: colors.textMuted,
+    marginBottom: spacing.sm,
   },
   packagesScroll: {
     marginHorizontal: -4,
@@ -634,7 +636,7 @@ const styles = StyleSheet.create({
   bestValueBadge: {
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: spacing.xs,
     borderRadius: 10,
     marginBottom: spacing.sm,
   },
@@ -651,7 +653,7 @@ const styles = StyleSheet.create({
   packageCreditsLabel: {
     fontSize: 12,
     color: colors.textMuted,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
   packageBonus: {
     fontSize: 12,
@@ -695,7 +697,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   modalTitle: {
     fontSize: 18,
@@ -732,7 +734,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textPrimary,
     fontWeight: '500',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
   },
   txDate: {
     fontSize: 12,

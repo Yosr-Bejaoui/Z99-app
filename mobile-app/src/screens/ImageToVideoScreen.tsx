@@ -443,17 +443,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs},
   headerSubtitle: {
     fontSize: 16,
-    color: colors.textMuted},
+    color: colors.textMuted,
+    marginBottom: spacing.sm,
+  },
   imageCard: {
     },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.foreground,
-    },
+    marginBottom: spacing.sm,
+  },
   imageButtons: {
     flexDirection: 'row',
-    gap: spacing.lg},
+    gap: spacing.lg,
+    marginTop: spacing.sm,
+  },
   imageButton: {
     flex: 1,
     alignItems: 'center',
@@ -492,7 +497,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     minHeight: 80,
     borderWidth: 1,
-    borderColor: colors.border},
+    borderColor: colors.border,
+    marginTop: spacing.md,
+  },
   section: {
     },
   optionScroll: {
@@ -515,7 +522,9 @@ const styles = StyleSheet.create({
     color: colors.primary},
   motionRow: {
     flexDirection: 'row',
-    gap: 10},
+    gap: 10,
+    marginTop: spacing.md,
+  },
   motionButton: {
     flex: 1,
     alignItems: 'center',
@@ -532,7 +541,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: spacing.xs},
+    marginBottom: spacing.sm},
   motionLabelSelected: {
     color: colors.primary},
   motionDescription: {
@@ -562,7 +571,7 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     fontSize: 16,
     fontWeight: '600',
-    marginTop: spacing.md},
+    marginTop: spacing.sm},
   videoPlayer: {
     width: '100%',
     height: 200,
@@ -571,12 +580,12 @@ const styles = StyleSheet.create({
   videoPrompt: {
     color: colors.textMuted,
     fontSize: 13,
-    marginTop: spacing.md},
+    marginTop: spacing.sm},
   videoActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingTop: spacing.lg,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.border},
   actionButton: {

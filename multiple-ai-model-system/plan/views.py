@@ -156,186 +156,125 @@ import random
 class VerifyGooglePurchaseView(APIView):
     permission_classes=[permissions.IsAuthenticated]
     def post(self, request):
+        import hashlib
+
         plan_id = request.data.get("plan")
         purchase_token = request.data.get("purchase_token")
-        user=request.user
-        
+        product_id = request.data.get("product_id")
+        user = request.user
+
+        if not plan_id:
+            return Response({"error": "Missing plan"}, status=status.HTTP_400_BAD_REQUEST)
+        if not purchase_token:
+            return Response({"error": "Missing purchase_token"}, status=status.HTTP_400_BAD_REQUEST)
+        if not product_id:
+            return Response({"error": "Missing product_id"}, status=status.HTTP_400_BAD_REQUEST)
+
         # 1️⃣ Fetch plan info
         plan = get_object_or_404(PlanModel, id=plan_id)
-        try:
-            plan=PlanModel.objects.get(id=plan_id)
-        except PlanModel.DoesNotExist:
-            return Response({
-                "error":"plan model not found"
-            })
-        # if not plan.subscription_duration=="one-time" and user.subscribed:
-        #         subscription=SubscriptionModel.objects.filter(user=user,status='active').first()
-        #         if subscription:
-        #                previous_subs_duration_type=subscription.duration_type
-        #                new_req_subs_duration_type=plan.subscription_duration
 
-        #                if new_req_subs_duration_type==previous_subs_duration_type:
-        #                   return Response({"message":f"Your {previous_subs_duration_type} Subscription already active Upgrade it or Wait for expired or Top Up one time  credits"})
-        #                if previous_subs_duration_type=="yearly" :
-        #                   return Response({"message":"Go With One Time Top Up or Wait Until the date expire of your subscription"})
-        #                if previous_subs_duration_type=="monthly" and new_req_subs_duration_type=='weekly':
-        #                  return Response({"message":"Go With One Time Top Up or Wait Until the date expire of your subscription"})
-        # if plan.subscription_duration !="one-time":
-        #             expire_date=None
-        #             if plan.subscription_duration=="weekly":
-        #                 expire_date=datetime.now(timezone.utc)+timedelta(days=7)
-        #             elif plan.subscription_duration=="monthly":
-        #                 expire_date=datetime.now(timezone.utc)+timedelta(days=30)
-        #             elif plan.subscription_duration=="yearly":
-        #                 expire_date=datetime.now(timezone.utc)+timedelta(days=365)
-
-        #             # subscription_id=metadata.get('subscription_id')
-        #             subs,created=SubscriptionModel.objects.get_or_create(
-        #             user=user,
-        #             plan=plan,
-        #             status="active",
-        #             defaults={
-        #             "price":plan.amount,
-        #             "credits_words":plan.words_or_credits,
-        #             "used_words":0,
-        #             "duration_type":plan.subscription_duration,
-        #             "start_date":datetime.now(timezone.utc),
-        #             "expire_date":expire_date,
-                    
-        #             }
-        #             )
-        #             print("subs ",subs.status),
-        #             print("created",created)
-                   
-        #             if not created:
-
-        #                 subs.price=plan.amount
-        #                 subs.credits_words+=plan.words_or_credits
-        #                 subs.used_words=0
-        #                 subs.duration_type=plan.subscription_duration
-        #                 subs.start_date=datetime.now(timezone.utc)
-        #                 subs.expire_date=expire_date
-                        
-        #                 subs.save()
-        #             user.subscribed=True
-        #             user.save()       
-        
-        
-        # product_id = plan.stripe_product_price_id
+        # Prevent buying one product_id and claiming another plan.
+        if product_id != plan.plan_code:
+            return Response(
+                {"error": "Product does not match plan"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # 2️⃣ Create credentials from service account
-        # credentials = service_account.Credentials.from_service_account_file(
-        #     settings.GOOGLE_SERVICE_ACCOUNT_FILE,
-        #     scopes=["https://www.googleapis.com/auth/androidpublisher"]
-        # )
-        # credentials.refresh(Request())
-        # access_token = credentials.token
-        # # 3️⃣ Verify purchase with Google Play API
-        # url = (
-        #     f"https://androidpublisher.googleapis.com/androidpublisher/v3/applications/"
-        #     f"{settings.GOOGLE_PACKAGE_NAME}/purchases/products/{product_id}/tokens/{purchase_token}"
-        # )
-        # headers = {"Authorization": f"Bearer {access_token}"}
-        # response = requests.get(url, headers=headers)
-        # data = response.json()
-        data=request.data
-        # orderId=data.get('OrderId')
-        orderId=random.randint(100000,999999)
+        try:
+            credentials = service_account.Credentials.from_service_account_file(
+                settings.GOOGLE_SERVICE_ACCOUNT_FILE,
+                scopes=["https://www.googleapis.com/auth/androidpublisher"],
+            )
+            credentials.refresh(Request())
+            access_token = credentials.token
+        except Exception:
+            return Response(
+                {"error": "Google Play credentials are not configured on the server"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        # 3️⃣ Verify purchase with Google Play API (one-time in-app products)
+        url = (
+            f"https://androidpublisher.googleapis.com/androidpublisher/v3/applications/"
+            f"{settings.GOOGLE_PACKAGE_NAME}/purchases/products/{product_id}/tokens/{purchase_token}"
+        )
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        try:
+            response = requests.get(url, headers=headers, timeout=15)
+            data = response.json()
+        except Exception:
+            return Response(
+                {"error": "Failed to verify purchase with Google Play"},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        # Idempotency: block token replay/double-credit.
+        order_id = data.get("orderId")
+        idempotency_key = order_id or hashlib.sha256(purchase_token.encode("utf-8")).hexdigest()[:32]
+        invoice_id = f"INV-{idempotency_key}"
+
+        if Invoice.objects.filter(invoice_id=invoice_id).exists():
+            return Response(
+                {
+                    "status": "success",
+                    "message": "Purchase already processed",
+                    "credits_added": 0,
+                }
+            )
 
         # 4️⃣ Check Google’s response
-        if data.get("purchaseState") == 0:  # 0 = purchased
-            try:
-                credit_account=CreditAccount.objects.get(user=user)
-            except CreditAccount.DoesNotExist:
-                credit_account=CreditAccount.objects.create(
-                    user=user
-                )
-
+        if response.status_code == 200 and data.get("purchaseState") == 0:  # 0 = purchased
+            credit_account, _ = CreditAccount.objects.get_or_create(user=user)
             credit_account.credits += plan.words_or_credits
             credit_account.save()
-            if credit_account:
-                CreditTransaction.objects.create(
-                    credit_account=credit_account,
-                    amount=plan.words_or_credits,
-                    transaction_type='add',
-                    message=f'{plan.words_or_credits} credits added successfully in you account'
 
-                )
-            
+            CreditTransaction.objects.create(
+                credit_account=credit_account,
+                amount=plan.words_or_credits,
+                transaction_type="add",
+                message=f"{plan.words_or_credits} credits added successfully in you account",
+            )
+
             # Unlock models for the user
             # Since this project treats coin purchases as enabling subscription features:
             if not user.subscribed:
                 user.subscribed = True
                 user.save()
 
-
-            # if plan.subscription_duration !="one-time":
-            #         expire_date=None
-            #         if plan.subscription_duration=="weekly":
-            #             expire_date=datetime.now(timezone.utc)+timedelta(days=7)
-            #         elif plan.subscription_duration=="monthly":
-            #             expire_date=datetime.now(timezone.utc)+timedelta(days=30)
-            #         elif plan.subscription_duration=="yearly":
-            #             expire_date=datetime.now(timezone.utc)+timedelta(days=365)
-
-            #         # subscription_id=metadata.get('subscription_id')
-            #         subs,created=SubscriptionModel.objects.get_or_create(
-            #         user=user,
-            #         plan=plan,
-            #         defaults={
-            #         "price":plan.amount,
-            #         "credits_words":plan.words_or_credits,
-            #         "used_words":0,
-            #         "duration_type":plan.subscription_duration,
-            #         "start_date":datetime.now(timezone.utc),
-            #         "expire_date":expire_date,
-                    
-            #         }
-            #         )
-            #         print("subs ",subs),
-            #         print("created",created)
-                   
-            #         if not created:
-
-            #             subs.price=plan.amount
-            #             subs.credits_words+=plan.words_or_credits
-            #             subs.used_words=0
-            #             subs.duration_type=plan.subscription_duration
-            #             subs.start_date=datetime.now(timezone.utc)
-            #             subs.expire_date=expire_date
-                        
-            #             subs.save()
-            #         user.subscribed=True
-            #         user.save()
-            
             Revenue.objects.create(
-                    user=user,
-                    plan=plan,
-                    amount=plan.amount,
-                    payment_id=orderId
-                    
-                )
+                user=user,
+                plan=plan,
+                amount=plan.amount,
+                payment_id=idempotency_key,
+            )
 
             Invoice.objects.create(
-                invoice_id=f"INV-{orderId}",
+                invoice_id=invoice_id,
                 user=user,
                 plan=plan,
                 amount=plan.amount,
                 payment_status="paid",
-                words=plan.words_or_credits
+                words=plan.words_or_credits,
             )
 
-            return Response({
-                "status": "success",
-                "message": f"{plan.name} plan activated",
-                "credits_added": plan.words_or_credits
-            })
+            return Response(
+                {
+                    "status": "success",
+                    "message": f"{plan.name} plan activated",
+                    "credits_added": plan.words_or_credits,
+                }
+            )
 
-        return Response({
-            "status": "failed",
-            "message": "Invalid or unverified purchase",
-            "google_response": data
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {
+                "status": "failed",
+                "message": "Invalid or unverified purchase",
+                "google_response": data,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 

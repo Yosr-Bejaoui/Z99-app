@@ -227,13 +227,17 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',     
     backgroundColor: colors.surface
   },
-  uploadText: { marginTop: spacing.md, color: colors.textSecondary, fontSize: 16, fontWeight: '500' },
+  uploadText: { marginTop: spacing.sm, color: colors.textSecondary, fontSize: 16, fontWeight: '500' },
   mockMedia: { alignItems: 'center', justifyContent: 'center' },
   uploadTextDark: { marginTop: spacing.sm, color: colors.success, fontSize: 16, fontWeight: '600' },
   
   dropdownContainer: { width: '100%', marginTop: spacing.xl },
-  dropdownLabel: { color: colors.white, fontSize: 14, fontWeight: '600',  },
-  resolutionRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  dropdownLabel: { color: colors.white, fontSize: 14, fontWeight: '600',
+    marginBottom: spacing.sm,
+  },
+  resolutionRow: { flexDirection: 'row', justifyContent: 'space-between',
+    marginTop: spacing.md,
+  },
   resOption: { flex: 1, marginHorizontal: spacing.xs, paddingVertical: spacing.sm, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
   resOptionActive: { borderColor: colors.primary, backgroundColor: 'rgba(16, 163, 127, 0.15)' },
   resText: { color: colors.textSecondary, fontWeight: '600' },
@@ -243,9 +247,11 @@ const styles = StyleSheet.create({
     width: '100%', height: 220,
     alignItems: 'center', justifyContent: 'center'
   },
-  processingText: { marginTop: spacing.lg, color: colors.primary, fontSize: 16, fontWeight: '600' },
+  processingText: { marginTop: spacing.md, color: colors.primary, fontSize: 16, fontWeight: '600' },
 
-  resultCard: { width: '100%', alignItems: 'center',  },
+  resultCard: { width: '100%', alignItems: 'center',
+    marginTop: spacing.sm,
+  },
   videoPreview: {
     width: '100%', height: 250,
     backgroundColor: '#000000',
@@ -257,7 +263,9 @@ const styles = StyleSheet.create({
   },
     splitLeft: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: spacing.md },
     splitRight: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-start', padding: spacing.md, alignItems: 'flex-end' },
-  splitLabel: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: spacing.sm, borderRadius: 4, marginTop: spacing.xxl },
+  splitLabel: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: spacing.sm, borderRadius: 4, marginTop: spacing.xxl,
+    marginBottom: spacing.sm,
+  },
   splitLabelRight: { color: colors.foreground, fontSize: 12, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: spacing.sm, borderRadius: 4, marginTop: spacing.xxl },
   
   sliderHandle: { position: 'absolute', top: 0, bottom: 0, left: '50%', width: 2, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
@@ -272,7 +280,7 @@ const styles = StyleSheet.create({
   previewText: { color: colors.white, fontSize: 12, fontWeight: '700' },
   fullscreenIcon: { position: 'absolute', bottom: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.4)', padding: spacing.sm, borderRadius: 8, zIndex: 20 },
 
-  toggleOptions: { marginTop: spacing.lg, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 20, backgroundColor: colors.backgroundTertiary },
+  toggleOptions: { marginTop: spacing.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 20, backgroundColor: colors.backgroundTertiary },
   toggleOptionsText: { color: colors.textSecondary, fontWeight: '600' },
 
   optionsCard: {
