@@ -31,16 +31,9 @@ const bundleHost = getBundleHost();
 const defaultApiHost = bundleHost || (Platform.OS === 'android' ? '10.0.2.2' : 'localhost');
 const defaultApiBaseUrl = `http://${defaultApiHost}:8000/api/v1`;
 const envApiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
-const envApiHost = getHostFromUrl(envApiBaseUrl);
-
-// Only force emulator loopback when Metro bundle host explicitly resolves to 10.0.2.2.
-// In standalone APK builds, bundleHost is often null and should not be treated as emulator.
-const isAndroidEmulator = Platform.OS === 'android' && bundleHost === '10.0.2.2';
-// Force API URL to local network IP for testing
-const webHost = Platform.OS === 'web' ? '172.18.133.67' : null;
 
 // Use explicitly defined environment variable if provided, otherwise fallback to bundle host
-const configuredApiBaseUrl = 'http://10.214.117.121:8000/api/v1'; // HARDCODED for reliability
+const configuredApiBaseUrl = envApiBaseUrl || defaultApiBaseUrl;
 export const API_BASE_URL = configuredApiBaseUrl.replace(/\/+$/, '');
 
 // WebSocket URL for real-time chat
