@@ -2,7 +2,7 @@
 
 A comprehensive mobile application and backend platform that integrates multiple leading AI providers (OpenAI, DeepSeek, Leonardo, and more) into a single unified experience. Users can interact with various models to generate text, create stunning images, edit media, and manage their subscription plans.
 
-## 🚀 Features
+## Features
 
 - **Multi-Model Chat**: Seamlessly switch between different LLMs for text generation and assistance.
 - **AI Image Generation & Editing**: Advanced image capabilities including text-to-image, upscaling, and 3D conversions.
@@ -10,14 +10,14 @@ A comprehensive mobile application and backend platform that integrates multiple
 - **Subscription Management**: Integrated Stripe billing for various tier plans.
 - **Modern Mobile UI**: Built with React Native & Expo for a smooth, native-feeling iOS and Android experience.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Mobile Frontend**: React Native, Expo, React Navigation, Axios, Reanimated.
 - **Backend API**: Python, Django, Django REST Framework, Daphne (ASGI).
 - **Database**: SQLite (Development) / PostgreSQL (Production).
 - **Background Tasks**: Celery & Redis.
 
-## ⚙️ Local Development Setup
+## Local Development Setup
 
 ### 1. Backend Setup (Django)
 
@@ -66,7 +66,7 @@ npx expo start -c
 ```
 *Note: The `-c` flag is important to clear the cache if you just changed your `.env` IP address!*
 
-## 🔑 Default Accounts (Development)
+## Default Accounts (Development)
 You can use the following default Admin account in the local database:
 - **Email:** `admin@admin.com`
 - **Password:** `admin123`
